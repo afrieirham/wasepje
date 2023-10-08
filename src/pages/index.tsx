@@ -6,6 +6,7 @@ import {
   useUser,
 } from "@clerk/nextjs";
 import Head from "next/head";
+import { Button } from "~/components/ui/button";
 import { api } from "~/utils/api";
 
 export default function Home() {
@@ -24,11 +25,15 @@ export default function Home() {
       <main>
         <SignedIn>
           <p>Hello World</p>
-          <SignOutButton />
+          <SignOutButton>
+            <Button>Logout</Button>
+          </SignOutButton>
         </SignedIn>
 
         <SignedOut>
-          <SignInButton />
+          <SignInButton>
+            <Button>Login</Button>
+          </SignInButton>
         </SignedOut>
       </main>
     </>
