@@ -12,6 +12,7 @@
     "studio": "prisma studio"
   },
   "dependencies": {
+    "@clerk/nextjs": "^4.25.3",
     "@prisma/client": "^5.1.1",
     "@t3-oss/env-nextjs": "^0.6.0",
     "@tanstack/react-query": "^4.32.6",
