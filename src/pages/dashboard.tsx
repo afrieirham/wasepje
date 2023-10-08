@@ -1,5 +1,6 @@
-import { type FormEvent, useState } from "react";
 import { UserButton } from "@clerk/nextjs";
+import { useEffect, useState, type FormEvent } from "react";
+import slugify from "slugify";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -19,15 +20,34 @@ type Link = {
 };
 
 export default function Dashboard() {
+  const [host, setHost] = useState("");
+
   const [links, setLinks] = useState<Link[]>([]);
   const [open, setOpen] = useState(false);
+
+  const [name, setName] = useState("");
+  const [slug, setSlug] = useState("");
+
+  const resetFormFields = () => {
+    setName("");
+    setSlug("");
+  };
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const data = Object.fromEntries(new FormData(e.currentTarget)) as Link;
     setLinks([...links, data]);
     setOpen(false);
+
+    resetFormFields();
   };
+
+  // to make sure it'll only run in client
+  useEffect(() => {
+    if (window) {
+      setHost(window.location.host);
+    }
+  }, []);
 
   return (
     <>
@@ -60,6 +80,16 @@ export default function Dashboard() {
                         id="name"
                         name="name"
                         placeholder="Syarikat Saya"
+                        value={name}
+                        onChange={(e) => {
+                          setName(e.target.value);
+                          setSlug(
+                            slugify(e.target.value, {
+                              lower: true,
+                              strict: true,
+                            }),
+                          );
+                        }}
                       />
                     </div>
                     <div className="flex flex-col gap-2">
@@ -70,9 +100,11 @@ export default function Dashboard() {
                         id="slug"
                         name="slug"
                         placeholder="syarikat-saya"
+                        value={slug}
+                        onChange={(e) => setSlug(e.target.value.trim())}
                       />
                       <p className="text-muted-foreground text-xs">
-                        mesejkami.com/syarikat-saya
+                        {host}/{slug}
                       </p>
                     </div>
                   </div>
