@@ -13,6 +13,7 @@ import {
 } from "~/components/ui/dialog";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import { api } from "~/utils/api";
 
 type Link = {
   name: string;
@@ -20,9 +21,11 @@ type Link = {
 };
 
 export default function Dashboard() {
+  const { data } = api.link.getAll.useQuery();
+  const { mutate } = api.link.create.useMutation();
   const [host, setHost] = useState("");
 
-  const [links, setLinks] = useState<Link[]>([]);
+  const [links, setLinks] = useState<Link[] | undefined>(data);
   const [open, setOpen] = useState(false);
 
   const [name, setName] = useState("");
@@ -35,10 +38,16 @@ export default function Dashboard() {
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const data = Object.fromEntries(new FormData(e.currentTarget)) as Link;
-    setLinks([...links, data]);
-    setOpen(false);
+    const formData = Object.fromEntries(new FormData(e.currentTarget)) as Link;
 
+    if (links) {
+      setLinks([...links, formData]);
+    } else {
+      setLinks([formData]);
+    }
+
+    mutate(formData);
+    setOpen(false);
     resetFormFields();
   };
 
@@ -103,7 +112,7 @@ export default function Dashboard() {
                         value={slug}
                         onChange={(e) => setSlug(e.target.value.trim())}
                       />
-                      <p className="text-muted-foreground text-xs">
+                      <p className="text-xs text-muted-foreground">
                         {host}/{slug}
                       </p>
                     </div>
@@ -117,7 +126,7 @@ export default function Dashboard() {
           </div>
         </div>
         <div className="mx-auto flex w-full max-w-screen-xl flex-col justify-between px-6 ">
-          {links.map((link, i) => (
+          {links?.map((link, i) => (
             <div key={i}>
               <p>{link.name}</p>
               <p>{link.slug}</p>
