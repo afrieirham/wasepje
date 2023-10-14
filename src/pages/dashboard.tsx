@@ -21,8 +21,14 @@ type Link = {
 };
 
 export default function Dashboard() {
+  const ctx = api.useContext();
+
   const { data } = api.link.getAll.useQuery();
-  const { mutate } = api.link.create.useMutation();
+  const { mutate } = api.link.create.useMutation({
+    onSuccess: () => {
+      void ctx.link.getAll.invalidate();
+    },
+  });
   const [host, setHost] = useState("");
 
   const [links, setLinks] = useState<Link[] | undefined>(data);
