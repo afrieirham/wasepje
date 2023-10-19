@@ -1,4 +1,5 @@
 import { UserButton } from "@clerk/nextjs";
+import copy from "copy-to-clipboard";
 import { useEffect, useState, type FormEvent } from "react";
 import slugify from "slugify";
 import { Button } from "~/components/ui/button";
@@ -13,6 +14,8 @@ import {
 } from "~/components/ui/dialog";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import { useToast } from "~/components/ui/use-toast";
+
 import { api } from "~/utils/api";
 
 type Link = {
@@ -122,15 +125,97 @@ export default function Dashboard() {
             </Dialog>
           </div>
         </div>
-        <div className="mx-auto flex w-full max-w-screen-xl flex-col justify-between px-6 ">
-          {data?.map((link, i) => (
-            <div key={i}>
-              <p>{link.name}</p>
-              <p>{link.slug}</p>
-            </div>
+        <div className="mx-auto flex w-full max-w-screen-xl flex-col justify-between px-2 sm:px-6">
+          {data?.map((link) => (
+            <LinkItem link={link} host={host} key={link.id} />
           ))}
         </div>
       </main>
     </>
+  );
+}
+
+function LinkItem({ link, host }: { link: Link; host: string }) {
+  const { toast } = useToast();
+
+  const url = `${host}/${link.slug}`;
+
+  const onClickCopy = () => {
+    copy(url);
+    toast({ title: "Link Copied!", description: url });
+  };
+
+  return (
+    <div className="mt-2 flex items-center justify-between rounded border bg-white p-4 hover:border-zinc-400">
+      <div className="flex flex-col justify-center space-y-1">
+        <p className="font-semibold">{link.name}</p>
+        <p className="text-xs text-zinc-500">{url}</p>
+      </div>
+      <div className="flex">
+        <a
+          target="_blank"
+          href={url}
+          className="flex h-9 items-center justify-center whitespace-nowrap rounded-s border border-e-0 p-2 text-sm font-medium ring-offset-background transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-opacity-30 disabled:text-muted disabled:hover:bg-opacity-30 disabled:hover:text-muted"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            className="h-4 w-4"
+          >
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <line x1="10" x2="21" y1="14" y2="3"></line>
+          </svg>
+        </a>
+        <button
+          onClick={onClickCopy}
+          className="flex h-9 min-h-[36px] min-w-[36px] items-center justify-center whitespace-nowrap rounded-none border p-2 text-sm font-medium ring-offset-background transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-opacity-30 disabled:text-muted disabled:hover:bg-opacity-30 disabled:hover:text-muted"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            className="h-4 w-4"
+          >
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+          </svg>
+        </button>
+        <button
+          className="flex h-9 min-h-[36px] min-w-[36px] items-center justify-center whitespace-nowrap rounded-e border border-s-0 p-2 text-sm font-medium ring-offset-background transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-opacity-30 disabled:text-muted disabled:hover:bg-opacity-30 disabled:hover:text-muted"
+          type="button"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            className="h-4 w-4"
+          >
+            <circle cx="12" cy="12" r="1"></circle>
+            <circle cx="19" cy="12" r="1"></circle>
+            <circle cx="5" cy="12" r="1"></circle>
+          </svg>
+        </button>
+      </div>
+    </div>
   );
 }
