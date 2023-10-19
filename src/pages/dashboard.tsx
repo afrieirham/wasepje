@@ -1,6 +1,6 @@
 import { UserButton } from "@clerk/nextjs";
 import copy from "copy-to-clipboard";
-import { Pencil, Trash } from "lucide-react";
+import { Pencil, Plus, Trash } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 import slugify from "slugify";
 import { Button } from "~/components/ui/button";
@@ -45,6 +45,7 @@ export default function Dashboard() {
   const [host, setHost] = useState("");
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
+  const [phones, setPhones] = useState([{ value: "" }]);
 
   const resetFormFields = () => {
     setName("");
@@ -65,6 +66,29 @@ export default function Dashboard() {
       setHost(window.location.host);
     }
   }, []);
+
+  const onAddPhoneNumber = () => {
+    setPhones([...phones, { value: "" }]);
+  };
+
+  const onDeletePhone = (index: number) => {
+    const newPhones = phones.filter((_phone, i) => i !== index);
+    setPhones(newPhones);
+  };
+
+  const setPhoneValue = (value: string, index: number) => {
+    const updatedPhones = phones.map((phone, i) => {
+      if (i === index) {
+        return {
+          ...phone,
+          value,
+        };
+      }
+      return phone;
+    });
+
+    setPhones(updatedPhones);
+  };
 
   return (
     <>
@@ -123,6 +147,43 @@ export default function Dashboard() {
                       <p className="text-xs text-muted-foreground">
                         {host}/{slug}
                       </p>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <Label>Phone Number</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Include country code.
+                      </p>
+                      {phones?.map((phone, i) => (
+                        <div key={i} className="flex space-x-1">
+                          <Input
+                            required
+                            type="tel"
+                            name="phone"
+                            placeholder="60131231234"
+                            value={phone.value}
+                            onChange={(e) =>
+                              setPhoneValue(e.target.value.trim(), i)
+                            }
+                          />
+                          {phones.length > 1 && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              onClick={() => onDeletePhone(i)}
+                            >
+                              <Trash className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      ))}
+
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={onAddPhoneNumber}
+                      >
+                        <Plus className="mr-2 h-4 w-4" /> Add phone number
+                      </Button>
                     </div>
                   </div>
                   <DialogFooter>
