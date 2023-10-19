@@ -54,8 +54,11 @@ export default function Dashboard() {
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = Object.fromEntries(new FormData(e.currentTarget)) as Link;
-    mutate(formData);
+    const { name, slug } = Object.fromEntries(
+      new FormData(e.currentTarget),
+    ) as Link;
+
+    mutate({ name, slug, phones });
     setOpen(false);
     resetFormFields();
   };
@@ -158,7 +161,7 @@ export default function Dashboard() {
                           <Input
                             required
                             type="tel"
-                            name="phone"
+                            name={`phone-${i}`}
                             placeholder="60131231234"
                             value={phone.value}
                             onChange={(e) =>

@@ -15,6 +15,11 @@ export const linkRouter = createTRPCRouter({
       z.object({
         name: z.string().trim(),
         slug: z.string().trim().toLowerCase(),
+        phones: z.array(
+          z.object({
+            value: z.string().trim(),
+          }),
+        ),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -25,6 +30,14 @@ export const linkRouter = createTRPCRouter({
           authorId,
           name: input.name,
           slug: input.slug,
+          phones: {
+            createMany: {
+              data: input.phones.map((p) => ({ number: p.value })),
+            },
+          },
+        },
+        include: {
+          phones: true,
         },
       });
 

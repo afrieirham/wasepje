@@ -15,6 +15,16 @@ model Link {
     name      String
     slug      String
     authorId  String
+    phones    Phone[]
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Phone {
+    id        String   @id @default(cuid())
+    number    String
+    linkId    String
+    link      Link     @relation(fields: [linkId], references: [id])
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 }
