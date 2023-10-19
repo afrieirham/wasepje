@@ -72,8 +72,6 @@ const addToRemoveQueue = (toastId: string) => {
 export const reducer = (state: State, action: Action): State => {
   switch (action.type) {
     case "ADD_TOAST":
-      console.log("=======>", "ADD_TOAST", state);
-
       return {
         ...state,
         toasts: [action.toast, ...state.toasts].slice(0, TOAST_LIMIT),
@@ -140,7 +138,6 @@ function dispatch(action: Action) {
 type Toast = Omit<ToasterToast, "id">;
 
 function toast({ ...props }: Toast) {
-  console.log("===>", "toast");
   const id = genId();
 
   const update = (props: ToasterToast) =>
@@ -173,7 +170,6 @@ function useToast() {
   const [state, setState] = React.useState<State>(memoryState);
 
   React.useEffect(() => {
-    console.log("state ====>", state);
     listeners.push(setState);
     return () => {
       const index = listeners.indexOf(setState);
