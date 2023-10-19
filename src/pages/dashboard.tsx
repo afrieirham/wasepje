@@ -29,11 +29,9 @@ export default function Dashboard() {
       void ctx.link.getAll.invalidate();
     },
   });
-  const [host, setHost] = useState("");
 
-  const [links, setLinks] = useState<Link[] | undefined>(data);
   const [open, setOpen] = useState(false);
-
+  const [host, setHost] = useState("");
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
 
@@ -45,13 +43,6 @@ export default function Dashboard() {
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = Object.fromEntries(new FormData(e.currentTarget)) as Link;
-
-    if (links) {
-      setLinks([...links, formData]);
-    } else {
-      setLinks([formData]);
-    }
-
     mutate(formData);
     setOpen(false);
     resetFormFields();
@@ -132,7 +123,7 @@ export default function Dashboard() {
           </div>
         </div>
         <div className="mx-auto flex w-full max-w-screen-xl flex-col justify-between px-6 ">
-          {links?.map((link, i) => (
+          {data?.map((link, i) => (
             <div key={i}>
               <p>{link.name}</p>
               <p>{link.slug}</p>
