@@ -24,7 +24,7 @@ model Phone {
     id        String   @id @default(cuid())
     number    String
     linkId    String
-    link      Link     @relation(fields: [linkId], references: [id])
+    link      Link     @relation(fields: [linkId], references: [id], onDelete: Cascade)
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 }

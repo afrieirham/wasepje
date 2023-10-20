@@ -27,6 +27,7 @@ import { useToast } from "~/components/ui/use-toast";
 import { api } from "~/utils/api";
 
 type Link = {
+  id: string;
   name: string;
   slug: string;
 };
@@ -208,13 +209,23 @@ export default function Dashboard() {
 }
 
 function LinkItem({ link, host }: { link: Link; host: string }) {
+  const ctx = api.useContext();
   const { toast } = useToast();
-
   const url = `${host}/${link.slug}`;
+
+  const { mutate } = api.link.delete.useMutation({
+    onSuccess: () => {
+      void ctx.link.getAll.invalidate();
+    },
+  });
 
   const onClickCopy = () => {
     copy(url);
     toast({ title: "Link Copied!", description: url });
+  };
+
+  const onDeleteLink = () => {
+    mutate({ id: link.id });
   };
 
   return (
@@ -236,9 +247,9 @@ function LinkItem({ link, host }: { link: Link; host: string }) {
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
             className="h-4 w-4"
           >
             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
@@ -257,9 +268,9 @@ function LinkItem({ link, host }: { link: Link; host: string }) {
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
             className="h-4 w-4"
           >
             <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
@@ -279,9 +290,9 @@ function LinkItem({ link, host }: { link: Link; host: string }) {
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
                 className="h-4 w-4"
               >
                 <circle cx="12" cy="12" r="1"></circle>
@@ -296,7 +307,7 @@ function LinkItem({ link, host }: { link: Link; host: string }) {
               <span>Edit</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={onDeleteLink}>
               <Trash className="mr-2 h-4 w-4" />
               <span>Delete</span>
             </DropdownMenuItem>
