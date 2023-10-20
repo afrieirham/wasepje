@@ -22,7 +22,7 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { useToast } from "~/components/ui/use-toast";
+import { toast } from "~/components/ui/use-toast";
 
 import { api } from "~/utils/api";
 
@@ -51,6 +51,7 @@ export default function Dashboard() {
   const resetFormFields = () => {
     setName("");
     setSlug("");
+    setPhones([{ value: "" }]);
   };
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -62,6 +63,10 @@ export default function Dashboard() {
     mutate({ name, slug, phones });
     setOpen(false);
     resetFormFields();
+    toast({
+      title: "Link successfully created!",
+      description: `${host}/${slug}`,
+    });
   };
 
   // to make sure it'll only run in client
@@ -210,7 +215,6 @@ export default function Dashboard() {
 
 function LinkItem({ link, host }: { link: Link; host: string }) {
   const ctx = api.useContext();
-  const { toast } = useToast();
   const url = `${host}/${link.slug}`;
 
   const { mutate } = api.link.delete.useMutation({
@@ -221,11 +225,12 @@ function LinkItem({ link, host }: { link: Link; host: string }) {
 
   const onClickCopy = () => {
     copy(url);
-    toast({ title: "Link Copied!", description: url });
+    toast({ title: "Link copied!", description: url });
   };
 
   const onDeleteLink = () => {
     mutate({ id: link.id });
+    toast({ title: "Link successfully deleted!", description: url });
   };
 
   return (
@@ -277,42 +282,60 @@ function LinkItem({ link, host }: { link: Link; host: string }) {
             <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
           </svg>
         </button>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button
-              className="flex h-9 min-h-[36px] min-w-[36px] items-center justify-center whitespace-nowrap rounded-e border border-s-0 p-2 text-sm font-medium ring-offset-background transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-opacity-30 disabled:text-muted disabled:hover:bg-opacity-30 disabled:hover:text-muted"
-              type="button"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-4 w-4"
+        <Dialog>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                className="flex h-9 min-h-[36px] min-w-[36px] items-center justify-center whitespace-nowrap rounded-e border border-s-0 p-2 text-sm font-medium ring-offset-background transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-opacity-30 disabled:text-muted disabled:hover:bg-opacity-30 disabled:hover:text-muted"
+                type="button"
               >
-                <circle cx="12" cy="12" r="1"></circle>
-                <circle cx="19" cy="12" r="1"></circle>
-                <circle cx="5" cy="12" r="1"></circle>
-              </svg>
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56" align="end">
-            <DropdownMenuItem>
-              <Pencil className="mr-2 h-4 w-4" />
-              <span>Edit</span>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={onDeleteLink}>
-              <Trash className="mr-2 h-4 w-4" />
-              <span>Delete</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-4 w-4"
+                >
+                  <circle cx="12" cy="12" r="1"></circle>
+                  <circle cx="19" cy="12" r="1"></circle>
+                  <circle cx="5" cy="12" r="1"></circle>
+                </svg>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end">
+              <DropdownMenuItem>
+                <Pencil className="mr-2 h-4 w-4" />
+                <span>Edit</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DialogTrigger asChild>
+                <DropdownMenuItem>
+                  <Trash className="mr-2 h-4 w-4" />
+                  <span>Delete</span>
+                </DropdownMenuItem>
+              </DialogTrigger>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Are you sure absolutely sure?</DialogTitle>
+              <DialogDescription>
+                Warning: This action cannot be undone. Are you sure you want to
+                permanently delete this link?
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="destructive" onClick={onDeleteLink}>
+                Confirm Delete
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
