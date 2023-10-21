@@ -1,10 +1,7 @@
-import { Loader2, MoveLeft, Plus, Trash } from "lucide-react";
-import type {
-  GetStaticPaths,
-  GetStaticProps,
-  InferGetStaticPropsType,
-} from "next";
+import type { Phone } from "@prisma/client";
+import { Loader2, MoveLeft, Pencil, Plus, Trash } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { useEffect, useState, type FormEvent } from "react";
 import slugify from "slugify";
 import Header from "~/components/molecule/Header";
@@ -22,29 +19,15 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { toast } from "~/components/ui/use-toast";
 import { useHostname } from "~/hooks/useHostname";
-import { db } from "~/server/db";
 import { api } from "~/utils/api";
 
-export const getStaticProps: GetStaticProps<{ id: string }> = (context) => {
-  const id = context?.params?.id as string;
-  return { props: { id } };
-};
-
-export const getStaticPaths: GetStaticPaths = async () => {
-  const links = await db.link.findMany();
-  const paths = links.map((link) => ({ params: { id: link.id } }));
-
-  return {
-    paths,
-    fallback: false,
-  };
-};
-
-function EditLink({ id }: InferGetStaticPropsType<typeof getStaticProps>) {
+function EditLink() {
   const host = useHostname();
   const ctx = api.useContext();
 
-  const { data } = api.link.getOne.useQuery({ id });
+  const router = useRouter();
+
+  const { data } = api.link.getOne.useQuery({ id: String(router.query.id) });
   const { mutate, isLoading } = api.link.update.useMutation({
     onError: (error) => {
       toast({
@@ -55,11 +38,6 @@ function EditLink({ id }: InferGetStaticPropsType<typeof getStaticProps>) {
     },
   });
   const { mutate: addPhone } = api.link.addOnePhone.useMutation({
-    onSuccess: () => {
-      void ctx.link.getOne.invalidate();
-    },
-  });
-  const { mutate: deletePhone } = api.link.deleteOnePhone.useMutation({
     onSuccess: () => {
       void ctx.link.getOne.invalidate();
     },
@@ -170,30 +148,7 @@ function EditLink({ id }: InferGetStaticPropsType<typeof getStaticProps>) {
               Must have at least 1 active number.
             </p>
             {data.phones?.map((phone) => (
-              <div key={phone.id} className="mt-2 flex space-x-1 ">
-                <Input
-                  required
-                  type="tel"
-                  name={`phone-${phone.id}`}
-                  value={phone.number}
-                  className="w-full max-w-md"
-                />
-                {data.phones.length > 1 && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={() => {
-                      deletePhone({ id: phone.id });
-                      toast({
-                        title: "Phone successfully deleted!",
-                        description: phone.number,
-                      });
-                    }}
-                  >
-                    <Trash className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
+              <PhoneItem key={phone.id} phone={phone} phones={data.phones} />
             ))}
 
             <div className="mt-4">
@@ -226,6 +181,92 @@ function EditLink({ id }: InferGetStaticPropsType<typeof getStaticProps>) {
         </div>
       </div>
     </main>
+  );
+}
+
+function PhoneItem({ phone, phones }: { phone: Phone; phones: Phone[] }) {
+  const ctx = api.useContext();
+
+  const [open, setOpen] = useState(false);
+  const [phoneInput, setPhone] = useState(phone.number);
+
+  const { mutate } = api.link.deleteOnePhone.useMutation({
+    onSuccess: () => {
+      void ctx.link.getOne.invalidate();
+    },
+  });
+
+  const updateOnePhone = api.phone.updateOne.useMutation({
+    onSuccess: () => {
+      void ctx.link.getOne.invalidate();
+    },
+  });
+
+  const onEditPhone = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    updateOnePhone.mutate({ id: phone.id, number: phoneInput });
+    setOpen(false);
+  };
+
+  return (
+    <div className="mt-2 flex space-x-1 ">
+      <Input
+        required
+        value={phone.number}
+        onChange={() => null}
+        className="w-full max-w-md"
+        readOnly
+        disabled
+      />
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <Button type="button" variant="ghost" size="icon">
+            <Pencil className="h-4 w-4" />
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <form onSubmit={onEditPhone}>
+            <DialogHeader>
+              <DialogTitle>Edit phone</DialogTitle>
+              <DialogDescription>
+                Please include country code without the plus (+) sign.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <Label htmlFor="phone">Phone Number</Label>
+              <Input
+                id="phone"
+                type="tel"
+                name="phone"
+                required
+                value={phoneInput}
+                onChange={(e) => setPhone(e.target.value)}
+              />
+            </div>
+            <DialogFooter>
+              <Button type="submit">Submit</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {phones.length > 1 && (
+        <Button
+          size="icon"
+          type="button"
+          variant="ghost"
+          onClick={() => {
+            mutate({ id: phone.id });
+            toast({
+              title: "Phone successfully deleted!",
+              description: phone.number,
+            });
+          }}
+        >
+          <Trash className="h-4 w-4" />
+        </Button>
+      )}
+    </div>
   );
 }
 
