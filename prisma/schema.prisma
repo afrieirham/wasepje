@@ -16,6 +16,7 @@ model Link {
     slug      String
     authorId  String
     phones    Phone[]
+    nextPhone Int
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 }

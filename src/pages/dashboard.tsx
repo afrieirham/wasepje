@@ -72,7 +72,8 @@ export default function Dashboard() {
   // to make sure it'll only run in client
   useEffect(() => {
     if (window) {
-      setHost(window.location.host);
+      const { location } = window;
+      setHost(`${location.protocol}//${location.host}`);
     }
   }, []);
 

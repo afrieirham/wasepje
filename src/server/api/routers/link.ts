@@ -1,5 +1,9 @@
 import z from "zod";
-import { createTRPCRouter, privateProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  privateProcedure,
+  publicProcedure,
+} from "~/server/api/trpc";
 
 export const linkRouter = createTRPCRouter({
   getAll: privateProcedure.query(({ ctx }) => {
@@ -9,6 +13,15 @@ export const linkRouter = createTRPCRouter({
       orderBy: [{ createdAt: "desc" }],
     });
   }),
+
+  getOne: publicProcedure
+    .input(z.object({ slug: z.string() }))
+    .query(({ ctx, input }) => {
+      return ctx.db.link.findFirst({
+        where: { slug: input.slug },
+        include: { phones: true },
+      });
+    }),
 
   create: privateProcedure
     .input(
@@ -30,6 +43,7 @@ export const linkRouter = createTRPCRouter({
           authorId,
           name: input.name,
           slug: input.slug,
+          nextPhone: 0,
           phones: {
             createMany: {
               data: input.phones.map((p) => ({ number: p.value })),
@@ -58,5 +72,27 @@ export const linkRouter = createTRPCRouter({
       });
 
       return link;
+    }),
+
+  updateNextPhone: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const link = await ctx.db.link.findFirstOrThrow({
+        where: { id: input.id },
+        include: { phones: true },
+      });
+
+      const { nextPhone, phones } = link;
+
+      let newNextPhone = Number(nextPhone + 1);
+
+      if (newNextPhone > phones.length - 1) {
+        newNextPhone = 0;
+      }
+
+      return await ctx.db.link.update({
+        data: { nextPhone: newNextPhone },
+        where: { id: input.id },
+      });
     }),
 });
