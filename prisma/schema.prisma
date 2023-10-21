@@ -13,7 +13,7 @@ datasource db {
 model Link {
     id        String   @id @default(cuid())
     name      String
-    slug      String
+    slug      String   @unique
     authorId  String
     phones    Phone[]
     nextPhone Int
