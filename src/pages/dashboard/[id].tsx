@@ -51,17 +51,20 @@ function EditLink({ id }: InferGetStaticPropsType<typeof getStaticProps>) {
       void ctx.link.getOne.invalidate();
     },
   });
+  const { mutate: deletePhone } = api.link.deleteOnePhone.useMutation({
+    onSuccess: () => {
+      void ctx.link.getOne.invalidate();
+    },
+  });
 
   const [addPhoneDialog, setAddPhoneDialog] = useState(false);
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
-  const [phones, setPhones] = useState([{ value: "" }]);
 
   useEffect(() => {
     if (data) {
       setName(data.name);
       setSlug(data.slug);
-      setPhones(data.phones.map((p) => ({ value: p.number, id: p.id })));
     }
   }, [data]);
 
@@ -74,25 +77,6 @@ function EditLink({ id }: InferGetStaticPropsType<typeof getStaticProps>) {
       title: `${name} successfully updated!`,
       description: `${host}/${slug}`,
     });
-  };
-
-  const onDeletePhone = (index: number) => {
-    const newPhones = phones.filter((_phone, i) => i !== index);
-    setPhones(newPhones);
-  };
-
-  const setPhoneValue = (value: string, index: number) => {
-    const updatedPhones = phones.map((phone, i) => {
-      if (i === index) {
-        return {
-          ...phone,
-          value,
-        };
-      }
-      return phone;
-    });
-
-    setPhones(updatedPhones);
   };
 
   const onAddPhone = (e: FormEvent<HTMLFormElement>) => {
@@ -177,21 +161,26 @@ function EditLink({ id }: InferGetStaticPropsType<typeof getStaticProps>) {
             <p className="text-xs text-muted-foreground">
               Must have at least 1 active number.
             </p>
-            {phones?.map((phone, i) => (
-              <div key={i} className="mt-2 flex space-x-1 ">
+            {data.phones?.map((phone) => (
+              <div key={phone.id} className="mt-2 flex space-x-1 ">
                 <Input
                   required
                   type="tel"
-                  name={`phone-${i}`}
-                  value={phone.value}
+                  name={`phone-${phone.id}`}
+                  value={phone.number}
                   className="w-full max-w-md"
-                  onChange={(e) => setPhoneValue(e.target.value.trim(), i)}
                 />
-                {phones.length > 1 && (
+                {data.phones.length > 1 && (
                   <Button
                     type="button"
                     variant="ghost"
-                    onClick={() => onDeletePhone(i)}
+                    onClick={() => {
+                      deletePhone({ id: phone.id });
+                      toast({
+                        title: "Phone successfully deleted!",
+                        description: phone.number,
+                      });
+                    }}
                   >
                     <Trash className="h-4 w-4" />
                   </Button>

@@ -54,6 +54,17 @@ export const linkRouter = createTRPCRouter({
       return phone;
     }),
 
+  deleteOnePhone: privateProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const phone = await ctx.db.phone.delete({ where: { id: input.id } });
+      return phone;
+    }),
+
   create: privateProcedure
     .input(
       z.object({
