@@ -34,7 +34,10 @@ export default function Example() {
 
           <div className="hidden space-x-4 md:flex md:flex-1 md:justify-end">
             <Button asChild variant="outline">
-              <Link href="https://github.com/afrieirham/whatsappje">
+              <Link
+                href="https://github.com/afrieirham/whatsappje"
+                target="_blank"
+              >
                 <Github className="mr-2 h-4 w-4" />
                 Star us on GitHub
               </Link>
@@ -67,7 +70,7 @@ export default function Example() {
             </SignInButton>
           </SignedOut>
           <SignedIn>
-            <Button variant="outline" asChild size="lg">
+            <Button asChild size="lg">
               <Link href="/dashboard">
                 Go to Dashboard
                 <MoveRight className="ml-2 h-4 w-4" />
@@ -75,7 +78,10 @@ export default function Example() {
             </Button>
           </SignedIn>
           <Button asChild variant="outline">
-            <Link href="https://github.com/afrieirham/whatsappje">
+            <Link
+              href="https://github.com/afrieirham/whatsappje"
+              target="_blank"
+            >
               <Github className="mr-2 h-4 w-4" />
               Star us on GitHub
             </Link>
