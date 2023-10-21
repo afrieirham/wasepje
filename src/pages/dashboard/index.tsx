@@ -1,8 +1,9 @@
-import { UserButton } from "@clerk/nextjs";
 import copy from "copy-to-clipboard";
 import { Pencil, Plus, Trash } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import slugify from "slugify";
+import Header from "~/components/molecule/Header";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -101,116 +102,109 @@ export default function Dashboard() {
   };
 
   return (
-    <>
-      <main>
-        <nav className="border-b border-zinc-200 bg-white">
-          <div className="mx-auto flex w-full max-w-screen-xl justify-between px-6 py-6">
-            <p className="font-bold">MesejKami.com</p>
-            <UserButton showName afterSignOutUrl="/" />
-          </div>
-        </nav>
-        <div className="border-b border-zinc-200 bg-white">
-          <div className="mx-auto flex w-full max-w-screen-xl justify-between px-6 py-10">
-            <h1 className="text-2xl">My Links</h1>
-            <Dialog open={open} onOpenChange={setOpen}>
-              <DialogTrigger asChild>
-                <Button>Create Link</Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <form onSubmit={onSubmit}>
-                  <DialogHeader>
-                    <DialogTitle>Create a new link</DialogTitle>
-                    <DialogDescription></DialogDescription>
-                  </DialogHeader>
-                  <div className="grid gap-6 py-4">
-                    <div className="flex flex-col gap-2">
-                      <Label htmlFor="name" className="">
-                        Name
-                      </Label>
-                      <Input
-                        id="name"
-                        name="name"
-                        placeholder="Syarikat Saya"
-                        value={name}
-                        onChange={(e) => {
-                          setName(e.target.value);
-                          setSlug(
-                            slugify(e.target.value, {
-                              lower: true,
-                              strict: true,
-                            }),
-                          );
-                        }}
-                      />
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <Label htmlFor="slug" className="">
-                        Slug
-                      </Label>
-                      <Input
-                        id="slug"
-                        name="slug"
-                        placeholder="syarikat-saya"
-                        value={slug}
-                        onChange={(e) => setSlug(e.target.value.trim())}
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        {host}/{slug}
-                      </p>
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <Label>Phone Number</Label>
-                      <p className="text-xs text-muted-foreground">
-                        Include country code.
-                      </p>
-                      {phones?.map((phone, i) => (
-                        <div key={i} className="flex space-x-1">
-                          <Input
-                            required
-                            type="tel"
-                            name={`phone-${i}`}
-                            placeholder="60131231234"
-                            value={phone.value}
-                            onChange={(e) =>
-                              setPhoneValue(e.target.value.trim(), i)
-                            }
-                          />
-                          {phones.length > 1 && (
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              onClick={() => onDeletePhone(i)}
-                            >
-                              <Trash className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </div>
-                      ))}
-
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        onClick={onAddPhoneNumber}
-                      >
-                        <Plus className="mr-2 h-4 w-4" /> Add phone number
-                      </Button>
-                    </div>
+    <main>
+      <Header />
+      <div className="border-b border-zinc-200 bg-white">
+        <div className="mx-auto flex w-full max-w-screen-xl justify-between px-6 py-10">
+          <h1 className="text-2xl">My Links</h1>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button>Create Link</Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <form onSubmit={onSubmit}>
+                <DialogHeader>
+                  <DialogTitle>Create a new link</DialogTitle>
+                  <DialogDescription></DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-6 py-4">
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="name" className="">
+                      Name
+                    </Label>
+                    <Input
+                      id="name"
+                      name="name"
+                      placeholder="Syarikat Saya"
+                      value={name}
+                      onChange={(e) => {
+                        setName(e.target.value);
+                        setSlug(
+                          slugify(e.target.value, {
+                            lower: true,
+                            strict: true,
+                          }),
+                        );
+                      }}
+                    />
                   </div>
-                  <DialogFooter>
-                    <Button type="submit">Create Link</Button>
-                  </DialogFooter>
-                </form>
-              </DialogContent>
-            </Dialog>
-          </div>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="slug" className="">
+                      Slug
+                    </Label>
+                    <Input
+                      id="slug"
+                      name="slug"
+                      placeholder="syarikat-saya"
+                      value={slug}
+                      onChange={(e) => setSlug(e.target.value.trim())}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      {host}/{slug}
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label>Phone Number</Label>
+                    <p className="text-xs text-muted-foreground">
+                      Include country code.
+                    </p>
+                    {phones?.map((phone, i) => (
+                      <div key={i} className="flex space-x-1">
+                        <Input
+                          required
+                          type="tel"
+                          name={`phone-${i}`}
+                          placeholder="60131231234"
+                          value={phone.value}
+                          onChange={(e) =>
+                            setPhoneValue(e.target.value.trim(), i)
+                          }
+                        />
+                        {phones.length > 1 && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            onClick={() => onDeletePhone(i)}
+                          >
+                            <Trash className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={onAddPhoneNumber}
+                    >
+                      <Plus className="mr-2 h-4 w-4" /> Add phone number
+                    </Button>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button type="submit">Create Link</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
-        <div className="mx-auto flex w-full max-w-screen-xl flex-col justify-between px-2 sm:px-6">
-          {data?.map((link) => (
-            <LinkItem link={link} host={host} key={link.id} />
-          ))}
-        </div>
-      </main>
-    </>
+      </div>
+      <div className="mx-auto flex w-full max-w-screen-xl flex-col justify-between px-2 sm:px-6">
+        {data?.map((link) => (
+          <LinkItem link={link} host={host} key={link.id} />
+        ))}
+      </div>
+    </main>
   );
 }
 
@@ -309,9 +303,11 @@ function LinkItem({ link, host }: { link: Link; host: string }) {
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end">
-              <DropdownMenuItem>
-                <Pencil className="mr-2 h-4 w-4" />
-                <span>Edit</span>
+              <DropdownMenuItem asChild>
+                <Link href={`/dashboard/${link.slug}`}>
+                  <Pencil className="mr-2 h-4 w-4" />
+                  <span>Edit</span>
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DialogTrigger asChild>
