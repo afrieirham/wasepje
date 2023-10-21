@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import slugify from "slugify";
 import Header from "~/components/molecule/Header";
+import SEOHead from "~/components/molecule/SEOHead";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -103,6 +104,11 @@ export default function Dashboard() {
 
   return (
     <main>
+      <SEOHead
+        title="Dashboard | WhatsappJe.com"
+        description="Open-Source WhatsApp Link Rotator built with Next.js, TailwindCSS, tRPC, shadcn/ui."
+        path="/"
+      />
       <Header />
       <div className="border-b border-zinc-200 bg-white">
         <div className="mx-auto flex w-full max-w-screen-xl justify-between px-6 py-10">
