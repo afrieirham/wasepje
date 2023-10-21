@@ -1,28 +1,33 @@
-# Create T3 App
+# WhatsappJe.com
 
 This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
 
-## What's next? How do I make an app with this?
-
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
-
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+## Tech Stack
 
 - [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
+- [Clerk](https://clerk.com)
 - [Prisma](https://prisma.io)
 - [Tailwind CSS](https://tailwindcss.com)
 - [tRPC](https://trpc.io)
+- [shadcn/ui](https://ui.shadcn.com)
+- [Supabase](https://supabase.com)
 
-## Learn More
+## Before running the project
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+1. You need these 3 environment variable, see `.env.example`.
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+   - `DATABASE_URL`
+   - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+   - `CLERK_SECRET_KEY`
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+2. Create a PostgreSQL database and get the database URL (this project use Supabase).
+3. Create a Clerk account, setup a project, and get the `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY`.
+4. Create a `.env` file and add all the required variable.
 
-## How do I deploy this?
+## Starting the app
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+1. Fork and clone the repo locally.
+2. Make sure all the required environment variable is added in `.env` file.
+3. Install dependencies with [bun](https://bun.sh).
+4. Run `bunx prisma db push` to setup the database.
+5. Run `bun dev` to start the app on `localhost:3000`
