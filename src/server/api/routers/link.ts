@@ -43,11 +43,24 @@ export const linkRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const link = await ctx.db.link.update({
-        where: { id: input.id },
-        data: { name: input.name, slug: input.slug },
-      });
-      return link;
+      try {
+        const link = await ctx.db.link.update({
+          where: { id: input.id },
+          data: { name: input.name, slug: input.slug },
+        });
+        return link;
+      } catch (e) {
+        if (e instanceof Prisma.PrismaClientKnownRequestError) {
+          // The .code property can be accessed in a type-safe manner
+          if (e.code === "P2002") {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Slug has been used.",
+            });
+          }
+        }
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      }
     }),
 
   addOnePhone: privateProcedure

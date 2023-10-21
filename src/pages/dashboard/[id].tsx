@@ -45,7 +45,15 @@ function EditLink({ id }: InferGetStaticPropsType<typeof getStaticProps>) {
   const ctx = api.useContext();
 
   const { data } = api.link.getOne.useQuery({ id });
-  const { mutate, isLoading } = api.link.update.useMutation();
+  const { mutate, isLoading } = api.link.update.useMutation({
+    onError: (error) => {
+      toast({
+        title: "Please use different slug.",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
   const { mutate: addPhone } = api.link.addOnePhone.useMutation({
     onSuccess: () => {
       void ctx.link.getOne.invalidate();
