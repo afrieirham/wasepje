@@ -60,7 +60,7 @@ function EditLink() {
     e.preventDefault();
     mutate({ id: data.id, name, slug });
     toast({
-      title: `${name} successfully updated!`,
+      title: "Link successfully updated!",
       description: `${host}/${slug}`,
     });
   };
@@ -72,6 +72,7 @@ function EditLink() {
     };
 
     addOnePhone.mutate({ linkId: data.id, number: phone });
+    toast({ title: "Phone successfully added!", description: phone });
     setAddPhoneDialog(false);
   };
 
@@ -205,6 +206,7 @@ function PhoneItem({ phone, phones }: { phone: Phone; phones: Phone[] }) {
   const onEditPhone = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     updateOnePhone.mutate({ id: phone.id, number: phoneInput });
+    toast({ title: "Phone successfully updated!" });
     setOpen(false);
   };
 
