@@ -37,7 +37,7 @@ function EditLink() {
       });
     },
   });
-  const { mutate: addPhone } = api.link.addOnePhone.useMutation({
+  const addOnePhone = api.phone.addOne.useMutation({
     onSuccess: () => {
       void ctx.link.getOne.invalidate();
     },
@@ -71,7 +71,7 @@ function EditLink() {
       phone: string;
     };
 
-    addPhone({ linkId: data.id, number: phone });
+    addOnePhone.mutate({ linkId: data.id, number: phone });
     setAddPhoneDialog(false);
   };
 
@@ -190,7 +190,7 @@ function PhoneItem({ phone, phones }: { phone: Phone; phones: Phone[] }) {
   const [open, setOpen] = useState(false);
   const [phoneInput, setPhone] = useState(phone.number);
 
-  const { mutate } = api.link.deleteOnePhone.useMutation({
+  const deleteOnePhone = api.phone.deleteOne.useMutation({
     onSuccess: () => {
       void ctx.link.getOne.invalidate();
     },
@@ -206,6 +206,14 @@ function PhoneItem({ phone, phones }: { phone: Phone; phones: Phone[] }) {
     e.preventDefault();
     updateOnePhone.mutate({ id: phone.id, number: phoneInput });
     setOpen(false);
+  };
+
+  const onDeletePhone = () => {
+    deleteOnePhone.mutate({ id: phone.id });
+    toast({
+      title: "Phone successfully deleted!",
+      description: phone.number,
+    });
   };
 
   return (
@@ -255,13 +263,7 @@ function PhoneItem({ phone, phones }: { phone: Phone; phones: Phone[] }) {
           size="icon"
           type="button"
           variant="ghost"
-          onClick={() => {
-            mutate({ id: phone.id });
-            toast({
-              title: "Phone successfully deleted!",
-              description: phone.number,
-            });
-          }}
+          onClick={onDeletePhone}
         >
           <Trash className="h-4 w-4" />
         </Button>
