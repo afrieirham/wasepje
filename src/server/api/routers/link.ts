@@ -1,3 +1,5 @@
+import { Prisma } from "@prisma/client";
+import { TRPCError } from "@trpc/server";
 import z from "zod";
 import {
   createTRPCRouter,
@@ -87,26 +89,39 @@ export const linkRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const authorId = ctx.currentUserId;
+      try {
+        const authorId = ctx.currentUserId;
 
-      const link = await ctx.db.link.create({
-        data: {
-          authorId,
-          name: input.name,
-          slug: input.slug,
-          nextPhone: 0,
-          phones: {
-            createMany: {
-              data: input.phones.map((p) => ({ number: p.value })),
+        const link = await ctx.db.link.create({
+          data: {
+            authorId,
+            name: input.name,
+            slug: input.slug,
+            nextPhone: 0,
+            phones: {
+              createMany: {
+                data: input.phones.map((p) => ({ number: p.value })),
+              },
             },
           },
-        },
-        include: {
-          phones: true,
-        },
-      });
+          include: {
+            phones: true,
+          },
+        });
 
-      return link;
+        return link;
+      } catch (e) {
+        if (e instanceof Prisma.PrismaClientKnownRequestError) {
+          // The .code property can be accessed in a type-safe manner
+          if (e.code === "P2002") {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Slug has been used.",
+            });
+          }
+        }
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      }
     }),
 
   delete: privateProcedure

@@ -43,6 +43,13 @@ export default function Dashboard() {
     onSuccess: () => {
       void ctx.link.getAll.invalidate();
     },
+    onError: (error) => {
+      toast({
+        title: "Cannot create link!",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
   });
 
   const [open, setOpen] = useState(false);
