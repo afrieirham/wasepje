@@ -1,7 +1,7 @@
 import copy from "copy-to-clipboard";
 import { Pencil, Plus, Trash } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import slugify from "slugify";
 import Header from "~/components/molecule/Header";
 import { Button } from "~/components/ui/button";
@@ -24,6 +24,7 @@ import {
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { toast } from "~/components/ui/use-toast";
+import { useHostname } from "~/hooks/useHostname";
 
 import { api } from "~/utils/api";
 
@@ -35,6 +36,7 @@ type Link = {
 
 export default function Dashboard() {
   const ctx = api.useContext();
+  const host = useHostname();
 
   const { data } = api.link.getAll.useQuery();
   const { mutate } = api.link.create.useMutation({
@@ -44,7 +46,6 @@ export default function Dashboard() {
   });
 
   const [open, setOpen] = useState(false);
-  const [host, setHost] = useState("");
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [phones, setPhones] = useState([{ value: "" }]);
@@ -69,14 +70,6 @@ export default function Dashboard() {
       description: `${host}/${slug}`,
     });
   };
-
-  // to make sure it'll only run in client
-  useEffect(() => {
-    if (window) {
-      const { location } = window;
-      setHost(`${location.protocol}//${location.host}`);
-    }
-  }, []);
 
   const onAddPhoneNumber = () => {
     setPhones([...phones, { value: "" }]);
@@ -304,7 +297,7 @@ function LinkItem({ link, host }: { link: Link; host: string }) {
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end">
               <DropdownMenuItem asChild>
-                <Link href={`/dashboard/${link.slug}`}>
+                <Link href={`/dashboard/${link.id}`}>
                   <Pencil className="mr-2 h-4 w-4" />
                   <span>Edit</span>
                 </Link>

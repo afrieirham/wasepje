@@ -15,12 +15,28 @@ export const linkRouter = createTRPCRouter({
   }),
 
   getOne: publicProcedure
-    .input(z.object({ slug: z.string() }))
+    .input(z.object({ id: z.string() }))
     .query(({ ctx, input }) => {
       return ctx.db.link.findFirst({
-        where: { slug: input.slug },
+        where: { id: input.id },
         include: { phones: true },
       });
+    }),
+
+  update: privateProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        name: z.string().trim(),
+        slug: z.string().trim().toLowerCase(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const link = await ctx.db.link.update({
+        where: { id: input.id },
+        data: { name: input.name, slug: input.slug },
+      });
+      return link;
     }),
 
   create: privateProcedure
