@@ -23,6 +23,15 @@ export const linkRouter = createTRPCRouter({
       });
     }),
 
+  getLinkBySlug: publicProcedure
+    .input(z.object({ slug: z.string() }))
+    .query(({ ctx, input }) => {
+      return ctx.db.link.findFirst({
+        where: { slug: input.slug },
+        include: { phones: true },
+      });
+    }),
+
   update: privateProcedure
     .input(
       z.object({

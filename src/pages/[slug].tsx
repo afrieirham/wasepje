@@ -27,7 +27,7 @@ function RedirectPage({
   slug,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   const router = useRouter();
-  const { data } = api.link.getOne.useQuery({ slug });
+  const { data } = api.link.getLinkBySlug.useQuery({ slug });
   const { mutate } = api.link.updateNextPhone.useMutation();
 
   useEffect(() => {
