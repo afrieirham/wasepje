@@ -1,11 +1,14 @@
 import { Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import z from "zod";
+import { reservedPath } from "~/constants";
 import {
   createTRPCRouter,
   privateProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
+
+const checkReserved = (path: string) => reservedPath.some((p) => p === path);
 
 export const linkRouter = createTRPCRouter({
   getAll: privateProcedure.query(({ ctx }) => {
@@ -43,6 +46,13 @@ export const linkRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      if (checkReserved(input.slug)) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Reserved word for slug.",
+        });
+      }
+
       try {
         const link = await ctx.db.link.update({
           where: { id: input.id },
@@ -76,6 +86,13 @@ export const linkRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      if (checkReserved(input.slug)) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Reserved word for slug.",
+        });
+      }
+
       try {
         const authorId = ctx.currentUserId;
 
