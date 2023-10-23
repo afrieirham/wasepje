@@ -1,8 +1,20 @@
-# WhatsappJe.com
+<div align="center">
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+<a href="https://github.com/afrieirham/whatsappje">
+  <img src="./public/og.png" alt="poster">
+</a>
+<br/>
+<br/>
+<img src="./public/logo.png" alt="logo" width="80px"/>
+<h3 align="center">WhatsappJe.com</h3>
+
+Open-source WhatsApp Link Rotator, a wasap.my alternative.
+
+</div>
 
 ## Tech Stack
+
+This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
 
 - [Next.js](https://nextjs.org)
 - [Clerk](https://clerk.com)
