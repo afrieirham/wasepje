@@ -26,7 +26,7 @@ function SEOHead({
 
       {/* <!-- Twitter Meta Tags --> */}
       <meta name="twitter:card" content="summary_large_image" />
-      <meta property="twitter:domain" content="pakejkawin.com" />
+      <meta property="twitter:domain" content="whatsappje.com" />
       <meta property="twitter:url" content={`https://whatsappje.com${path}`} />
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
