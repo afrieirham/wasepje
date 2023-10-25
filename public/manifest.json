@@ -4,7 +4,7 @@
   "display": "standalone",
   "scope": "/tools",
   "start_url": "/tools/click2chat",
-  "name": "Click to Chat by WhatsappJe.com",
+  "name": "Click2Chat",
   "short_name": "Click2Chat",
   "description": "Stop cluttering your contact list. Click to WhatsApp temporary contacts.",
   "icons": [
