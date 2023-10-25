@@ -4,6 +4,7 @@ import { Github } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import PublicHeader from "~/components/molecule/PublicHeader";
+import SEOHead from "~/components/molecule/SEOHead";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
@@ -13,6 +14,12 @@ function Click2Chat() {
 
   return (
     <div className="flex h-[100dvh] flex-col">
+      <SEOHead
+        title="Click to Chat by WhatsappJe.com"
+        description="Stop cluttering your contact list. Click to WhatsApp temporary contacts"
+        path="/tools/click2chat"
+        ogPath="/click2chat.png"
+      />
       <PublicHeader />
       <div className="mx-auto flex w-full max-w-sm flex-grow flex-col items-center justify-center px-2 ">
         <Label>Enter that unsaved number:</Label>

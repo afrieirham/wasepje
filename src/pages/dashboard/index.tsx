@@ -108,6 +108,7 @@ export default function Dashboard() {
         title="Dashboard | WhatsappJe.com"
         description="Open-Source WhatsApp Link Rotator built with Next.js, TailwindCSS, tRPC, shadcn/ui."
         path="/"
+        ogPath="/og.png"
       />
       <Header />
       <div className="border-b border-zinc-200 bg-white">
