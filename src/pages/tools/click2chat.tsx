@@ -1,6 +1,7 @@
 import { SignInButton } from "@clerk/nextjs";
 import { countries } from "country-list-json";
 import { Github } from "lucide-react";
+import Head from "next/head";
 import Link from "next/link";
 import { useState } from "react";
 import PublicHeader from "~/components/molecule/PublicHeader";
@@ -32,6 +33,11 @@ function Click2Chat() {
         path="/tools/click2chat"
         ogPath="/click2chat.png"
       />
+      <Head>
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="apple-touch-icon" href="/icon-512x512.png" />
+        <meta name="theme-color" content="#ffffff" />
+      </Head>
       <PublicHeader />
       <form
         onSubmit={onSubmit}
@@ -54,7 +60,7 @@ function Click2Chat() {
           <div className="relative w-full flex-1">
             <Input
               required
-              type="num"
+              type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="phone number"
