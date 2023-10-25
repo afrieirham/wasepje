@@ -10,7 +10,19 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 
 function Click2Chat() {
-  const [value, setValue] = useState("MY");
+  const [countryCode, setCode] = useState("MY");
+  const [phone, setPhone] = useState("");
+
+  const onSubmit = () => {
+    if (!phone) return alert("Please enter phone number.");
+
+    const fullPhone =
+      String(
+        countries.find((country) => country.code === countryCode)?.dial_code,
+      ) + phone;
+
+    window.open("https://wa.me/" + fullPhone);
+  };
 
   return (
     <div className="flex h-[100dvh] flex-col">
@@ -21,35 +33,39 @@ function Click2Chat() {
         ogPath="/click2chat.png"
       />
       <PublicHeader />
-      <div className="mx-auto flex w-full max-w-sm flex-grow flex-col items-center justify-center px-2 ">
+      <form
+        onSubmit={onSubmit}
+        className="mx-auto flex w-full max-w-sm flex-grow flex-col items-center justify-center px-2 "
+      >
         <Label>Enter that unsaved number:</Label>
-        <form className="mt-4 flex w-full">
+        <div className="mt-4 flex w-full">
           <select
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
+            value={countryCode}
+            onChange={(e) => setCode(e.target.value)}
             className="flex h-10 w-[110px] rounded-md rounded-e-none border border-input bg-background px-3 py-2 pr-6 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {countries.map((country) => (
               <option key={country.code} value={country.code}>
                 {country.flag} {country.dial_code}{" "}
-                {country.code === value ? "" : country.name}
+                {country.code === countryCode ? "" : country.name}
               </option>
             ))}
           </select>
           <div className="relative w-full flex-1">
             <Input
-              type="num"
-              id="search-dropdown"
-              className="w-full rounded-s-none border-s-0"
-              placeholder="phone number"
               required
+              type="num"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="phone number"
+              className="w-full rounded-s-none border-s-0"
             />
           </div>
-        </form>
-        <Button className="mt-2 w-full" size="lg">
+        </div>
+        <Button type="submit" className="mt-2 w-full" size="lg">
           Whatsapp Je
         </Button>
-      </div>
+      </form>
       <div className="mx-auto flex w-full flex-row items-center justify-center space-x-2 px-2 py-6 md:hidden">
         <Button asChild variant="ghost" size="sm" className="text-xs">
           <Link href="https://github.com/afrieirham/whatsappje" target="_blank">
