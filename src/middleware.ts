@@ -6,6 +6,7 @@ import { authMiddleware } from "@clerk/nextjs";
 export default authMiddleware({
   publicRoutes: [
     "/",
+    "/tools/:slug",
     "/:slug",
     "/api/trpc/link.getLinkBySlug",
     "/api/trpc/link.updateNextPhone",
