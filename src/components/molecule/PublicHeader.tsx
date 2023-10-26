@@ -9,7 +9,7 @@ function PublicHeader() {
   return (
     <header className="border-b bg-white">
       <nav
-        className="mx-auto flex max-w-screen-xl items-center justify-center p-2 md:justify-between md:p-6 md:px-8"
+        className="mx-auto flex max-w-screen-xl items-center justify-center p-4 md:justify-between md:p-6 md:px-8"
         aria-label="Global"
       >
         <div className="flex md:flex-1">

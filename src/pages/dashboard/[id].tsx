@@ -81,7 +81,7 @@ function EditLink() {
     <main>
       <SEOHead
         title="Edit Link | WasepJe.com"
-        description="Open-Source WhatsApp Link Rotator built with Next.js, TailwindCSS, tRPC, shadcn/ui."
+        description="Open-Source WhatsApp Link Rotator, an alternative to wasap.my"
         path="/"
         ogPath="/og.png"
       />

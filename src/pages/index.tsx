@@ -1,6 +1,7 @@
 import { SignInButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import { Github, MoveRight } from "lucide-react";
 import Link from "next/link";
+import Footer from "~/components/molecule/Footer";
 import PublicHeader from "~/components/molecule/PublicHeader";
 import SEOHead from "~/components/molecule/SEOHead";
 import { Button } from "~/components/ui/button";
@@ -10,14 +11,14 @@ export default function Example() {
     <div>
       <SEOHead
         title="WhatsApp Link Rotator | WasepJe.com"
-        description="Open-Source WhatsApp Link Rotator built with Next.js, TailwindCSS, tRPC, shadcn/ui."
+        description="Open-Source WhatsApp Link Rotator, an alternative to wasap.my"
         path="/"
         ogPath="/og.png"
       />
 
       <PublicHeader />
 
-      <div className="flex flex-col items-center justify-center pt-8 text-center sm:pt-16">
+      <div className="flex flex-col items-center justify-center py-8 text-center sm:py-20">
         <h1 className="sm:text-4x px-4 text-3xl font-bold tracking-tight text-gray-900">
           Open-source WhatsApp Link Rotator
         </h1>
@@ -45,7 +46,7 @@ export default function Example() {
             </Link>
           </Button>
         </div>
-        <p className="mt-4">Watch to learn more ⤵</p>
+        <p className="mt-10">Watch to learn more ⤵</p>
         <iframe
           className="mx-auto mt-2 h-[360px] max-h-[480px] w-full max-w-[853.33px] object-cover px-4  sm:h-[480px] "
           src="https://www.youtube.com/embed/pJYsyMvQy74?si=Jpnn1jt2Vs6QT1e5"
@@ -53,6 +54,7 @@ export default function Example() {
           allowFullScreen
         />
       </div>
+      <Footer />
     </div>
   );
 }
