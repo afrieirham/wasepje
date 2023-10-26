@@ -105,7 +105,7 @@ export default function Dashboard() {
   return (
     <main>
       <SEOHead
-        title="Dashboard | WhatsappJe.com"
+        title="Dashboard | WasepJe.com"
         description="Open-Source WhatsApp Link Rotator built with Next.js, TailwindCSS, tRPC, shadcn/ui."
         path="/"
         ogPath="/og.png"

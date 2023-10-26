@@ -80,7 +80,7 @@ function EditLink() {
   return (
     <main>
       <SEOHead
-        title="Edit Link | WhatsappJe.com"
+        title="Edit Link | WasepJe.com"
         description="Open-Source WhatsApp Link Rotator built with Next.js, TailwindCSS, tRPC, shadcn/ui."
         path="/"
         ogPath="/og.png"

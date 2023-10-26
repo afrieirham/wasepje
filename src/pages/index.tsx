@@ -9,7 +9,7 @@ export default function Example() {
   return (
     <div>
       <SEOHead
-        title="WhatsApp Link Rotator | WhatsappJe.com"
+        title="WhatsApp Link Rotator | WasepJe.com"
         description="Open-Source WhatsApp Link Rotator built with Next.js, TailwindCSS, tRPC, shadcn/ui."
         path="/"
         ogPath="/og.png"
@@ -49,7 +49,7 @@ export default function Example() {
         <iframe
           className="mx-auto mt-2 h-[360px] max-h-[480px] w-full max-w-[853.33px] object-cover px-4  sm:h-[480px] "
           src="https://www.youtube.com/embed/pJYsyMvQy74?si=Jpnn1jt2Vs6QT1e5"
-          title="WhatsappJe.com video guide"
+          title="WasepJe.com video guide"
           allowFullScreen
         />
       </div>

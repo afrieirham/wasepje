@@ -19,9 +19,9 @@ function PublicHeader() {
               height={40}
               className="h-10 w-10"
               src="/logo.png"
-              alt="whatsappje.com logo"
+              alt="wasepje.com logo"
             />
-            <p className="font-bold">WhatsappJe.com</p>
+            <p className="font-bold">WasepJe.com</p>
           </Link>
         </div>
 

@@ -27,8 +27,8 @@ function Click2Chat() {
   return (
     <div className="flex h-[100dvh] flex-col">
       <SEOHead
-        title="Click to Chat by WhatsappJe.com"
-        description="Stop cluttering your contact list. Click to WhatsApp temporary contacts"
+        title="Click to Chat by WasepJe.com"
+        description="Stop cluttering your contact list. Click to WhatsApp temporary contacts."
         path="/tools/click2chat"
         ogPath="/click2chat.png"
       />

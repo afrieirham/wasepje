@@ -6,7 +6,7 @@
 <br/>
 <br/>
 <img src="./public/logo.png" alt="logo" width="80px"/>
-<h3 align="center">WhatsappJe.com</h3>
+<h3 align="center">WasepJe.com</h3>
 
 Open-source WhatsApp Link Rotator, a wasap.my alternative.
 
