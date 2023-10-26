@@ -1,4 +1,4 @@
-import nextPWA from "next-pwa";
+// import nextPWA from "next-pwa";
 
 /**
  * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially useful
@@ -6,13 +6,13 @@ import nextPWA from "next-pwa";
  */
 await import("./src/env.mjs");
 
-const withPWA = nextPWA({
-  dest: "public",
-  register: true,
-  skipWaiting: true,
-  disable: process.env.NODE_ENV === "development",
-  scope: "/tools",
-});
+// const withPWA = nextPWA({
+//   dest: "public",
+//   register: true,
+//   skipWaiting: true,
+//   disable: process.env.NODE_ENV === "development",
+//   scope: "/tools",
+// });
 
 /** @type {import("next").NextConfig} */
 const config = {
@@ -29,4 +29,4 @@ const config = {
   },
 };
 
-export default withPWA(config);
+export default config;
