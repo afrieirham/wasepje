@@ -25,16 +25,14 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import { Textarea } from "~/components/ui/textarea";
 import { toast } from "~/components/ui/use-toast";
 import { useHostname } from "~/hooks/useHostname";
-
+import type { RouterInputs, RouterOutputs } from "~/utils/api";
 import { api } from "~/utils/api";
 
-type Link = {
-  id: string;
-  name: string;
-  slug: string;
-};
+type LinkInput = RouterInputs["link"]["create"];
+type LinkOutput = RouterOutputs["link"]["getAll"][number];
 
 export default function Dashboard() {
   const ctx = api.useContext();
@@ -57,21 +55,23 @@ export default function Dashboard() {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
+  const [message, setMessage] = useState("");
   const [phones, setPhones] = useState([{ value: "" }]);
 
   const resetFormFields = () => {
     setName("");
     setSlug("");
+    setMessage("");
     setPhones([{ value: "" }]);
   };
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const { name, slug } = Object.fromEntries(
+    const { name, slug, message } = Object.fromEntries(
       new FormData(e.currentTarget),
-    ) as Link;
+    ) as unknown as LinkInput;
 
-    mutate({ name, slug, phones });
+    mutate({ name, slug, phones, message });
     setOpen(false);
     resetFormFields();
     toast({
@@ -167,6 +167,18 @@ export default function Dashboard() {
                         </p>
                       </div>
                       <div className="flex flex-col gap-2">
+                        <Label htmlFor="slug" className="">
+                          Pre-filled Text (Optional)
+                        </Label>
+                        <Textarea
+                          id="message"
+                          name="message"
+                          placeholder="Hi, barang A masih available?"
+                          value={message}
+                          onChange={(e) => setMessage(e.target.value)}
+                        />
+                      </div>
+                      <div className="flex flex-col gap-2">
                         <Label>Phone Number</Label>
                         <p className="text-xs text-muted-foreground">
                           Include country code.
@@ -223,7 +235,7 @@ export default function Dashboard() {
   );
 }
 
-function LinkItem({ link, host }: { link: Link; host: string }) {
+function LinkItem({ link, host }: { link: LinkOutput; host: string }) {
   const ctx = api.useContext();
   const url = `${host}/${link.slug}`;
 

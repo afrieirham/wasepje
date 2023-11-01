@@ -78,6 +78,7 @@ export const linkRouter = createTRPCRouter({
       z.object({
         name: z.string().trim(),
         slug: z.string().trim().toLowerCase(),
+        message: z.string().optional(),
         phones: z.array(
           z.object({
             value: z.string().trim(),
@@ -101,6 +102,7 @@ export const linkRouter = createTRPCRouter({
             authorId,
             name: input.name,
             slug: input.slug,
+            message: input.message,
             nextPhone: 0,
             phones: {
               createMany: {

@@ -12,7 +12,12 @@ function RedirectPage() {
   useEffect(() => {
     if (data) {
       const phoneNumber = data.phones.at(Number(data.nextPhone))?.number;
-      const url = `https://wa.me/${phoneNumber}`;
+      let url = `https://wa.me/${phoneNumber}`;
+
+      if (data?.message) {
+        url = url + `?text=${encodeURI(String(data.message))}`;
+      }
+
       void router.push(url);
       mutate({ id: data.id });
     }
