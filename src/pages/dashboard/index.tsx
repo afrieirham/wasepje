@@ -167,7 +167,7 @@ export default function Dashboard() {
                         </p>
                       </div>
                       <div className="flex flex-col gap-2">
-                        <Label htmlFor="slug" className="">
+                        <Label htmlFor="message" className="">
                           Pre-filled Text (Optional)
                         </Label>
                         <Textarea

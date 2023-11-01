@@ -18,6 +18,7 @@ import {
 } from "~/components/ui/dialog";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import { Textarea } from "~/components/ui/textarea";
 import { toast } from "~/components/ui/use-toast";
 import { useHostname } from "~/hooks/useHostname";
 import { api } from "~/utils/api";
@@ -47,11 +48,13 @@ function EditLink() {
   const [addPhoneDialog, setAddPhoneDialog] = useState(false);
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     if (data) {
       setName(data.name);
       setSlug(data.slug);
+      setMessage(data.message ?? "");
     }
   }, [data]);
 
@@ -59,7 +62,7 @@ function EditLink() {
 
   const onSubmitGeneral = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    mutate({ id: data.id, name, slug });
+    mutate({ id: data.id, name, slug, message });
     toast({
       title: "Link successfully updated!",
       description: `${host}/${slug}`,
@@ -138,6 +141,19 @@ function EditLink() {
                 className="mt-2 w-full max-w-md"
                 value={slug}
                 onChange={(e) => setSlug(e.target.value.trim())}
+              />
+            </div>
+            <div className="mt-4 flex flex-col">
+              <Label htmlFor="message" className="">
+                Pre-filled Text (Optional)
+              </Label>
+
+              <Textarea
+                id="message"
+                name="message"
+                className="mt-2 w-full max-w-md"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
               />
             </div>
           </div>

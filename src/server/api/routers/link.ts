@@ -43,6 +43,7 @@ export const linkRouter = createTRPCRouter({
         id: z.string(),
         name: z.string().trim(),
         slug: z.string().trim().toLowerCase(),
+        message: z.string().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -56,7 +57,7 @@ export const linkRouter = createTRPCRouter({
       try {
         const link = await ctx.db.link.update({
           where: { id: input.id },
-          data: { name: input.name, slug: input.slug },
+          data: { name: input.name, slug: input.slug, message: input.message },
         });
         return link;
       } catch (e) {
