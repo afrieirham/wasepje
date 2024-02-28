@@ -15,6 +15,7 @@ model Link {
     name      String
     slug      String   @unique
     message   String?
+    variables String?
     authorId  String
     phones    Phone[]
     nextPhone Int

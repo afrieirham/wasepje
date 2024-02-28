@@ -57,7 +57,12 @@ export const linkRouter = createTRPCRouter({
       try {
         const link = await ctx.db.link.update({
           where: { id: input.id },
-          data: { name: input.name, slug: input.slug, message: input.message },
+          data: {
+            name: input.name,
+            slug: input.slug,
+            message: input.message,
+            variables: getVariablesFromMessage(input.message),
+          },
         });
         return link;
       } catch (e) {
@@ -104,6 +109,7 @@ export const linkRouter = createTRPCRouter({
             name: input.name,
             slug: input.slug,
             message: input.message,
+            variables: getVariablesFromMessage(input.message),
             nextPhone: 0,
             phones: {
               createMany: {
@@ -173,3 +179,18 @@ export const linkRouter = createTRPCRouter({
     return ctx.db.link.findFirst();
   }),
 });
+
+const getVariablesFromMessage = (message?: string) => {
+  if (!message) return "";
+
+  // Regular expression to match Mustache variables
+  const variableRegex = /{{(.*?)}}/g;
+
+  const variables = [];
+  let match;
+  while ((match = variableRegex.exec(message)) !== null) {
+    variables.push(match[1]);
+  }
+
+  return variables.join(",");
+};

@@ -1,5 +1,7 @@
+import { compile } from "handlebars";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { useEffect, type FormEvent } from "react";
+
 import { api } from "~/utils/api";
 
 function RedirectPage() {
@@ -10,7 +12,7 @@ function RedirectPage() {
   const { mutate } = api.link.updateNextPhone.useMutation();
 
   useEffect(() => {
-    if (data) {
+    if (data && !data.variables) {
       const phoneNumber = data.phones.at(Number(data.nextPhone))?.number;
       let url = `https://wa.me/${phoneNumber}`;
 
@@ -23,7 +25,26 @@ function RedirectPage() {
     }
   }, [data, mutate, router]);
 
-  return null;
+  if (!data) return "loading";
+
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const phoneNumber = data.phones.at(Number(data.nextPhone))?.number;
+
+    const template = compile(data.message);
+    const message = template(Object.fromEntries(new FormData(e.currentTarget)));
+    const url = `https://wa.me/${phoneNumber}?text=${encodeURI(message)}`;
+    void router.push(url);
+    mutate({ id: data.id });
+  };
+
+  return (
+    <form onSubmit={onSubmit}>
+      <input name="name" placeholder="name" />
+      <input name="age" placeholder="age" />
+      <button type="submit">submit</button>
+    </form>
+  );
 }
 
 export default RedirectPage;
