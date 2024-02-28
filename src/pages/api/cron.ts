@@ -4,5 +4,5 @@ import { db } from "~/server/db";
 
 export default async function handler(_: NextApiRequest, res: NextApiResponse) {
   await db.link.findFirst();
-  res.status(200).json({ status: "OK" });
+  res.status(204).send("");
 }

@@ -11,6 +11,7 @@ export default authMiddleware({
     "/api/trpc/link.getLinkBySlug",
     "/api/trpc/link.updateNextPhone",
   ],
+  ignoredRoutes: ["/api/cron"],
 });
 
 export const config = {
