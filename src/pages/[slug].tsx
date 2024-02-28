@@ -1,6 +1,8 @@
 import { compile } from "handlebars";
 import { useRouter } from "next/router";
 import { useEffect, type FormEvent } from "react";
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
 
 import { api } from "~/utils/api";
 
@@ -39,10 +41,13 @@ function RedirectPage() {
   };
 
   return (
-    <form onSubmit={onSubmit}>
-      <input name="name" placeholder="name" />
-      <input name="age" placeholder="age" />
-      <button type="submit">submit</button>
+    <form
+      onSubmit={onSubmit}
+      className="mx-auto flex h-screen max-w-xs flex-col items-center justify-center space-y-2"
+    >
+      <Input name="name" placeholder="name" />
+      <Input name="age" placeholder="age" />
+      <Button type="submit">submit</Button>
     </form>
   );
 }
