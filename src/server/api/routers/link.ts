@@ -168,4 +168,8 @@ export const linkRouter = createTRPCRouter({
         where: { id: input.id },
       });
     }),
+
+  findFirst: publicProcedure.query(({ ctx }) => {
+    return ctx.db.link.findFirst();
+  }),
 });
