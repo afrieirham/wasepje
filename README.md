@@ -43,3 +43,8 @@ This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3
 3. Install dependencies with [bun](https://bun.sh).
 4. Run `bunx prisma db push` to setup the database.
 5. Run `bun dev` to start the app on `localhost:3000`
+
+## Banning a user
+
+1. Add Clerk `userId` to middleware.
+2. Add `{ "banned" : true }` to user public metadata.

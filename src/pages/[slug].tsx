@@ -11,6 +11,11 @@ function RedirectPage() {
 
   useEffect(() => {
     if (data) {
+      if (data.banned) {
+        void router.push("/link-banned");
+        return;
+      }
+
       const phoneNumber = data.phones.at(Number(data.nextPhone))?.number;
       let url = `https://wa.me/${phoneNumber}`;
 

@@ -18,6 +18,7 @@ model Link {
     authorId  String
     phones    Phone[]
     nextPhone Int
+    banned    Boolean? @default(false)
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 }
