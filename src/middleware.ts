@@ -21,6 +21,7 @@ export default authMiddleware({
     const bannedUsers = new Map([
       // ["add dev userId here", true],
       ["user_2bOZasXHKUBBIzaZqg85bxiikN2", true],
+      ["user_2eDhcO4gZ4Z58UFTwWnhP7oswpr", true],
     ]);
 
     if (bannedUsers.get(auth.userId ?? "")) {
