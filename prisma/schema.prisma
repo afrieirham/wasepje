@@ -10,16 +10,28 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+model User {
+    id        String   @id @default(cuid())
+    stripeId  String?
+    clerkId   String   @unique
+    plan      Plan     @default(FREE)
+    Link      Link[]
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
 model Link {
     id        String   @id @default(cuid())
     name      String
     slug      String   @unique
     message   String?
     authorId  String
-    phones    Phone[]
     nextPhone Int
     banned    Boolean? @default(false)
+    phones    Phone[]
     clicks    Click[]
+    userId    String
+    user      User     @relation(fields: [userId], references: [id])
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 }
@@ -38,4 +50,10 @@ model Click {
     linkId    String?
     Link      Link?    @relation(fields: [linkId], references: [id])
     createdAt DateTime @default(now())
+}
+
+enum Plan {
+    FREE
+    LITE
+    PRO
 }

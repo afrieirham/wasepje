@@ -49,7 +49,7 @@ import { db } from "~/server/db";
  */
 export const createTRPCContext = (opts: CreateNextContextOptions) => {
   const session = getAuth(opts.req);
-  return { db, currentUserId: session.userId };
+  return { db, clerkId: session.userId };
 };
 
 /**
@@ -98,13 +98,13 @@ export const createTRPCRouter = t.router;
 export const publicProcedure = t.procedure;
 
 const enforceUserIsAuth = t.middleware(async ({ ctx, next }) => {
-  if (!ctx.currentUserId) {
+  if (!ctx.clerkId) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
 
   return next({
     ctx: {
-      currentUserId: ctx.currentUserId,
+      clerkId: ctx.clerkId,
     },
   });
 });

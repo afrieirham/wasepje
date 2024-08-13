@@ -9,7 +9,8 @@
     "postinstall": "prisma generate",
     "lint": "next lint",
     "start": "next start",
-    "studio": "prisma studio"
+    "studio": "prisma studio",
+    "tunnel": "lt --port 3000 --subdomain wasepje"
   },
   "dependencies": {
     "@clerk/nextjs": "^4.25.3",
@@ -31,11 +32,13 @@
     "copy-to-clipboard": "^3.3.3",
     "country-list-json": "^1.1.0",
     "lucide-react": "^0.284.0",
+    "micro": "^10.0.1",
     "next": "^13.4.19",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "slugify": "^1.6.6",
     "superjson": "^1.13.1",
+    "svix": "^1.30.0",
     "tailwind-merge": "^1.14.0",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.21.4"
@@ -50,6 +53,7 @@
     "autoprefixer": "^10.4.14",
     "eslint": "^8.47.0",
     "eslint-config-next": "^13.4.19",
+    "localtunnel": "^2.0.2",
     "postcss": "^8.4.27",
     "prettier": "^3.0.0",
     "prettier-plugin-prisma": "^5.0.0",

@@ -12,7 +12,7 @@ export default authMiddleware({
     "/api/trpc/link.getLinkBySlug",
     "/api/trpc/link.updateNextPhone",
   ],
-  ignoredRoutes: ["/api/cron"],
+  ignoredRoutes: ["/api/cron", "/api/clerk/webhooks(.*)"],
   afterAuth(auth, req) {
     if (req.nextUrl.pathname === "/user-banned") {
       return NextResponse.next();

@@ -17,7 +17,7 @@ export const linkRouter = createTRPCRouter({
 
     return ctx.db.link.findMany({
       take: 10,
-      where: { authorId: ctx.currentUserId ?? "" },
+      where: { authorId: ctx.clerkId ?? "" },
       include: {
         _count: {
           select: {
@@ -87,6 +87,7 @@ export const linkRouter = createTRPCRouter({
   create: privateProcedure
     .input(
       z.object({
+        userId: z.string().trim(),
         name: z.string().trim(),
         slug: z.string().trim().toLowerCase(),
         message: z.string().optional(),
@@ -106,7 +107,7 @@ export const linkRouter = createTRPCRouter({
       }
 
       try {
-        const authorId = ctx.currentUserId;
+        const authorId = ctx.clerkId;
 
         const link = await ctx.db.link.create({
           data: {
@@ -115,6 +116,7 @@ export const linkRouter = createTRPCRouter({
             slug: input.slug,
             message: input.message,
             nextPhone: 0,
+            userId: input.userId,
             phones: {
               createMany: {
                 data: input.phones.map((p) => ({ number: p.value })),

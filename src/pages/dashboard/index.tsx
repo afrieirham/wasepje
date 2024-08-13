@@ -1,9 +1,10 @@
-import { RedirectToSignIn, SignedIn, SignedOut } from "@clerk/nextjs";
+import { RedirectToSignIn, SignedIn, SignedOut, useUser } from "@clerk/nextjs";
 import copy from "copy-to-clipboard";
 import { Pencil, Plus, Trash } from "lucide-react";
 import Link from "next/link";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import slugify from "slugify";
+
 import Header from "~/components/molecule/Header";
 import SEOHead from "~/components/molecule/SEOHead";
 import { Button } from "~/components/ui/button";
@@ -35,9 +36,11 @@ type LinkInput = RouterInputs["link"]["create"];
 type LinkOutput = RouterOutputs["link"]["getAll"][number];
 
 export default function Dashboard() {
+  const auth = useUser();
   const ctx = api.useContext();
   const host = useHostname();
 
+  const sync = api.user.syncUser.useMutation();
   const { data } = api.link.getAll.useQuery();
   const { mutate } = api.link.create.useMutation({
     onSuccess: () => {
@@ -59,6 +62,7 @@ export default function Dashboard() {
   const [phones, setPhones] = useState([{ value: "" }]);
 
   const hasLinks = Boolean(data?.length);
+  const userId = auth.user?.publicMetadata?.userId as string;
 
   const totalClicks = hasLinks
     ? data
@@ -79,7 +83,7 @@ export default function Dashboard() {
       new FormData(e.currentTarget),
     ) as unknown as LinkInput;
 
-    mutate({ name, slug, phones, message });
+    mutate({ name, slug, phones, message, userId });
     setOpen(false);
     resetFormFields();
     toast({
@@ -110,6 +114,13 @@ export default function Dashboard() {
 
     setPhones(updatedPhones);
   };
+
+  useEffect(() => {
+    if (!auth.user?.publicMetadata?.userId) {
+      sync.mutate();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [auth.user?.publicMetadata?.userId]);
 
   return (
     <>
