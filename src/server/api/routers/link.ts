@@ -155,7 +155,7 @@ export const linkRouter = createTRPCRouter({
         include: { phones: true },
       });
 
-      const { nextPhone, phones } = link;
+      const { nextPhone, phones, clicks } = link;
 
       let newNextPhone = Number(nextPhone + 1);
 
@@ -164,7 +164,7 @@ export const linkRouter = createTRPCRouter({
       }
 
       return await ctx.db.link.update({
-        data: { nextPhone: newNextPhone },
+        data: { nextPhone: newNextPhone, clicks: clicks + 1 },
         where: { id: input.id },
       });
     }),
