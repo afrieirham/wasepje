@@ -18,12 +18,12 @@ export default async function handler(
 
   const body = req.body as RequestBody;
 
-  if (body.key === key) {
-    await db.link.updateMany({ data: { clicks: 0 } });
-  }
-
   if (body.key === "test") {
     res.status(200).send("test");
+  }
+
+  if (body.key === key) {
+    await db.link.updateMany({ data: { clicks: 0 } });
   }
 
   res.status(204).send("");
