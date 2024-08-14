@@ -260,6 +260,9 @@ function LinkItem({ link, host }: { link: LinkOutput; host: string }) {
       <div className="flex flex-col justify-center space-y-1">
         <p className="font-semibold">{link.name}</p>
         <p className="text-xs text-zinc-500">{url}</p>
+        <p className="text-xs text-zinc-500">
+          {link._count.clicks} clicks (last 30 days)
+        </p>
       </div>
       <div className="flex">
         <a

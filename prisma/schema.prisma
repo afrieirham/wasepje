@@ -19,7 +19,7 @@ model Link {
     phones    Phone[]
     nextPhone Int
     banned    Boolean? @default(false)
-    clicks    Int      @default(0)
+    clicks    Click[]
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 }
@@ -31,4 +31,11 @@ model Phone {
     link      Link     @relation(fields: [linkId], references: [id], onDelete: Cascade)
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+}
+
+model Click {
+    id        String   @id @default(cuid())
+    linkId    String?
+    Link      Link?    @relation(fields: [linkId], references: [id])
+    createdAt DateTime @default(now())
 }

@@ -12,9 +12,19 @@ const checkReserved = (path: string) => reservedPath.some((p) => p === path);
 
 export const linkRouter = createTRPCRouter({
   getAll: privateProcedure.query(({ ctx }) => {
+    const today = new Date();
+    const last30days = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+
     return ctx.db.link.findMany({
       take: 10,
       where: { authorId: ctx.currentUserId ?? "" },
+      include: {
+        _count: {
+          select: {
+            clicks: { where: { createdAt: { gte: last30days } } },
+          },
+        },
+      },
       orderBy: [{ createdAt: "desc" }],
     });
   }),
@@ -155,7 +165,7 @@ export const linkRouter = createTRPCRouter({
         include: { phones: true },
       });
 
-      const { nextPhone, phones, clicks } = link;
+      const { nextPhone, phones } = link;
 
       let newNextPhone = Number(nextPhone + 1);
 
@@ -163,8 +173,10 @@ export const linkRouter = createTRPCRouter({
         newNextPhone = 0;
       }
 
+      await ctx.db.click.create({ data: { linkId: input.id } });
+
       return await ctx.db.link.update({
-        data: { nextPhone: newNextPhone, clicks: clicks + 1 },
+        data: { nextPhone: newNextPhone },
         where: { id: input.id },
       });
     }),
