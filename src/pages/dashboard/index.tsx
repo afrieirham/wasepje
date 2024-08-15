@@ -58,11 +58,13 @@ export default function Dashboard() {
   const [message, setMessage] = useState("");
   const [phones, setPhones] = useState([{ value: "" }]);
 
-  const linkClicks = data ? data.map((link) => link._count.clicks) : 0;
-  const totalClicks =
-    linkClicks && linkClicks.length > 0
-      ? linkClicks.reduce((total, link) => total + link)
-      : 0;
+  const hasLinks = Boolean(data?.length);
+
+  const totalClicks = hasLinks
+    ? data
+        ?.map((link) => link._count.clicks)
+        .reduce((total, link) => total + link)
+    : 0;
 
   const resetFormFields = () => {
     setName("");
@@ -231,7 +233,9 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="mx-auto flex w-full max-w-screen-xl flex-col justify-between px-2 sm:px-6">
-            <p className="mt-8">Total clicks: {totalClicks} (last 30 days)</p>
+            {hasLinks && (
+              <p className="mt-8">Total clicks: {totalClicks} (last 30 days)</p>
+            )}
             {data?.map((link) => (
               <LinkItem link={link} host={host} key={link.id} />
             ))}
