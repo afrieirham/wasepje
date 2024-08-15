@@ -58,9 +58,11 @@ export default function Dashboard() {
   const [message, setMessage] = useState("");
   const [phones, setPhones] = useState([{ value: "" }]);
 
-  const totalClicks = data
-    ?.map((link) => link._count.clicks)
-    .reduce((total, link) => total + link);
+  const linkClicks = data ? data.map((link) => link._count.clicks) : 0;
+  const totalClicks =
+    linkClicks && linkClicks.length > 0
+      ? linkClicks.reduce((total, link) => total + link)
+      : 0;
 
   const resetFormFields = () => {
     setName("");
