@@ -1,12 +1,14 @@
 import { Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import z from "zod";
+
 import { reservedPath } from "~/constants";
 import {
   createTRPCRouter,
   privateProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
+import { syncClerkUser } from "./user";
 
 const checkReserved = (path: string) => reservedPath.some((p) => p === path);
 
@@ -176,6 +178,10 @@ export const linkRouter = createTRPCRouter({
       }
 
       await ctx.db.click.create({ data: { linkId: input.id } });
+
+      if (!link.userId) {
+        await syncClerkUser(link.authorId);
+      }
 
       return await ctx.db.link.update({
         data: { nextPhone: newNextPhone },
