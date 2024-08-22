@@ -10,6 +10,12 @@ export const userRouter = createTRPCRouter({
       update: {},
     });
 
+    // add userId to links
+    await ctx.db.link.updateMany({
+      where: { authorId: ctx.clerkId },
+      data: { userId: user.id },
+    });
+
     // update clerk public metadata
     await clerkClient.users.updateUserMetadata(ctx.clerkId, {
       publicMetadata: { userId: user.id },
