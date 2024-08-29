@@ -1,4 +1,4 @@
-export const reservedPath = [
+export const reservedSlug = [
   "404",
   "500",
   "about",

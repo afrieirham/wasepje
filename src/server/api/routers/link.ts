@@ -2,7 +2,7 @@ import { Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import z from "zod";
 
-import { reservedPath } from "~/constants";
+import { reservedSlug } from "~/constants/reserved-slug";
 import {
   createTRPCRouter,
   privateProcedure,
@@ -10,7 +10,7 @@ import {
 } from "~/server/api/trpc";
 import { syncClerkUser } from "./user";
 
-const checkReserved = (path: string) => reservedPath.some((p) => p === path);
+const checkReserved = (path: string) => reservedSlug.some((p) => p === path);
 
 export const linkRouter = createTRPCRouter({
   getAll: privateProcedure.query(({ ctx }) => {
@@ -162,30 +162,43 @@ export const linkRouter = createTRPCRouter({
     }),
 
   updateNextPhone: publicProcedure
-    .input(z.object({ id: z.string() }))
+    .input(
+      z.object({
+        id: z.string(),
+        metadata: z.object({
+          browser: z.string(),
+          country: z.string(),
+          continent: z.string(),
+          device: z.string(),
+          os: z.string(),
+          referrer: z.string(),
+        }),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       const link = await ctx.db.link.findFirstOrThrow({
         where: { id: input.id },
         include: { phones: true },
       });
 
+      // update next phone
       const { nextPhone, phones } = link;
-
       let newNextPhone = Number(nextPhone + 1);
-
       if (newNextPhone > phones.length - 1) {
         newNextPhone = 0;
       }
+      await ctx.db.link.update({
+        data: { nextPhone: newNextPhone },
+        where: { id: input.id },
+      });
 
-      await ctx.db.click.create({ data: { linkId: input.id } });
-
+      // sync user data
       if (!link.userId) {
         await syncClerkUser(link.authorId);
       }
 
-      return await ctx.db.link.update({
-        data: { nextPhone: newNextPhone },
-        where: { id: input.id },
+      return await ctx.db.click.create({
+        data: { ...input.metadata, linkId: input.id },
       });
     }),
 
