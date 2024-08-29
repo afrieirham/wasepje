@@ -2,7 +2,7 @@ import { RedirectToSignIn, SignedIn, SignedOut, useUser } from "@clerk/nextjs";
 import copy from "copy-to-clipboard";
 import { Pencil, Plus, Trash } from "lucide-react";
 import Link from "next/link";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import slugify from "slugify";
 
 import Header from "~/components/molecule/Header";
@@ -40,6 +40,7 @@ export default function Dashboard() {
   const ctx = api.useContext();
   const host = useHostname();
 
+  const sync = api.user.syncUser.useMutation();
   const { data } = api.link.getAll.useQuery();
   const { mutate } = api.link.create.useMutation({
     onSuccess: () => {
@@ -113,6 +114,14 @@ export default function Dashboard() {
 
     setPhones(updatedPhones);
   };
+
+  useEffect(() => {
+    console.log(userId);
+    if (!userId) {
+      sync.mutate();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]);
 
   return (
     <>
