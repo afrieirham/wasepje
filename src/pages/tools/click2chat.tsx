@@ -68,7 +68,7 @@ function Click2Chat() {
       </form>
       <div className="mx-auto flex w-full flex-row items-center justify-center space-x-2 px-2 py-6 md:hidden">
         <Button asChild variant="ghost" size="sm" className="text-xs">
-          <Link href="https://github.com/afrieirham/whatsappje" target="_blank">
+          <Link href="https://github.com/afrieirham/wasepje" target="_blank">
             <Github className="mr-2 h-4 w-4" />
             Star us on GitHub
           </Link>

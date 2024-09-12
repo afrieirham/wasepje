@@ -1,6 +1,6 @@
 <div align="center">
 
-<a href="https://github.com/afrieirham/whatsappje">
+<a href="https://github.com/afrieirham/wasepje">
   <img src="./public/og.png" alt="poster">
 </a>
 <br/>

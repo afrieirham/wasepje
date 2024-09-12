@@ -27,10 +27,7 @@ function PublicHeader() {
 
         <div className="hidden space-x-4 md:flex md:flex-1 md:justify-end">
           <Button asChild variant="outline">
-            <Link
-              href="https://github.com/afrieirham/whatsappje"
-              target="_blank"
-            >
+            <Link href="https://github.com/afrieirham/wasepje" target="_blank">
               <Github className="mr-2 h-4 w-4" />
               Star us on GitHub
             </Link>

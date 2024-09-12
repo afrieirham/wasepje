@@ -34,7 +34,7 @@ export default function Footer() {
                 </svg>
               </a>
               <a
-                href="https://github.com/afrieirham/whatsappje"
+                href="https://github.com/afrieirham/wasepje"
                 className="text-gray-400 hover:text-gray-500"
               >
                 <svg
