@@ -1,17 +1,23 @@
 import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { UAParser } from "ua-parser-js";
+import { Button } from "~/components/ui/button";
 
 import { api } from "~/utils/api";
 
 function RedirectPage() {
   const router = useRouter();
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+
   const { data } = api.link.getLinkBySlug.useQuery({
     slug: String(router.query.slug),
   });
   const { mutate } = api.link.updateNextPhone.useMutation();
 
-  useEffect(() => {
+  const [countdown, setCountdown] = useState(5);
+  const hasEnded = countdown === 0;
+
+  const onClick = () => {
     if (data) {
       if (data.banned) {
         void router.push("/link-banned");
@@ -37,11 +43,48 @@ function RedirectPage() {
 
       mutate({ id: data.id, metadata });
 
-      void router.push(url);
-    }
-  }, [data, mutate, router]);
+      const links = [
+        "https://dub.sh/sambal-nyet",
+        "https://dub.sh/dendeng-nyet",
+      ];
 
-  return null;
+      void router.push(url);
+      const popUnder = window.open(links[Math.round(Math.random())], "_blank");
+      if (popUnder) window.focus();
+    }
+  };
+
+  useEffect(() => {
+    // Countdown timer
+    const countdownInterval = setInterval(() => {
+      if (countdown > 0) setCountdown(countdown - 1);
+    }, 1000);
+
+    // Set timeout to click the button after 3 seconds
+    const timer = setTimeout(() => {
+      if (buttonRef.current) {
+        buttonRef.current.click();
+      }
+    }, countdown * 1000);
+
+    return () => {
+      clearInterval(countdownInterval);
+      clearTimeout(timer);
+    };
+  }, [countdown]);
+
+  return (
+    <div className="flex h-screen max-h-screen w-full items-center justify-center">
+      <Button
+        ref={buttonRef}
+        onClick={onClick}
+        disabled={!hasEnded}
+        className="transition-all"
+      >
+        {hasEnded ? "click to continue" : `redirecting in ${countdown} seconds`}
+      </Button>
+    </div>
+  );
 }
 
 export default RedirectPage;
