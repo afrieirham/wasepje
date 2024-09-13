@@ -1,6 +1,16 @@
+import { useEffect } from "react";
+
+import { useAuth } from "@clerk/nextjs";
+
 import Header from "~/components/molecule/Header";
 
 function UserBanned() {
+  const { signOut } = useAuth();
+
+  useEffect(() => {
+    void signOut({ redirectUrl: "/user-banned" });
+  }, [signOut]);
+
   return (
     <div>
       <Header />
