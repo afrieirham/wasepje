@@ -51,6 +51,7 @@ import { toast } from "~/components/ui/use-toast";
 import { useHostname } from "~/hooks/useHostname";
 import type { RouterInputs, RouterOutputs } from "~/utils/api";
 import { api } from "~/utils/api";
+import PricingTable from "~/components/molecule/PricingTable";
 
 type LinkInput = RouterInputs["link"]["create"];
 type LinkOutput = RouterOutputs["link"]["getAll"][number];
@@ -264,13 +265,19 @@ export default function Dashboard() {
               </Dialog>
             </div>
           </div>
-          <div className="mx-auto flex w-full max-w-screen-xl flex-col justify-between px-2 sm:px-6">
+          <div className="mx-auto flex w-full max-w-screen-xl flex-col justify-between px-4 sm:px-6">
             {hasLinks && (
               <p className="mt-8">Total clicks: {totalClicks} (last 30 days)</p>
             )}
             {data?.map((link) => (
               <LinkItem link={link} host={host} key={link.id} />
             ))}
+          </div>
+          <div className="px-4 py-16">
+            <p className="text-center text-2xl font-bold">
+              Upgrade to Pro today!
+            </p>
+            <PricingTable />
           </div>
         </main>
       </SignedIn>

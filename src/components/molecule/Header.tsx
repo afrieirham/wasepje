@@ -1,7 +1,8 @@
-import { UserButton, useClerk, useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect } from "react";
+
+import { UserButton, useClerk, useUser } from "@clerk/nextjs";
 
 function Header() {
   const { user } = useUser();
@@ -26,7 +27,14 @@ function Header() {
           />
           <p className="font-bold">WasepJe.com</p>
         </Link>
-        <UserButton showName />
+        <div className="space-x-2">
+          <UserButton
+            showName
+            appearance={{
+              elements: { userButtonTrigger: "bg-gray-100 py-1.5 px-2" },
+            }}
+          />
+        </div>
       </div>
     </nav>
   );

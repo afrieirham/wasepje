@@ -1,9 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
-import { Check, Github, MoveRight } from "lucide-react";
+import { Github, MoveRight } from "lucide-react";
 import BackgroundPlayer from "next-video/background-player";
 
 import Footer from "~/components/molecule/Footer";
@@ -15,42 +15,11 @@ import {
   AccordionTrigger,
 } from "~/components/ui/accordion";
 import { Button } from "~/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
+import PricingTable from "~/components/molecule/PricingTable";
 
 export default function Index() {
-  const [country, setCountry] = useState("");
   const [openItem, setOpenItem] = useState("1");
   const onValueChange = (value: string) => setOpenItem(value);
-
-  useEffect(() => {
-    const userCountry = localStorage.getItem("user-country");
-
-    if (!userCountry) {
-      fetch("https://get.geojs.io/v1/ip/country.json")
-        .then((res) => res.json())
-        .then(
-          (data: {
-            country: string;
-            country_3: string;
-            ip: string;
-            name: string;
-          }) => {
-            setCountry(data.country);
-            localStorage.setItem("user-country", data.country);
-          },
-        )
-        .catch((error) => console.log(error));
-    } else {
-      setCountry(userCountry);
-    }
-  }, []);
 
   return (
     <div className="">
@@ -255,80 +224,9 @@ export default function Index() {
         <h2 className="text-center text-3xl font-black">
           Start now for free or Upgrade to Pro!
         </h2>
-        <div className="mx-auto mt-8 grid max-w-5xl gap-8 md:grid-cols-2">
-          {/* Free Tier */}
-          <Card className="flex flex-col">
-            <CardHeader>
-              <CardTitle className="text-2xl">Free</CardTitle>
-              <CardDescription>
-                For individuals and small business.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex-grow">
-              <p className="mb-4 text-4xl font-bold">
-                {country === "MY" ? "RM0" : "$0"}
-                <span className="text-xl font-normal">/month</span>
-              </p>
-              <ul className="space-y-2">
-                <FeatureItem>Random generated link</FeatureItem>
-                <FeatureItem>Unlimited phone numbers</FeatureItem>
-                <FeatureItem>Phone number weightage</FeatureItem>
-                <FeatureItem>5-second delay before redirect</FeatureItem>
-                <FeatureItem>Generate QR Code</FeatureItem>
-              </ul>
-            </CardContent>
-            <CardFooter>
-              <Button className="w-full space-x-2" asChild>
-                <Link href="/dashboard">
-                  <span>Choose Free</span>
-                  <MoveRight className="h-4 w-4" />
-                </Link>
-              </Button>
-            </CardFooter>
-          </Card>
-
-          {/* Pro Tier */}
-          <Card className="flex flex-col  border-2 border-zinc-900 shadow-2xl">
-            <CardHeader>
-              <CardTitle className="text-2xl">Pro</CardTitle>
-              <CardDescription>
-                For business with more advance requirement.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex-grow">
-              <p className="mb-4 text-4xl font-bold">
-                {country === "MY" ? "RM9" : "$9"}
-                <span className="text-xl font-normal">/month</span>
-              </p>
-              <ul className="space-y-2">
-                <FeatureItem>5 Premium Links</FeatureItem>
-                <FeatureItem>Unlimited phone numbers</FeatureItem>
-                <FeatureItem>Phone number weightage</FeatureItem>
-                <FeatureItem>Instant redirect</FeatureItem>
-                <FeatureItem>Generate Customizable QR Code</FeatureItem>
-              </ul>
-            </CardContent>
-            <CardFooter>
-              <Button className="w-full space-x-2" asChild>
-                <Link href="/dashboard">
-                  <span>Choose Pro</span>
-                  <MoveRight className="h-4 w-4" />
-                </Link>
-              </Button>
-            </CardFooter>
-          </Card>
-        </div>
+        <PricingTable />
       </div>
       <Footer />
     </div>
-  );
-}
-
-function FeatureItem({ children }: { children: React.ReactNode }) {
-  return (
-    <li className="flex items-center space-x-2">
-      <Check className="h-5 w-5 text-black" />
-      <span>{children}</span>
-    </li>
   );
 }
