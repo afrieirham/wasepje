@@ -1,4 +1,4 @@
-import { clerkClient } from "@clerk/nextjs";
+import { clerkClient } from "@clerk/nextjs/server";
 import type { WebhookEvent } from "@clerk/nextjs/server";
 import { buffer } from "micro";
 import type { NextApiRequest, NextApiResponse } from "next";

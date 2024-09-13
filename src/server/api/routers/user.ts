@@ -1,4 +1,4 @@
-import { clerkClient } from "@clerk/nextjs";
+import { clerkClient } from "@clerk/nextjs/server";
 import { createTRPCRouter, privateProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
 

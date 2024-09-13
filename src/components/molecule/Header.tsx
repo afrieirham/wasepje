@@ -26,7 +26,7 @@ function Header() {
           />
           <p className="font-bold">WasepJe.com</p>
         </Link>
-        <UserButton showName afterSignOutUrl="/" />
+        <UserButton showName />
       </div>
     </nav>
   );

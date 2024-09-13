@@ -1,35 +1,34 @@
-import { authMiddleware } from "@clerk/nextjs";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-// This example protects all routes including api/trpc routes
-// Please edit this to allow other routes to be public as needed.
-// See https://clerk.com/docs/references/nextjs/auth-middleware for more information about configuring your middleware
-export default authMiddleware({
-  publicRoutes: [
-    "/",
-    "/tools/:slug",
-    "/:slug",
-    "/api/trpc/link.getLinkBySlug",
-    "/api/trpc/link.updateNextPhone",
-  ],
-  ignoredRoutes: ["/api/cron", "/api/clerk/webhooks(.*)"],
-  afterAuth(auth, req) {
-    if (req.nextUrl.pathname === "/user-banned") {
-      return NextResponse.next();
-    }
+const isPublicRoute = createRouteMatcher([
+  "/",
+  "/tools/:slug",
+  "/:slug",
+  "/api/trpc/link.getLinkBySlug",
+  "/api/trpc/link.updateNextPhone",
+  "/api/cron",
+  "/api/clerk/webhooks(.*)",
+]);
 
-    const bannedUsers = new Map([
-      // ["add dev userId here", true],
-      ["user_2bOZasXHKUBBIzaZqg85bxiikN2", true],
-      ["user_2eDhcO4gZ4Z58UFTwWnhP7oswpr", true],
-    ]);
+export default clerkMiddleware((auth, request) => {
+  if (!isPublicRoute(request)) {
+    auth().protect();
+  }
 
-    if (bannedUsers.get(auth.userId ?? "")) {
-      return NextResponse.redirect(new URL("/user-banned", req.url));
-    }
-
+  if (request.nextUrl.pathname === "/user-banned") {
     return NextResponse.next();
-  },
+  }
+
+  const bannedUsers = new Map([
+    // ["add dev userId here to debug", true],
+    ["user_2bOZasXHKUBBIzaZqg85bxiikN2", true],
+    ["user_2eDhcO4gZ4Z58UFTwWnhP7oswpr", true],
+  ]);
+
+  if (bannedUsers.get(auth().userId ?? "")) {
+    return NextResponse.redirect(new URL("/user-banned", request.url));
+  }
 });
 
 export const config = {

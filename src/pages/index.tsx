@@ -24,8 +24,10 @@ export default function Example() {
         </h1>
         <div className="mt-6 flex w-full max-w-md flex-col space-y-2 px-4 md:hidden">
           <SignedOut>
-            <SignInButton redirectUrl="/dashboard">
-              <Button size="lg">Sign Up</Button>
+            <SignInButton forceRedirectUrl="/dashboard">
+              <Button>
+                <Link href="/dashboard">Sign Up</Link>
+              </Button>
             </SignInButton>
           </SignedOut>
           <SignedIn>
