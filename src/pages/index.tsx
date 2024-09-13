@@ -108,6 +108,7 @@ export default function Index() {
                 muted
                 loop
                 playing
+                playsinline
                 url="/weightage.mp4"
                 wrapper={({ children }) => (
                   <div className="mx-auto max-w-sm overflow-hidden rounded-xl border">
