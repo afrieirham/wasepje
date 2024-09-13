@@ -9,7 +9,8 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 
-const checkReserved = (path: string) => reservedSlug.some((p) => p === path);
+export const checkReserved = (path: string) =>
+  reservedSlug.some((p) => p === path);
 
 export const linkRouter = createTRPCRouter({
   getAll: privateProcedure.query(({ ctx }) => {
