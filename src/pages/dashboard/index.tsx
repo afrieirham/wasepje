@@ -116,7 +116,6 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    console.log(userId);
     if (!userId) {
       sync.mutate();
     }
