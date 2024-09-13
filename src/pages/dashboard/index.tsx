@@ -284,11 +284,13 @@ function LinkItem({ link, host }: { link: LinkOutput; host: string }) {
 
   const qrRef = useRef<QRCode>(null);
   const qrCanvasRef = useRef<HTMLDivElement>(null);
+  const logoUploadRef = useRef<HTMLInputElement>(null);
 
   const [copied, setCopied] = useState(false);
   const [showLogo, setShowLogo] = useState(true);
   const [bgColor, setBgColor] = useState("#ffffff");
   const [fgColor, setFgCOlor] = useState("#000000");
+  const [userLogo, setUserLogo] = useState("");
 
   const { mutate } = api.link.delete.useMutation({
     onSuccess: () => {
@@ -370,7 +372,10 @@ function LinkItem({ link, host }: { link: LinkOutput; host: string }) {
                 <QRCode
                   ref={qrRef as MutableRefObject<QRCode>}
                   value={url}
-                  logoImage={showLogo ? "/qr-logo.png" : undefined}
+                  logoImage={(() => {
+                    const displayLogo = userLogo ? userLogo : "/qr-logo.png";
+                    return showLogo ? displayLogo : undefined;
+                  })()}
                   logoWidth={50}
                   qrStyle="dots"
                   fgColor={fgColor}
@@ -387,6 +392,38 @@ function LinkItem({ link, host }: { link: LinkOutput; host: string }) {
                   onCheckedChange={() => setShowLogo(!showLogo)}
                 />
                 <Label htmlFor="show-logo">Show Logo</Label>
+              </div>
+              <div className="grid w-full max-w-sm items-center gap-1.5">
+                <Label htmlFor="custom-logo">Custom Logo</Label>
+                <Input
+                  id="custom-logo"
+                  type="file"
+                  ref={logoUploadRef}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onload = () => {
+                        setUserLogo(reader.result as string); // Set the uploaded logo image
+                      };
+                      reader.readAsDataURL(file); // Convert image file to data URL
+                    }
+                  }}
+                />
+                <Button
+                  size="sm"
+                  variant="link"
+                  className="text-start"
+                  onClick={() => {
+                    if (logoUploadRef.current) {
+                      logoUploadRef.current.value = "";
+                    }
+                    setUserLogo("");
+                  }}
+                >
+                  Remove logo
+                </Button>
               </div>
               <div className="flex items-center space-x-2">
                 <input
