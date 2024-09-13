@@ -7,10 +7,13 @@ import { Github, MoveRight } from "lucide-react";
 import Footer from "~/components/molecule/Footer";
 import SEOHead from "~/components/molecule/SEOHead";
 import { Button } from "~/components/ui/button";
+import ReactPlayer from "react-player";
+import useClient from "~/hooks/useClient";
 
-export default function Example() {
+export default function Index() {
+  const { isClient } = useClient();
   return (
-    <div className="bg-white">
+    <div className="">
       <SEOHead
         title="WhatsApp Link Rotator | WasepJe.com"
         description="Open-Source WhatsApp Link Rotator, an alternative to wasap.my"
@@ -18,9 +21,9 @@ export default function Example() {
         ogPath="/og.png"
       />
 
-      <header className="h-[10dvh] w-full">
+      <header className="w-full border-b bg-white">
         <nav
-          className="flex items-center justify-between max-w-screen-xl p-4 mx-auto sm:p-6 sm:px-8"
+          className="mx-auto flex max-w-screen-xl items-center justify-between p-4 sm:p-6 sm:px-8"
           aria-label="Global"
         >
           <div className="flex sm:flex-1">
@@ -28,7 +31,7 @@ export default function Example() {
               <Image
                 width={40}
                 height={40}
-                className="w-10 h-10"
+                className="h-10 w-10"
                 src="/logo.png"
                 alt="wasepje.com logo"
               />
@@ -40,22 +43,24 @@ export default function Example() {
           </Button>
         </nav>
       </header>
-      <div className="mx-auto h-[90dvh] max-w-screen-xl pb-24 pt-10 sm:pb-32 lg:flex lg:flex-col lg:items-center">
-        <div className="max-w-screen-xl px-4 pt-4 mx-auto text-center lg:mx-0 lg:flex lg:flex-col lg:items-center lg:justify-center lg:pt-8">
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+
+      {/* hero */}
+      <div className="mx-auto max-w-screen-xl py-10 lg:flex lg:flex-col lg:items-center">
+        <div className="mx-auto max-w-screen-xl px-4 pt-4 text-center lg:mx-0 lg:flex lg:flex-col lg:items-center lg:justify-center lg:pt-8">
+          <h1 className="text-3xl font-black tracking-tight text-gray-900 sm:text-5xl">
             One link, multiple numbers. Simple as that.
           </h1>
           <p className="mt-6 text-lg leading-8 text-gray-600">
             wasep je, the open-source whatsapp link rotator, wasap.my
             alternative.
           </p>
-          <div className="flex flex-col items-center justify-center gap-2 mt-10 sm:flex-row">
+          <div className="mt-10 flex flex-col items-center justify-center gap-2 sm:flex-row">
             <SignedOut>
               <SignInButton forceRedirectUrl="/dashboard">
                 <Button asChild className="w-full space-x-1 sm:w-auto">
                   <Link href="/dashboard">
                     <span>Get Started</span>
-                    <MoveRight className="w-4 h-4" />
+                    <MoveRight className="h-4 w-4" />
                   </Link>
                 </Button>
               </SignInButton>
@@ -64,7 +69,7 @@ export default function Example() {
               <Button asChild className="w-full space-x-1 sm:w-auto">
                 <Link href="/dashboard">
                   <span>Go to Dashboard</span>
-                  <MoveRight className="w-4 h-4" />
+                  <MoveRight className="h-4 w-4" />
                 </Link>
               </Button>
             </SignedIn>
@@ -77,13 +82,13 @@ export default function Example() {
                 href="https://github.com/afrieirham/wasepje"
                 target="_blank"
               >
-                <Github className="w-4 h-4" />
+                <Github className="h-4 w-4" />
                 <span>Star us on GitHub</span>
               </Link>
             </Button>
           </div>
         </div>
-        <div className="flex items-center justify-center w-full">
+        <div className="mt-16 flex w-full items-center justify-center px-2">
           <Image
             width={1000}
             height={1000}
@@ -93,6 +98,40 @@ export default function Example() {
           />
         </div>
       </div>
+
+      {/* features */}
+      <div className="w-full bg-white py-10 md:py-16">
+        <div className="mx-auto flex max-w-screen-lg flex-col items-center justify-center gap-16 px-4 md:flex-row md:items-center md:justify-between">
+          <div className="w-full">
+            {isClient && (
+              <ReactPlayer
+                muted
+                loop
+                playing
+                url="/weightage.mp4"
+                wrapper={({ children }) => (
+                  <div className="mx-auto max-w-sm overflow-hidden rounded-xl border">
+                    {children}
+                  </div>
+                )}
+              />
+            )}
+          </div>
+          <div className="w-full max-w-sm">
+            <h2 className="text-2xl font-black md:text-3xl">
+              Set Phone Number Weightage
+            </h2>
+            <p className="mt-4 max-w-sm">
+              Decide which number gets priority. Duplicate it as many times as
+              you need for better visibility.
+            </p>
+            <Button className="mt-8" asChild>
+              <Link href="/dashboard">Get Started Now</Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+
       <Footer />
     </div>
   );
