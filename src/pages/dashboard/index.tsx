@@ -1,9 +1,27 @@
 import Link from "next/link";
-import { useEffect, useState, type FormEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+  type MutableRefObject,
+} from "react";
 
 import { RedirectToSignIn, SignedIn, SignedOut, useUser } from "@clerk/nextjs";
 import copy from "copy-to-clipboard";
-import { Pencil, Plus, Trash } from "lucide-react";
+import {
+  Check,
+  Clipboard,
+  Copy,
+  Download,
+  Ellipsis,
+  ExternalLink,
+  Pencil,
+  Plus,
+  QrCode,
+  Trash,
+} from "lucide-react";
+import { QRCode } from "react-qrcode-logo";
 import slugify from "slugify";
 
 import Header from "~/components/molecule/Header";
@@ -27,6 +45,7 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import { Switch } from "~/components/ui/switch";
 import { Textarea } from "~/components/ui/textarea";
 import { toast } from "~/components/ui/use-toast";
 import { useHostname } from "~/hooks/useHostname";
@@ -263,6 +282,14 @@ function LinkItem({ link, host }: { link: LinkOutput; host: string }) {
   const ctx = api.useContext();
   const url = `${host}/${link.slug}`;
 
+  const qrRef = useRef<QRCode>(null);
+  const qrCanvasRef = useRef<HTMLDivElement>(null);
+
+  const [copied, setCopied] = useState(false);
+  const [showLogo, setShowLogo] = useState(true);
+  const [bgColor, setBgColor] = useState("#ffffff");
+  const [fgColor, setFgCOlor] = useState("#000000");
+
   const { mutate } = api.link.delete.useMutation({
     onSuccess: () => {
       void ctx.link.getAll.invalidate();
@@ -279,6 +306,37 @@ function LinkItem({ link, host }: { link: LinkOutput; host: string }) {
     toast({ title: "Link successfully deleted!", description: url });
   };
 
+  const copyToClipboard = async () => {
+    setCopied(true);
+    setTimeout(() => {
+      setCopied(false);
+    }, 3000);
+
+    try {
+      const canvas = qrCanvasRef.current?.querySelector("canvas");
+
+      if (!canvas) {
+        throw new Error("QR code canvas not found.");
+      }
+
+      const blob = await new Promise<Blob | null>((resolve) =>
+        canvas.toBlob(resolve),
+      );
+
+      if (!blob) {
+        throw new Error("Failed to create image blob.");
+      }
+
+      const item = new ClipboardItem({ "image/png": blob });
+      await navigator.clipboard.write([item]);
+    } catch (error) {
+      toast({
+        title: "Error copying image to clipboard: ",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="mt-2 flex items-center justify-between rounded border bg-white p-4 hover:border-zinc-400">
       <div className="flex flex-col justify-center space-y-1">
@@ -289,48 +347,110 @@ function LinkItem({ link, host }: { link: LinkOutput; host: string }) {
         </p>
       </div>
       <div className="flex">
+        <Dialog>
+          <DialogTrigger asChild>
+            <button
+              className="flex h-9 items-center justify-center whitespace-nowrap rounded-s border border-e-0 p-2 text-sm font-medium ring-offset-background transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-opacity-30 disabled:text-muted disabled:hover:bg-opacity-30 disabled:hover:text-muted"
+              type="button"
+            >
+              <QrCode className="h-4 w-4" />
+            </button>
+          </DialogTrigger>
+          <DialogContent className="overflow-hidden bg-gray-100 p-0 sm:max-w-[425px]">
+            <DialogHeader className="border-b bg-white p-4">
+              <DialogTitle className="text-center">
+                Download QR Code
+              </DialogTitle>
+            </DialogHeader>
+            <div className="flex items-center justify-center p-4">
+              <div
+                className="overflow-hidden rounded-lg border"
+                ref={qrCanvasRef}
+              >
+                <QRCode
+                  ref={qrRef as MutableRefObject<QRCode>}
+                  value={url}
+                  logoImage={showLogo ? "/qr-logo.png" : undefined}
+                  logoWidth={50}
+                  qrStyle="dots"
+                  fgColor={fgColor}
+                  bgColor={bgColor}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-4 px-8">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="show-logo"
+                  checked={showLogo}
+                  onCheckedChange={() => setShowLogo(!showLogo)}
+                />
+                <Label htmlFor="show-logo">Show Logo</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="color"
+                  value={bgColor}
+                  onChange={(e) => setBgColor(e.currentTarget.value)}
+                  className="h-10 w-14 cursor-pointer rounded-lg border border-gray-200 bg-white p-1"
+                ></input>
+                <label className="text-sm font-medium">Background Color</label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="color"
+                  value={fgColor}
+                  onChange={(e) => setFgCOlor(e.currentTarget.value)}
+                  className="h-10 w-14 cursor-pointer rounded-lg border border-gray-200 bg-white p-1"
+                ></input>
+                <label className="text-sm font-medium">Foreground Color</label>
+              </div>
+            </div>
+
+            <DialogFooter className="flex space-x-2 p-4">
+              <Button
+                size="sm"
+                type="button"
+                className="w-full space-x-2"
+                onClick={() => void copyToClipboard()}
+              >
+                {copied ? (
+                  <Check className="h-4 w-4" />
+                ) : (
+                  <Clipboard className="h-4 w-4" />
+                )}
+                <span>Copy</span>
+              </Button>
+              <Button
+                size="sm"
+                type="button"
+                className="w-full space-x-2"
+                onClick={() =>
+                  qrRef.current?.download("png", `qr-${link.slug}`)
+                }
+              >
+                <Download className="h-4 w-4" />
+                <span>Download</span>
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
         <a
           target="_blank"
           href={url}
-          className="flex h-9 items-center justify-center whitespace-nowrap rounded-s border border-e-0 p-2 text-sm font-medium ring-offset-background transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-opacity-30 disabled:text-muted disabled:hover:bg-opacity-30 disabled:hover:text-muted"
+          className="flex h-9 items-center justify-center whitespace-nowrap border border-e-0 p-2 text-sm font-medium ring-offset-background transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-opacity-30 disabled:text-muted disabled:hover:bg-opacity-30 disabled:hover:text-muted"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="h-4 w-4"
-          >
-            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-            <polyline points="15 3 21 3 21 9"></polyline>
-            <line x1="10" x2="21" y1="14" y2="3"></line>
-          </svg>
+          <ExternalLink className="h-4 w-4" />
         </a>
         <button
           onClick={onClickCopy}
           className="flex h-9 min-h-[36px] min-w-[36px] items-center justify-center whitespace-nowrap rounded-none border p-2 text-sm font-medium ring-offset-background transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-opacity-30 disabled:text-muted disabled:hover:bg-opacity-30 disabled:hover:text-muted"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="h-4 w-4"
-          >
-            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-          </svg>
+          <Copy className="h-4 w-4" />
         </button>
+
         <Dialog>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -338,22 +458,7 @@ function LinkItem({ link, host }: { link: LinkOutput; host: string }) {
                 className="flex h-9 min-h-[36px] min-w-[36px] items-center justify-center whitespace-nowrap rounded-e border border-s-0 p-2 text-sm font-medium ring-offset-background transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-opacity-30 disabled:text-muted disabled:hover:bg-opacity-30 disabled:hover:text-muted"
                 type="button"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-4 w-4"
-                >
-                  <circle cx="12" cy="12" r="1"></circle>
-                  <circle cx="19" cy="12" r="1"></circle>
-                  <circle cx="5" cy="12" r="1"></circle>
-                </svg>
+                <Ellipsis className="h-4 w-4" />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end">
