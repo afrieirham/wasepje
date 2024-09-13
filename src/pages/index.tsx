@@ -1,9 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
-import { Github, MoveRight } from "lucide-react";
+import { Check, Github, MoveRight } from "lucide-react";
 import BackgroundPlayer from "next-video/background-player";
 
 import Footer from "~/components/molecule/Footer";
@@ -15,10 +15,42 @@ import {
   AccordionTrigger,
 } from "~/components/ui/accordion";
 import { Button } from "~/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
 
 export default function Index() {
+  const [country, setCountry] = useState("");
   const [openItem, setOpenItem] = useState("1");
   const onValueChange = (value: string) => setOpenItem(value);
+
+  useEffect(() => {
+    const userCountry = localStorage.getItem("user-country");
+
+    if (!userCountry) {
+      fetch("https://get.geojs.io/v1/ip/country.json")
+        .then((res) => res.json())
+        .then(
+          (data: {
+            country: string;
+            country_3: string;
+            ip: string;
+            name: string;
+          }) => {
+            setCountry(data.country);
+            localStorage.setItem("user-country", data.country);
+          },
+        )
+        .catch((error) => console.log(error));
+    } else {
+      setCountry(userCountry);
+    }
+  }, []);
 
   return (
     <div className="">
@@ -50,6 +82,7 @@ export default function Index() {
           </Button>
         </nav>
       </header>
+
       {/* hero */}
       <div className="mx-auto max-w-screen-xl border-b py-16 lg:flex lg:flex-col lg:items-center">
         <div className="mx-auto max-w-screen-xl px-4 text-center lg:mx-0 lg:flex lg:flex-col lg:items-center lg:justify-center">
@@ -108,16 +141,17 @@ export default function Index() {
 
       {/* how it works */}
       <div className="flex w-full flex-col bg-white px-8 py-10 md:py-16">
-        <h3 className="mx-auto max-w-screen-lg text-3xl font-black md:text-3xl">
-          Create links easily
-        </h3>
         <div className="mx-auto mt-8 w-full max-w-screen-lg">
           <div className="grid w-full grid-cols-1 gap-6 md:grid-cols-2 ">
             <div className="flex w-full flex-col justify-center">
+              <h3 className="text-3xl font-black">
+                Multiple numbers in one link
+              </h3>
               <Accordion
                 type="single"
                 value={openItem}
                 onValueChange={onValueChange}
+                className="mt-4"
               >
                 <AccordionItem value="1">
                   <AccordionTrigger className="font-bold hover:no-underline">
@@ -148,32 +182,153 @@ export default function Index() {
                     single click.
                   </AccordionContent>
                 </AccordionItem>
-                <AccordionItem value="4">
-                  <AccordionTrigger className="font-bold hover:no-underline">
-                    Set phone number weightage
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    Decide which number gets priority. Duplicate it as many
-                    times as you need for better visibility.
-                  </AccordionContent>
-                </AccordionItem>
               </Accordion>
               <div className="mt-8">
                 <Button asChild>
-                  <Link href="/dashboard">Get Started Now</Link>
+                  <Link href="/dashboard">Create my link now!</Link>
                 </Button>
               </div>
             </div>
-            <div className="order-first w-full md:order-last">
+            <div className="w-full">
               <BackgroundPlayer
-                src="/demo.mp4"
+                src="/videos/link-demo.mp4"
                 className="mx-auto max-w-sm overflow-hidden rounded-xl border"
               />
             </div>
           </div>
         </div>
       </div>
+
+      {/* generate QR code */}
+      <div className="w-full border-y bg-zinc-50 px-8 py-10 md:py-16">
+        <div className="flex w-full flex-col-reverse gap-6 md:flex-row">
+          <div className="w-full">
+            <BackgroundPlayer
+              src="/videos/qr-demo.mp4"
+              className="mx-auto max-w-sm overflow-hidden rounded-xl border"
+            />
+          </div>
+          <div className="flex w-full flex-col justify-center">
+            <h3 className="max-w-lg text-3xl font-black">
+              QR Codes tailored to your brand!
+            </h3>
+            <p className="mt-4 max-w-lg">
+              Turn your custom link into a QR code with a single click. Perfect
+              for quick sharing and easy customer access!
+            </p>
+            <div className="mt-8">
+              <Button asChild>
+                <Link href="/dashboard">Generate QR Code</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* link weigtage */}
+      <div className="w-full bg-white px-8 py-10 md:py-16">
+        <div className=" mx-auto flex w-full max-w-screen-lg flex-col gap-6 md:flex-row">
+          <div className="flex w-full flex-col justify-center">
+            <h3 className="max-w-lg text-3xl font-black">
+              Set phone number weightage
+            </h3>
+            <p className="mt-4 max-w-lg">
+              Decide which number gets priority. Duplicate it as many times as
+              you need for better visibility.
+            </p>
+            <div className="mt-8">
+              <Button asChild>
+                <Link href="/dashboard">Get Started Now</Link>
+              </Button>
+            </div>
+          </div>
+          <div className="w-full">
+            <BackgroundPlayer
+              src="/videos/weightage-demo.mp4"
+              className="mx-auto max-w-sm overflow-hidden rounded-xl border"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="w-full px-8 py-10 md:py-16">
+        <h2 className="text-center text-3xl font-black">
+          Start now for free or Upgrade to Pro!
+        </h2>
+        <div className="mx-auto mt-8 grid max-w-5xl gap-8 md:grid-cols-2">
+          {/* Free Tier */}
+          <Card className="flex flex-col">
+            <CardHeader>
+              <CardTitle className="text-2xl">Free</CardTitle>
+              <CardDescription>
+                For individuals and small business.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex-grow">
+              <p className="mb-4 text-4xl font-bold">
+                {country === "MY" ? "RM0" : "$0"}
+                <span className="text-xl font-normal">/month</span>
+              </p>
+              <ul className="space-y-2">
+                <FeatureItem>Random generated link</FeatureItem>
+                <FeatureItem>Unlimited phone numbers</FeatureItem>
+                <FeatureItem>Phone number weightage</FeatureItem>
+                <FeatureItem>5-second delay before redirect</FeatureItem>
+                <FeatureItem>Generate QR Code</FeatureItem>
+              </ul>
+            </CardContent>
+            <CardFooter>
+              <Button className="w-full space-x-2" asChild>
+                <Link href="/dashboard">
+                  <span>Choose Free</span>
+                  <MoveRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </CardFooter>
+          </Card>
+
+          {/* Pro Tier */}
+          <Card className="flex flex-col  border-2 border-zinc-900 shadow-2xl">
+            <CardHeader>
+              <CardTitle className="text-2xl">Pro</CardTitle>
+              <CardDescription>
+                For business with more advance requirement.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex-grow">
+              <p className="mb-4 text-4xl font-bold">
+                {country === "MY" ? "RM9" : "$9"}
+                <span className="text-xl font-normal">/month</span>
+              </p>
+              <ul className="space-y-2">
+                <FeatureItem>5 Premium Links</FeatureItem>
+                <FeatureItem>Unlimited phone numbers</FeatureItem>
+                <FeatureItem>Phone number weightage</FeatureItem>
+                <FeatureItem>Instant redirect</FeatureItem>
+                <FeatureItem>Generate Customizable QR Code</FeatureItem>
+              </ul>
+            </CardContent>
+            <CardFooter>
+              <Button className="w-full space-x-2" asChild>
+                <Link href="/dashboard">
+                  <span>Choose Pro</span>
+                  <MoveRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
+      </div>
       <Footer />
     </div>
+  );
+}
+
+function FeatureItem({ children }: { children: React.ReactNode }) {
+  return (
+    <li className="flex items-center space-x-2">
+      <Check className="h-5 w-5 text-black" />
+      <span>{children}</span>
+    </li>
   );
 }
