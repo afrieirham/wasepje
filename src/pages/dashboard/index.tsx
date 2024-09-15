@@ -387,6 +387,7 @@ function LinkItem({ link, host }: { link: LinkOutput; host: string }) {
                   qrStyle="dots"
                   fgColor={fgColor}
                   bgColor={bgColor}
+                  removeQrCodeBehindLogo
                 />
               </div>
             </div>
@@ -405,6 +406,7 @@ function LinkItem({ link, host }: { link: LinkOutput; host: string }) {
                 <Input
                   id="custom-logo"
                   type="file"
+                  accept="image/png, image/jpeg, image/jpg"
                   ref={logoUploadRef}
                   onChange={(e) => {
                     const file = e.target.files?.[0];
