@@ -101,14 +101,14 @@ export default function Index() {
             priority
             width={1000}
             height={1000}
-            src="/diagram.png"
+            src="/diagram.svg"
             className="w-full max-w-screen-md"
             alt="wasepje redirection visualization"
           />
         </div>
       </div>
 
-      {/* how it works */}
+      {/* create links */}
       <div className="flex w-full flex-col bg-white px-8 py-10 md:py-16">
         <div className="mx-auto mt-8 w-full max-w-screen-lg">
           <div className="grid w-full grid-cols-1 gap-6 md:grid-cols-2 ">
@@ -220,11 +220,11 @@ export default function Index() {
         </div>
       </div>
 
-      <div className="w-full px-8 py-10 md:py-16">
+      <div className="w-full border-t px-8 py-10 md:py-16">
         <h2 className="text-center text-3xl font-black">
           Start now for free or Upgrade to Pro!
         </h2>
-        <PricingTable />
+        <PricingTable showFree />
       </div>
       <Footer />
     </div>
