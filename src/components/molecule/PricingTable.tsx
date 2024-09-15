@@ -60,7 +60,7 @@ function PricingTable({ showFree }: { showFree?: boolean }) {
                 <FeatureItem>Unlimited phone numbers</FeatureItem>
                 <FeatureItem>Phone number weightage</FeatureItem>
                 <FeatureItem>5-second delay before redirect</FeatureItem>
-                <FeatureItem>Generate QR Code</FeatureItem>
+                <FeatureItem>QR Code (with our logo)</FeatureItem>
               </ul>
             </CardContent>
             <CardFooter>
@@ -114,7 +114,7 @@ function PricingTable({ showFree }: { showFree?: boolean }) {
               <FeatureItem>Unlimited phone numbers</FeatureItem>
               <FeatureItem>Phone number weightage</FeatureItem>
               <FeatureItem>Instant redirect</FeatureItem>
-              <FeatureItem>Generate Customizable QR Code</FeatureItem>
+              <FeatureItem>QR Code (custom logo and color)</FeatureItem>
             </ul>
           </CardContent>
           <CardFooter>
