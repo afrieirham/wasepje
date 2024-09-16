@@ -10,8 +10,10 @@ import { Button } from "../ui/button";
 function SubscribeButton({
   children,
   className,
+  billing,
 }: {
   className?: string;
+  billing: "monthly" | "annually";
   children: React.ReactNode;
 }) {
   const router = useRouter();
@@ -34,6 +36,7 @@ function SubscribeButton({
         "/api/stripe/checkout",
         {
           email: user.primaryEmailAddress?.emailAddress,
+          billing,
         },
       );
 

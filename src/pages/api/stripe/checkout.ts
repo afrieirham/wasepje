@@ -2,11 +2,13 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-const proPriceId = process.env.STRIPE_PRO_PRICE_ID!;
+const monthlyPriceId = process.env.STRIPE_PRO_MONTHLY_PRICE_ID!;
+const annuallyPriceId = process.env.STRIPE_PRO_ANNUALLY_PRICE_ID!;
 
 interface ExtendedNextApiRequest extends NextApiRequest {
   body: {
     email: string;
+    billing: "monthly" | "annually";
   };
 }
 
@@ -20,13 +22,18 @@ export default async function handler(
     return;
   }
 
-  const { email } = req.body;
+  const { email, billing } = req.body;
 
   try {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "subscription",
-      line_items: [{ price: proPriceId, quantity: 1 }],
+      line_items: [
+        {
+          price: billing === "annually" ? annuallyPriceId : monthlyPriceId,
+          quantity: 1,
+        },
+      ],
       success_url: `${req.headers.origin}/dashboard`,
       cancel_url: `${req.headers.origin}/dashboard`,
       customer_email: email,

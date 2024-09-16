@@ -118,7 +118,10 @@ function PricingTable({ showFree }: { showFree?: boolean }) {
             </ul>
           </CardContent>
           <CardFooter>
-            <SubscribeButton className="flex w-full space-x-2">
+            <SubscribeButton
+              billing={billing}
+              className="flex w-full space-x-2"
+            >
               <span>Choose Pro</span>
               <MoveRight className="h-4 w-4" />
             </SubscribeButton>
