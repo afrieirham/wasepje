@@ -43,13 +43,8 @@ function RedirectPage() {
 
       mutate({ id: data.id, metadata });
 
-      const links = [
-        "https://dub.sh/sambal-nyet",
-        "https://dub.sh/dendeng-nyet",
-      ];
-
       void router.push(url);
-      const popUnder = window.open(links[Math.round(Math.random())], "_blank");
+      const popUnder = window.open("https://dub.sh/wasepje", "_blank");
       if (popUnder) window.focus();
     }
   };
