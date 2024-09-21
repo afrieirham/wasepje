@@ -1,12 +1,14 @@
 import { Head, Html, Main, NextScript } from "next/document";
 
+import { env } from "~/env.mjs";
+
 export default function Document() {
   return (
     <Html lang="en" data-theme="retro">
       <Head>
         <script
           src="https://beamanalytics.b-cdn.net/beam.min.js"
-          data-token={process.env.NEXT_PUBLIC_BEAM_ANALYTICS_DATA_TOKEN}
+          data-token={env.NEXT_PUBLIC_BEAM_ANALYTICS_DATA_TOKEN}
           async
         />
         <script
