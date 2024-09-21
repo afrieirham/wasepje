@@ -1,10 +1,9 @@
 import Link from "next/link";
-import { useRouter } from "next/router";
-import React, { useState } from "react";
+import React from "react";
 
 import { useUser } from "@clerk/nextjs";
-import axios from "axios";
 
+import { env } from "~/env.mjs";
 import { Button } from "../ui/button";
 
 function SubscribeButton({
@@ -16,43 +15,26 @@ function SubscribeButton({
   billing: "monthly" | "annually";
   children: React.ReactNode;
 }) {
-  const router = useRouter();
   const { user } = useUser();
-
-  const [loading, setLoading] = useState(false);
 
   if (!user) {
     return (
-      <Button loading={loading} className={className} asChild>
+      <Button className={className} asChild>
         <Link href="/dashboard">{children}</Link>
       </Button>
     );
   }
 
-  const onSubscribe = async () => {
-    setLoading(true);
-    try {
-      const { data }: { data: { redirect: string } } = await axios.post(
-        "/api/stripe/checkout",
-        {
-          email: user.primaryEmailAddress?.emailAddress,
-          billing,
-        },
-      );
-
-      void router.push(data.redirect);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  const href =
+    billing === "annually"
+      ? env.NEXT_PUBLIC_PRO_ANNUALLY_URL
+      : env.NEXT_PUBLIC_PRO_MONTHLY_URL;
 
   return (
-    <Button
-      loading={loading}
-      onClick={() => void onSubscribe()}
-      className={className}
-    >
-      {children}
+    <Button className={className} asChild>
+      <Link href={`${href}/?email=${user.primaryEmailAddress?.emailAddress}`}>
+        {children}
+      </Link>
     </Button>
   );
 }
