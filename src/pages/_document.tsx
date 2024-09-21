@@ -10,6 +10,11 @@ export default function Document() {
           async
         />
         <script
+          defer
+          src="https://analytics.afrieirham.com/script.js"
+          data-website-id="bec7b9e3-72cd-4032-87bc-31d454d237be"
+        />
+        <script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5654598090665312"
           crossOrigin="anonymous"
