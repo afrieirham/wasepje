@@ -1,4 +1,3 @@
-import { clerkClient } from "@clerk/nextjs/server";
 import { Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import z from "zod";
@@ -19,7 +18,7 @@ export const linkRouter = createTRPCRouter({
 
     return ctx.db.link.findMany({
       take: 10,
-      where: { authorId: ctx.clerkId ?? "" },
+      where: { userId: ctx.clerkId },
       include: {
         _count: {
           select: {
@@ -108,16 +107,13 @@ export const linkRouter = createTRPCRouter({
       }
 
       try {
-        const authorId = ctx.clerkId;
-
         const link = await ctx.db.link.create({
           data: {
-            authorId,
             name: input.name,
             slug: input.slug,
             message: input.message,
             nextPhone: 0,
-            userId: authorId,
+            userId: ctx.clerkId,
             phones: {
               createMany: {
                 data: input.phones.map((p) => ({ number: p.value })),
@@ -189,17 +185,6 @@ export const linkRouter = createTRPCRouter({
       await ctx.db.link.update({
         data: { nextPhone: newNextPhone },
         where: { id: input.id },
-      });
-
-      // create user on link visit
-      const clerkUser = await clerkClient().users.getUser(link.authorId);
-      await ctx.db.user.upsert({
-        where: { id: link.authorId },
-        create: {
-          id: link.authorId,
-          email: clerkUser.primaryEmailAddress?.emailAddress ?? "",
-        },
-        update: {},
       });
 
       return await ctx.db.click.create({

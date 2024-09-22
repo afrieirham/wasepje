@@ -24,7 +24,6 @@ model Link {
     name      String
     slug      String   @unique
     message   String?
-    authorId  String
     nextPhone Int
     banned    Boolean? @default(false)
     phones    Phone[]
