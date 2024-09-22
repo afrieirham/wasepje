@@ -25,6 +25,7 @@ import { QRCode } from "react-qrcode-logo";
 import slugify from "slugify";
 
 import Header from "~/components/molecule/Header";
+import PricingTable from "~/components/molecule/PricingTable";
 import SEOHead from "~/components/molecule/SEOHead";
 import { Button } from "~/components/ui/button";
 import {
@@ -49,9 +50,9 @@ import { Switch } from "~/components/ui/switch";
 import { Textarea } from "~/components/ui/textarea";
 import { toast } from "~/components/ui/use-toast";
 import { useHostname } from "~/hooks/useHostname";
+import { usePlan } from "~/hooks/usePlan";
 import type { RouterInputs, RouterOutputs } from "~/utils/api";
 import { api } from "~/utils/api";
-import PricingTable from "~/components/molecule/PricingTable";
 
 type LinkInput = RouterInputs["link"]["create"];
 type LinkOutput = RouterOutputs["link"]["getAll"][number];
@@ -59,6 +60,7 @@ type LinkOutput = RouterOutputs["link"]["getAll"][number];
 export default function Dashboard() {
   const ctx = api.useContext();
   const host = useHostname();
+  const plan = usePlan();
   const { user } = useUser();
 
   const sync = api.user.sync.useMutation();
@@ -273,12 +275,14 @@ export default function Dashboard() {
               <LinkItem link={link} host={host} key={link.id} />
             ))}
           </div>
-          <div className="px-4 py-16">
-            <p className="text-center text-2xl font-bold">
-              Upgrade to Pro today!
-            </p>
-            <PricingTable />
-          </div>
+          {plan === "free" && (
+            <div className="px-4 py-16">
+              <p className="text-center text-2xl font-bold">
+                Upgrade to Pro today!
+              </p>
+              <PricingTable />
+            </div>
+          )}
         </main>
       </SignedIn>
     </>

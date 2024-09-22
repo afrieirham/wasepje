@@ -1,4 +1,5 @@
 import { clerkClient } from "@clerk/nextjs/server";
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import {
@@ -37,4 +38,13 @@ export const userRouter = createTRPCRouter({
         },
       });
     }),
+  getUserPlan: privateProcedure.query(async ({ ctx }) => {
+    const user = await ctx.db.user.findFirst({ where: { id: ctx.clerkId } });
+
+    if (!user) {
+      throw new TRPCError({ code: "NOT_FOUND", message: "user not found" });
+    }
+
+    return user.plan;
+  }),
 });
