@@ -1,8 +1,9 @@
-import { RedirectToSignIn, SignedIn, SignedOut } from "@clerk/nextjs";
+import Link from "next/link";
+import { useEffect, useState, type FormEvent } from "react";
+
+import { RedirectToSignIn, SignedIn, SignedOut, useUser } from "@clerk/nextjs";
 import copy from "copy-to-clipboard";
 import { Pencil, Plus, Trash } from "lucide-react";
-import Link from "next/link";
-import { useState, type FormEvent } from "react";
 import slugify from "slugify";
 
 import Header from "~/components/molecule/Header";
@@ -38,7 +39,9 @@ type LinkOutput = RouterOutputs["link"]["getAll"][number];
 export default function Dashboard() {
   const ctx = api.useContext();
   const host = useHostname();
+  const { user } = useUser();
 
+  const sync = api.user.sync.useMutation();
   const { data } = api.link.getAll.useQuery();
   const { mutate } = api.link.create.useMutation({
     onSuccess: () => {
@@ -111,6 +114,15 @@ export default function Dashboard() {
 
     setPhones(updatedPhones);
   };
+
+  useEffect(() => {
+    if (user) {
+      sync.mutate({
+        email: user.primaryEmailAddress?.emailAddress ?? "",
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   return (
     <>

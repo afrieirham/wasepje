@@ -10,6 +10,14 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+model User {
+    id        String   @id
+    email     String   @unique
+    plan      Plan     @default(free)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
 model Link {
     id        String   @id @default(cuid())
     name      String
