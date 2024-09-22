@@ -63,10 +63,7 @@ export default async function handler(
 
   if (evt.type === "user.created") {
     const clerkId = evt.data.id;
-    const newUser = await db.user.create({ data: { clerkId } });
-    await clerkClient.users.updateUserMetadata(clerkId, {
-      publicMetadata: { userId: newUser.id },
-    });
+    await db.user.create({ data: { clerkId } });
   }
 
   return res.status(200).json({ response: "Success" });

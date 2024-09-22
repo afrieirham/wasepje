@@ -14,7 +14,6 @@ model User {
     id        String   @id @default(cuid())
     clerkId   String   @unique
     plan      Plan     @default(free)
-    Link      Link[]
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 }
@@ -29,8 +28,6 @@ model Link {
     banned    Boolean? @default(false)
     phones    Phone[]
     clicks    Click[]
-    userId    String?
-    user      User?    @relation(fields: [userId], references: [id])
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 }

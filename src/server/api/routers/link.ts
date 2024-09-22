@@ -8,7 +8,6 @@ import {
   privateProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
-import { syncClerkUser } from "./user";
 
 const checkReserved = (path: string) => reservedSlug.some((p) => p === path);
 
@@ -89,7 +88,6 @@ export const linkRouter = createTRPCRouter({
   create: privateProcedure
     .input(
       z.object({
-        userId: z.string().trim(),
         name: z.string().trim(),
         slug: z.string().trim().toLowerCase(),
         message: z.string().optional(),
@@ -118,7 +116,6 @@ export const linkRouter = createTRPCRouter({
             slug: input.slug,
             message: input.message,
             nextPhone: 0,
-            userId: input.userId,
             phones: {
               createMany: {
                 data: input.phones.map((p) => ({ number: p.value })),
@@ -193,9 +190,6 @@ export const linkRouter = createTRPCRouter({
       });
 
       // sync user data
-      if (!link.userId) {
-        await syncClerkUser(link.authorId);
-      }
 
       return await ctx.db.click.create({
         data: { ...input.metadata, linkId: input.id },
