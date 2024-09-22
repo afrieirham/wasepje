@@ -47,4 +47,31 @@ export const userRouter = createTRPCRouter({
 
     return user.plan;
   }),
+
+  upgradePlan: publicProcedure
+    .input(
+      z.object({
+        email: z.string().email(),
+        stripeId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.user.update({
+        where: { email: input.email },
+        data: { plan: "pro", stripeId: input.stripeId },
+      });
+    }),
+
+  downgradePlan: publicProcedure
+    .input(
+      z.object({
+        stripeId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.user.update({
+        where: { stripeId: input.stripeId },
+        data: { plan: "free", stripeId: null },
+      });
+    }),
 });
