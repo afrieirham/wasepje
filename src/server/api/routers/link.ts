@@ -117,6 +117,7 @@ export const linkRouter = createTRPCRouter({
             slug: input.slug,
             message: input.message,
             nextPhone: 0,
+            userId: authorId,
             phones: {
               createMany: {
                 data: input.phones.map((p) => ({ number: p.value })),
