@@ -14,7 +14,7 @@ model User {
     id        String   @id @default(cuid())
     stripeId  String?
     clerkId   String   @unique
-    plan      Plan     @default(FREE)
+    plan      Plan     @default(free)
     Link      Link[]
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -59,7 +59,6 @@ model Click {
 }
 
 enum Plan {
-    FREE
-    LITE
-    PRO
+    free
+    pro
 }
