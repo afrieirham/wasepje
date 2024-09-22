@@ -1,3 +1,4 @@
+import { clerkClient } from "@clerk/nextjs/server";
 import { Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import z from "zod";
@@ -189,7 +190,16 @@ export const linkRouter = createTRPCRouter({
         where: { id: input.id },
       });
 
-      // sync user data
+      // create user on link visit
+      const clerkUser = await clerkClient().users.getUser(link.authorId);
+      await ctx.db.user.upsert({
+        where: { id: link.authorId },
+        create: {
+          id: link.authorId,
+          email: clerkUser.primaryEmailAddress?.emailAddress ?? "",
+        },
+        update: {},
+      });
 
       return await ctx.db.click.create({
         data: { ...input.metadata, linkId: input.id },
