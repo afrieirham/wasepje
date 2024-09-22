@@ -46,9 +46,9 @@ export default clerkMiddleware(async (auth, request) => {
       body: cleanPathname,
     });
 
-    const { plan } = (await res.json()) as { plan: "FREE" | "LITE" | "PRO" };
+    const { plan } = (await res.json()) as { plan: "free" | "pro" };
 
-    if (plan === "FREE") {
+    if (plan === "free") {
       return NextResponse.rewrite(
         new URL(`/free/${cleanPathname}`, request.url),
       );
