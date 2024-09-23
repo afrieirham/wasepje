@@ -69,7 +69,7 @@ function RedirectPage() {
   }, [countdown]);
 
   return (
-    <div className="flex h-screen max-h-screen w-full items-center justify-center">
+    <div className="flex h-[100dvh] max-h-[100dvh] w-full items-center justify-center">
       <Button
         ref={buttonRef}
         onClick={onClick}

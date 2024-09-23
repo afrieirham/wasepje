@@ -209,7 +209,7 @@ function CreateLinkForm() {
         <Button>Create Link</Button>
       </SheetTrigger>
       <SheetContent
-        className="max-h-screen overflow-scroll sm:max-w-[425px]"
+        className="max-h-[100dvh] overflow-scroll sm:max-w-[425px]"
         side={smOrHigher ? "right" : "bottom"}
       >
         <form onSubmit={onSubmit}>
@@ -569,7 +569,7 @@ function LinkItem({ link }: { link: LinkOutput }) {
             </SheetTrigger>
             <SheetContent
               side="bottom"
-              className="max-h-screen overflow-scroll bg-gray-100 p-0 sm:max-w-[425px]"
+              className="max-h-[100dvh] overflow-scroll bg-gray-100 p-0 sm:max-w-[425px]"
             >
               <SheetHeader className="border-b bg-white p-4">
                 <SheetTitle className="text-center">
