@@ -56,13 +56,13 @@ function PricingTable({ showFree }: { showFree?: boolean }) {
                 </p>
               </div>
               <ul className="space-y-2">
+                <FeatureItem>Links with random alphabet attached</FeatureItem>
+                <FeatureItem>2-second delay before redirect</FeatureItem>
+                <FeatureItem>QR Code (with our logo)</FeatureItem>
                 <FeatureItem>Phone number rotator</FeatureItem>
                 <FeatureItem>Unlimited phone numbers</FeatureItem>
                 <FeatureItem>Phone number weightage</FeatureItem>
                 <FeatureItem>Link clicks count</FeatureItem>
-                <FeatureItem>Links with random alphabet attached</FeatureItem>
-                <FeatureItem>2-second delay before redirect</FeatureItem>
-                <FeatureItem>QR Code (with our logo)</FeatureItem>
               </ul>
             </CardContent>
             <CardFooter>
@@ -112,13 +112,13 @@ function PricingTable({ showFree }: { showFree?: boolean }) {
               </Badge>
             </div>
             <ul className="space-y-2">
+              <FeatureItem>Premium Links (customizable slug)</FeatureItem>
+              <FeatureItem>Instant redirect</FeatureItem>
+              <FeatureItem>QR Code (custom logo and color)</FeatureItem>
               <FeatureItem>Phone number rotator</FeatureItem>
               <FeatureItem>Unlimited phone numbers</FeatureItem>
               <FeatureItem>Phone number weightage</FeatureItem>
               <FeatureItem>Link clicks count</FeatureItem>
-              <FeatureItem>Premium Links (customizable slug)</FeatureItem>
-              <FeatureItem>Instant redirect</FeatureItem>
-              <FeatureItem>QR Code (custom logo and color)</FeatureItem>
             </ul>
           </CardContent>
           <CardFooter>

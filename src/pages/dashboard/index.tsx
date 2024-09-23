@@ -52,10 +52,9 @@ import { Textarea } from "~/components/ui/textarea";
 import { toast } from "~/components/ui/use-toast";
 import { useHostname } from "~/hooks/useHostname";
 import { usePlan } from "~/hooks/usePlan";
-import type { RouterInputs, RouterOutputs } from "~/utils/api";
+import type { RouterOutputs } from "~/utils/api";
 import { api } from "~/utils/api";
 
-type LinkInput = RouterInputs["link"]["create"];
 type LinkOutput = RouterOutputs["link"]["getAll"][number];
 
 export default function Dashboard() {
@@ -132,7 +131,7 @@ function CreateLinkForm() {
   const host = useHostname();
   const ctx = api.useContext();
 
-  const { mutate } = api.link.create.useMutation({
+  const create = api.link.create.useMutation({
     onSuccess: () => {
       void ctx.link.getAll.invalidate();
     },
@@ -160,11 +159,8 @@ function CreateLinkForm() {
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const { name, slug, message } = Object.fromEntries(
-      new FormData(e.currentTarget),
-    ) as unknown as LinkInput;
 
-    mutate({ name, slug, phones, message });
+    create.mutate({ name, slug, phones, message });
     setOpen(false);
     resetFormFields();
     toast({
