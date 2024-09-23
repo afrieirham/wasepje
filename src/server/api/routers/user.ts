@@ -1,6 +1,9 @@
 import { clerkClient } from "@clerk/nextjs/server";
 import { TRPCError } from "@trpc/server";
+import Stripe from "stripe";
 import { z } from "zod";
+
+import { env } from "~/env.mjs";
 
 import {
   createTRPCRouter,
@@ -73,5 +76,31 @@ export const userRouter = createTRPCRouter({
         where: { stripeId: input.stripeId },
         data: { plan: "free", stripeId: null },
       });
+    }),
+
+  createPortalSession: privateProcedure
+    .input(z.object({ returnUrl: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const user = await ctx.db.user.findFirst({ where: { id: ctx.clerkId } });
+
+      if (!user) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "user not found" });
+      }
+
+      if (!user.stripeId) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "stripeId not found",
+        });
+      }
+
+      const stripe = new Stripe(env.STRIPE_SECRET_KEY);
+
+      const session = await stripe.billingPortal.sessions.create({
+        customer: user.stripeId,
+        return_url: input.returnUrl,
+      });
+
+      return { url: session.url };
     }),
 });

@@ -3,16 +3,29 @@ import Link from "next/link";
 import { useEffect } from "react";
 
 import { UserButton, useClerk, useUser } from "@clerk/nextjs";
+import { CreditCard } from "lucide-react";
+
+import { useHostname } from "~/hooks/useHostname";
+import { usePlan } from "~/hooks/usePlan";
+import { api } from "~/utils/api";
 
 function Header() {
+  const hostname = useHostname();
+  const plan = usePlan();
   const { user } = useUser();
   const { signOut } = useClerk();
+
+  const createPortalSession = api.user.createPortalSession.useQuery({
+    returnUrl: `${hostname}/dashboard`,
+  });
 
   useEffect(() => {
     if (user?.publicMetadata.banned) {
       void signOut();
     }
   }, [user, signOut]);
+
+  if (!createPortalSession.data) return null;
 
   return (
     <nav className="border-b border-zinc-200 bg-white">
@@ -28,12 +41,29 @@ function Header() {
           <p className="font-bold">WasepJe.com</p>
         </Link>
         <div className="space-x-2">
-          <UserButton
-            showName
-            appearance={{
-              elements: { userButtonTrigger: "bg-gray-100 py-1.5 px-2" },
-            }}
-          />
+          {plan === "free" ? (
+            <UserButton
+              showName
+              appearance={{
+                elements: { userButtonTrigger: "bg-zinc-100 py-1.5 px-2" },
+              }}
+            />
+          ) : (
+            <UserButton
+              showName
+              appearance={{
+                elements: { userButtonTrigger: "bg-gray-100 py-1.5 px-2" },
+              }}
+            >
+              <UserButton.MenuItems>
+                <UserButton.Link
+                  label="Manage Billing"
+                  labelIcon={<CreditCard className="h-4 w-4" />}
+                  href={createPortalSession.data.url}
+                />
+              </UserButton.MenuItems>
+            </UserButton>
+          )}
         </div>
       </div>
     </nav>

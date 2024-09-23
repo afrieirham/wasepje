@@ -1,5 +1,5 @@
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 
 import { useUser } from "@clerk/nextjs";
 
@@ -15,6 +15,7 @@ function SubscribeButton({
   billing: "monthly" | "annually";
   children: React.ReactNode;
 }) {
+  const [loading, setLoading] = useState(false);
   const { user } = useUser();
 
   if (!user) {
@@ -31,7 +32,12 @@ function SubscribeButton({
       : env.NEXT_PUBLIC_PRO_MONTHLY_URL;
 
   return (
-    <Button className={className} asChild>
+    <Button
+      className={className}
+      loading={loading}
+      onClick={() => setLoading(true)}
+      asChild
+    >
       <Link href={`${href}/?email=${user.primaryEmailAddress?.emailAddress}`}>
         {children}
       </Link>
