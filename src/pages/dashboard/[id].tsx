@@ -124,13 +124,19 @@ function EditLink() {
                 value={name}
                 className="mt-2 w-full max-w-md"
                 onChange={(e) => {
-                  setName(e.target.value);
-                  setSlug(
-                    `${slugify(e.target.value, {
-                      lower: true,
-                      strict: true,
-                    })}${plan === "free" ? `-${postfix}` : ""}`,
-                  );
+                  const value = e.target.value;
+                  setName(value);
+
+                  if (value.length > 0) {
+                    setSlug(
+                      `${slugify(e.target.value, {
+                        lower: true,
+                        strict: true,
+                      })}${plan === "free" ? `-${postfix}` : ""}`,
+                    );
+                  } else {
+                    setSlug(plan === "free" ? postfix : "");
+                  }
                 }}
               />
             </div>

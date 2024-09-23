@@ -221,10 +221,10 @@ function CreateLinkForm() {
                       `${slugify(value, {
                         lower: true,
                         strict: true,
-                      })}-${plan === "free" ? random : ""}`,
+                      })}${plan === "free" ? `-${random}` : ""}`,
                     );
                   } else {
-                    setSlug(random);
+                    setSlug(plan === "free" ? random : "");
                   }
                 }}
               />
