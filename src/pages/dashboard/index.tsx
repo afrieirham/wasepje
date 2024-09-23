@@ -276,7 +276,7 @@ export default function Dashboard() {
             ))}
           </div>
           {plan === "free" && (
-            <div className="px-4 py-16">
+            <div id="upgrade" className="px-4 py-16">
               <p className="text-center text-2xl font-bold">
                 Upgrade to Pro today!
               </p>
@@ -290,6 +290,7 @@ export default function Dashboard() {
 }
 
 function LinkItem({ link, host }: { link: LinkOutput; host: string }) {
+  const plan = usePlan();
   const ctx = api.useContext();
   const url = `${host}/${link.slug}`;
 
@@ -297,6 +298,7 @@ function LinkItem({ link, host }: { link: LinkOutput; host: string }) {
   const qrCanvasRef = useRef<HTMLDivElement>(null);
   const logoUploadRef = useRef<HTMLInputElement>(null);
 
+  const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showLogo, setShowLogo] = useState(true);
   const [bgColor, setBgColor] = useState("#ffffff");
@@ -360,7 +362,7 @@ function LinkItem({ link, host }: { link: LinkOutput; host: string }) {
         </p>
       </div>
       <div className="flex">
-        <Dialog>
+        <Dialog open={open} onOpenChange={(open) => setOpen(open)}>
           <DialogTrigger asChild>
             <button
               className="flex h-9 items-center justify-center whitespace-nowrap rounded-s border border-e-0 p-2 text-sm font-medium ring-offset-background transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-opacity-30 disabled:text-muted disabled:hover:bg-opacity-30 disabled:hover:text-muted"
@@ -397,21 +399,45 @@ function LinkItem({ link, host }: { link: LinkOutput; host: string }) {
             </div>
 
             <div className="space-y-4 px-8">
+              <div className="text-center">
+                <Button size="sm" variant="outline" asChild>
+                  <Link
+                    onClick={() => setOpen(false)}
+                    href="/dashboard#upgrade"
+                  >
+                    Unlock QR Customization
+                  </Link>
+                </Button>
+              </div>
               <div className="flex items-center space-x-2">
                 <Switch
                   id="show-logo"
                   checked={showLogo}
+                  disabled={plan === "free"}
                   onCheckedChange={() => setShowLogo(!showLogo)}
                 />
-                <Label htmlFor="show-logo">Show Logo</Label>
+                <Label
+                  aria-disabled={plan === "free"}
+                  className="aria-disabled:opacity-50"
+                  htmlFor="show-logo"
+                >
+                  Show Logo
+                </Label>
               </div>
               <div className="grid w-full max-w-sm items-center gap-1.5">
-                <Label htmlFor="custom-logo">Custom Logo</Label>
+                <Label
+                  aria-disabled={plan === "free"}
+                  className="aria-disabled:opacity-50"
+                  htmlFor="custom-logo"
+                >
+                  Custom Logo
+                </Label>
                 <Input
                   id="custom-logo"
                   type="file"
-                  accept="image/png, image/jpeg, image/jpg"
                   ref={logoUploadRef}
+                  disabled={plan === "free"}
+                  accept="image/png, image/jpeg, image/jpg"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
 
@@ -428,6 +454,7 @@ function LinkItem({ link, host }: { link: LinkOutput; host: string }) {
                   size="sm"
                   variant="link"
                   className="text-start"
+                  disabled={plan === "free"}
                   onClick={() => {
                     if (logoUploadRef.current) {
                       logoUploadRef.current.value = "";
@@ -442,19 +469,31 @@ function LinkItem({ link, host }: { link: LinkOutput; host: string }) {
                 <input
                   type="color"
                   value={bgColor}
+                  disabled={plan === "free"}
                   onChange={(e) => setBgColor(e.currentTarget.value)}
-                  className="h-10 w-14 cursor-pointer rounded-lg border border-gray-200 bg-white p-1"
+                  className="h-10 w-14 cursor-pointer rounded-lg border border-gray-200 bg-white p-1 disabled:opacity-50"
                 ></input>
-                <label className="text-sm font-medium">Background Color</label>
+                <label
+                  aria-disabled={plan === "free"}
+                  className="text-sm font-medium aria-disabled:opacity-50"
+                >
+                  Background Color
+                </label>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="group flex items-center space-x-2">
                 <input
                   type="color"
                   value={fgColor}
+                  disabled={plan === "free"}
                   onChange={(e) => setFgCOlor(e.currentTarget.value)}
-                  className="h-10 w-14 cursor-pointer rounded-lg border border-gray-200 bg-white p-1"
+                  className="h-10 w-14 cursor-pointer rounded-lg border border-gray-200 bg-white p-1 disabled:opacity-50"
                 ></input>
-                <label className="text-sm font-medium">Foreground Color</label>
+                <label
+                  aria-disabled={plan === "free"}
+                  className="text-sm font-medium aria-disabled:opacity-50"
+                >
+                  Foreground Color
+                </label>
               </div>
             </div>
 
