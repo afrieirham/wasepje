@@ -21,6 +21,7 @@ import {
   QrCode,
   Trash,
 } from "lucide-react";
+import { customAlphabet } from "nanoid";
 import { QRCode } from "react-qrcode-logo";
 import slugify from "slugify";
 
@@ -58,13 +59,79 @@ type LinkInput = RouterInputs["link"]["create"];
 type LinkOutput = RouterOutputs["link"]["getAll"][number];
 
 export default function Dashboard() {
-  const ctx = api.useContext();
-  const host = useHostname();
   const plan = usePlan();
   const { user } = useUser();
 
   const sync = api.user.sync.useMutation();
-  const { data } = api.link.getAll.useQuery();
+  const getAll = api.link.getAll.useQuery();
+
+  const hasLinks = Boolean(getAll.data?.length);
+
+  const totalClicks = hasLinks
+    ? getAll.data
+        ?.map((link) => link._count.clicks)
+        .reduce((total, link) => total + link)
+    : 0;
+
+  useEffect(() => {
+    if (user) {
+      sync.mutate({
+        email: user.primaryEmailAddress?.emailAddress ?? "",
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+  return (
+    <>
+      <SignedOut>
+        <RedirectToSignIn />
+      </SignedOut>
+      <SignedIn>
+        <main>
+          <SEOHead
+            title="Dashboard | WasepJe.com"
+            description="Open-Source WhatsApp Link Rotator, an alternative to wasap.my"
+            path="/"
+            ogPath="/og.png"
+          />
+          <Header />
+          <div className="border-b border-zinc-200 bg-white">
+            <div className="mx-auto flex w-full max-w-screen-xl justify-between px-6 py-10">
+              <h1 className="text-2xl">My Links</h1>
+              <CreateLinkForm />
+            </div>
+          </div>
+          <div className="mx-auto flex w-full max-w-screen-xl flex-col justify-between px-4 sm:px-6">
+            {hasLinks && (
+              <p className="mt-8">Total clicks: {totalClicks} (last 30 days)</p>
+            )}
+            {getAll.data?.map((link) => <LinkItem link={link} key={link.id} />)}
+          </div>
+          {plan === "free" && (
+            <div className="px-4 py-16">
+              <p className="text-center text-2xl font-bold">
+                Upgrade to Pro today!
+              </p>
+              <PricingTable showFree />
+            </div>
+          )}
+        </main>
+      </SignedIn>
+    </>
+  );
+}
+
+function CreateLinkForm() {
+  const plan = usePlan();
+  const alphabet =
+    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+  const nanoid = customAlphabet(alphabet, 5);
+  const random = nanoid(5);
+
+  const host = useHostname();
+  const ctx = api.useContext();
+
   const { mutate } = api.link.create.useMutation({
     onSuccess: () => {
       void ctx.link.getAll.invalidate();
@@ -83,14 +150,6 @@ export default function Dashboard() {
   const [slug, setSlug] = useState("");
   const [message, setMessage] = useState("");
   const [phones, setPhones] = useState([{ value: "" }]);
-
-  const hasLinks = Boolean(data?.length);
-
-  const totalClicks = hasLinks
-    ? data
-        ?.map((link) => link._count.clicks)
-        .reduce((total, link) => total + link)
-    : 0;
 
   const resetFormFields = () => {
     setName("");
@@ -137,159 +196,122 @@ export default function Dashboard() {
     setPhones(updatedPhones);
   };
 
-  useEffect(() => {
-    if (user) {
-      sync.mutate({
-        email: user.primaryEmailAddress?.emailAddress ?? "",
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
-
   return (
-    <>
-      <SignedOut>
-        <RedirectToSignIn />
-      </SignedOut>
-      <SignedIn>
-        <main>
-          <SEOHead
-            title="Dashboard | WasepJe.com"
-            description="Open-Source WhatsApp Link Rotator, an alternative to wasap.my"
-            path="/"
-            ogPath="/og.png"
-          />
-          <Header />
-          <div className="border-b border-zinc-200 bg-white">
-            <div className="mx-auto flex w-full max-w-screen-xl justify-between px-6 py-10">
-              <h1 className="text-2xl">My Links</h1>
-              <Dialog open={open} onOpenChange={setOpen}>
-                <DialogTrigger asChild>
-                  <Button>Create Link</Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                  <form onSubmit={onSubmit}>
-                    <DialogHeader>
-                      <DialogTitle>Create a new link</DialogTitle>
-                      <DialogDescription></DialogDescription>
-                    </DialogHeader>
-                    <div className="grid gap-6 py-4">
-                      <div className="flex flex-col gap-2">
-                        <Label htmlFor="name" className="">
-                          Name
-                        </Label>
-                        <Input
-                          id="name"
-                          name="name"
-                          placeholder="Syarikat Saya"
-                          value={name}
-                          onChange={(e) => {
-                            setName(e.target.value);
-                            setSlug(
-                              slugify(e.target.value, {
-                                lower: true,
-                                strict: true,
-                              }),
-                            );
-                          }}
-                        />
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <Label htmlFor="slug" className="">
-                          Slug
-                        </Label>
-                        <Input
-                          id="slug"
-                          name="slug"
-                          placeholder="syarikat-saya"
-                          value={slug}
-                          onChange={(e) => setSlug(e.target.value.trim())}
-                        />
-                        <p className="text-xs text-muted-foreground">
-                          {host}/{slug}
-                        </p>
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <Label htmlFor="message" className="">
-                          Pre-filled Text (Optional)
-                        </Label>
-                        <Textarea
-                          id="message"
-                          name="message"
-                          placeholder="Hi, barang A masih available?"
-                          value={message}
-                          onChange={(e) => setMessage(e.target.value)}
-                        />
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <Label>Phone Number</Label>
-                        <p className="text-xs text-muted-foreground">
-                          Include country code.
-                        </p>
-                        {phones?.map((phone, i) => (
-                          <div key={i} className="flex space-x-1">
-                            <Input
-                              required
-                              type="tel"
-                              name={`phone-${i}`}
-                              placeholder="60131231234"
-                              value={phone.value}
-                              onChange={(e) =>
-                                setPhoneValue(e.target.value.trim(), i)
-                              }
-                            />
-                            {phones.length > 1 && (
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                onClick={() => onDeletePhone(i)}
-                              >
-                                <Trash className="h-4 w-4" />
-                              </Button>
-                            )}
-                          </div>
-                        ))}
-
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          onClick={onAddPhoneNumber}
-                        >
-                          <Plus className="mr-2 h-4 w-4" /> Add phone number
-                        </Button>
-                      </div>
-                    </div>
-                    <DialogFooter>
-                      <Button type="submit">Create Link</Button>
-                    </DialogFooter>
-                  </form>
-                </DialogContent>
-              </Dialog>
+    <Dialog open={open} onOpenChange={(open) => setOpen(open)}>
+      <DialogTrigger asChild>
+        <Button>Create Link</Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <form onSubmit={onSubmit}>
+          <DialogHeader>
+            <DialogTitle>Create a new link</DialogTitle>
+            <DialogDescription></DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-6 py-4">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="name" className="">
+                Name
+              </Label>
+              <Input
+                id="name"
+                name="name"
+                placeholder="Syarikat Saya"
+                value={name}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setName(value);
+                  if (value.length > 0) {
+                    setSlug(
+                      `${slugify(value, {
+                        lower: true,
+                        strict: true,
+                      })}-${plan === "free" ? random : ""}`,
+                    );
+                  } else {
+                    setSlug(random);
+                  }
+                }}
+              />
             </div>
-          </div>
-          <div className="mx-auto flex w-full max-w-screen-xl flex-col justify-between px-4 sm:px-6">
-            {hasLinks && (
-              <p className="mt-8">Total clicks: {totalClicks} (last 30 days)</p>
-            )}
-            {data?.map((link) => (
-              <LinkItem link={link} host={host} key={link.id} />
-            ))}
-          </div>
-          {plan === "free" && (
-            <div id="upgrade" className="px-4 py-16">
-              <p className="text-center text-2xl font-bold">
-                Upgrade to Pro today!
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center space-x-2">
+                <Label htmlFor="slug">Slug</Label>
+                {plan === "free" && (
+                  <Link
+                    href="/#pricing"
+                    className="rounded-sm border  bg-black px-2 py-1 text-xs font-medium text-white hover:bg-gray-800"
+                  >
+                    Unlock premium slug
+                  </Link>
+                )}
+              </div>
+              <Input
+                id="slug"
+                name="slug"
+                placeholder="syarikat-saya"
+                value={slug}
+                disabled={plan === "free"}
+                onChange={(e) => setSlug(`${e.target.value.trim()}`)}
+              />
+              <p className="text-xs text-muted-foreground">
+                {host}/{slug}
               </p>
-              <PricingTable />
             </div>
-          )}
-        </main>
-      </SignedIn>
-    </>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="message" className="">
+                Pre-filled Text (Optional)
+              </Label>
+              <Textarea
+                id="message"
+                name="message"
+                placeholder="Hi, barang A masih available?"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label>Phone Number</Label>
+              <p className="text-xs text-muted-foreground">
+                Include country code.
+              </p>
+              {phones?.map((phone, i) => (
+                <div key={i} className="flex space-x-1">
+                  <Input
+                    required
+                    type="tel"
+                    name={`phone-${i}`}
+                    placeholder="60131231234"
+                    value={phone.value}
+                    onChange={(e) => setPhoneValue(e.target.value.trim(), i)}
+                  />
+                  {phones.length > 1 && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => onDeletePhone(i)}
+                    >
+                      <Trash className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              ))}
+
+              <Button type="button" variant="ghost" onClick={onAddPhoneNumber}>
+                <Plus className="mr-2 h-4 w-4" /> Add phone number
+              </Button>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="submit">Create Link</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
 
-function LinkItem({ link, host }: { link: LinkOutput; host: string }) {
+function LinkItem({ link }: { link: LinkOutput }) {
+  const host = useHostname();
   const plan = usePlan();
   const ctx = api.useContext();
   const url = `${host}/${link.slug}`;
@@ -399,16 +421,13 @@ function LinkItem({ link, host }: { link: LinkOutput; host: string }) {
             </div>
 
             <div className="space-y-4 px-8">
-              <div className="text-center">
-                <Button size="sm" variant="outline" asChild>
-                  <Link
-                    onClick={() => setOpen(false)}
-                    href="/dashboard#upgrade"
-                  >
-                    Unlock QR Customization
-                  </Link>
-                </Button>
-              </div>
+              {plan === "free" && (
+                <div className="text-center">
+                  <Button size="sm" variant="outline" asChild>
+                    <Link href="/#pricing">Unlock QR Customization</Link>
+                  </Button>
+                </div>
+              )}
               <div className="flex items-center space-x-2">
                 <Switch
                   id="show-logo"

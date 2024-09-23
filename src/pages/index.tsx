@@ -220,7 +220,7 @@ export default function Index() {
         </div>
       </div>
 
-      <div className="w-full border-t px-8 py-10 md:py-16">
+      <div id="pricing" className="w-full border-t px-8 py-10 md:py-16">
         <h2 className="text-center text-3xl font-black">
           Start now for free or Upgrade to Pro!
         </h2>

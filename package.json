@@ -36,6 +36,7 @@
     "country-list-json": "^1.1.0",
     "lucide-react": "^0.441.0",
     "micro": "^10.0.1",
+    "nanoid": "^5.0.7",
     "next": "^13.4.19",
     "next-video": "^1.1.4",
     "react": "18.2.0",
