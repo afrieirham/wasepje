@@ -8,7 +8,6 @@ import {
 } from "react";
 
 import { RedirectToSignIn, SignedIn, SignedOut, useUser } from "@clerk/nextjs";
-import { useMediaQuery } from "@uidotdev/usehooks";
 import copy from "copy-to-clipboard";
 import {
   Check,
@@ -61,6 +60,7 @@ import { Switch } from "~/components/ui/switch";
 import { Textarea } from "~/components/ui/textarea";
 import { toast } from "~/components/ui/use-toast";
 import { useHostname } from "~/hooks/useHostname";
+import { useMediaQuery } from "~/hooks/useMediaQuery";
 import { usePlan } from "~/hooks/usePlan";
 import type { RouterOutputs } from "~/utils/api";
 import { api } from "~/utils/api";
@@ -132,7 +132,7 @@ export default function Dashboard() {
 }
 
 function CreateLinkForm() {
-  const smOrHigher = useMediaQuery("(min-width: 640px)");
+  const { smOrHigher } = useMediaQuery();
   const plan = usePlan();
   const alphabet =
     "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -321,7 +321,7 @@ function CreateLinkForm() {
 }
 
 function LinkItem({ link }: { link: LinkOutput }) {
-  const smOrHigher = useMediaQuery("(min-width: 640px)");
+  const { smOrHigher } = useMediaQuery();
 
   const host = useHostname();
   const plan = usePlan();
