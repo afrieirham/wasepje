@@ -516,7 +516,7 @@ function LinkItem({ link }: { link: LinkOutput }) {
               </div>
             </div>
 
-            <DialogFooter className="flex space-x-2 p-4">
+            <DialogFooter className="flex flex-col space-x-0 space-y-2 p-4 sm:flex-row sm:space-x-2 sm:space-y-0">
               <Button
                 size="sm"
                 type="button"
