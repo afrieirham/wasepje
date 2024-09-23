@@ -59,7 +59,7 @@ function PricingTable({ showFree }: { showFree?: boolean }) {
                 <FeatureItem>Random generated link</FeatureItem>
                 <FeatureItem>Unlimited phone numbers</FeatureItem>
                 <FeatureItem>Phone number weightage</FeatureItem>
-                <FeatureItem>5-second delay before redirect</FeatureItem>
+                <FeatureItem>2-second delay before redirect</FeatureItem>
                 <FeatureItem>QR Code (with our logo)</FeatureItem>
               </ul>
             </CardContent>

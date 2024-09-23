@@ -14,7 +14,7 @@ function RedirectPage() {
   });
   const { mutate } = api.link.updateNextPhone.useMutation();
 
-  const [countdown, setCountdown] = useState(5);
+  const [countdown, setCountdown] = useState(2);
   const hasEnded = countdown === 0;
 
   const onClick = () => {
@@ -44,7 +44,7 @@ function RedirectPage() {
       mutate({ id: data.id, metadata });
 
       void router.push(url);
-      const popUnder = window.open("https://dub.sh/wasepje", "_blank");
+      const popUnder = window.open("https://go.wasepje.com/shopee", "_blank");
       if (popUnder) window.focus();
     }
   };
