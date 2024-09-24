@@ -8,7 +8,7 @@ const isPublicRoute = createRouteMatcher([
   "/api/trpc/link.getLinkBySlug",
   "/api/trpc/link.updateNextPhone",
   "/api/cron",
-  "/api/clerk/webhooks(.*)",
+  "/api/stripe/webhook",
 ]);
 
 export default clerkMiddleware((auth, request) => {

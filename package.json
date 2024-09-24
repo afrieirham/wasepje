@@ -41,6 +41,7 @@
     "react-dom": "18.2.0",
     "react-qrcode-logo": "^3.0.0",
     "slugify": "^1.6.6",
+    "stripe": "^16.12.0",
     "superjson": "^1.13.1",
     "svix": "^1.30.0",
     "tailwind-merge": "^1.14.0",
