@@ -74,7 +74,7 @@ function EditLink() {
     }
   }, [link]);
 
-  if (!link) return <p>404</p>;
+  if (!link) return null;
 
   const onSubmitGeneral = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
