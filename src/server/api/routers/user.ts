@@ -26,6 +26,7 @@ export const userRouter = createTRPCRouter({
 
       return user;
     }),
+
   getUserPlan: privateProcedure.query(async ({ ctx }) => {
     const user = await ctx.db.user.findFirst({ where: { id: ctx.clerkId } });
 
@@ -35,6 +36,19 @@ export const userRouter = createTRPCRouter({
 
     return user.plan;
   }),
+
+  getAuthorBySlug: publicProcedure
+    .input(z.object({ slug: z.string() }))
+    .query(async ({ ctx, input }) => {
+      return await ctx.db.link.findFirst({
+        where: {
+          slug: input.slug,
+        },
+        include: {
+          user: true,
+        },
+      });
+    }),
 
   upgradePlan: publicProcedure
     .input(
