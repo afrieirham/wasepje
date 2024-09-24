@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 
-import { RedirectToSignIn, SignedIn, SignedOut, useUser } from "@clerk/nextjs";
+import { SignedIn, useUser } from "@clerk/nextjs";
 import copy from "copy-to-clipboard";
 import { customAlphabet } from "nanoid";
 import slugify from "slugify";
@@ -10,6 +10,7 @@ import {
   Copy,
   Ellipsis,
   ExternalLink,
+  Loader2,
   Pencil,
   Plus,
   Trash,
@@ -58,19 +59,10 @@ import { api } from "~/utils/api";
 type LinkOutput = RouterOutputs["link"]["getAll"][number];
 
 export default function Dashboard() {
-  const plan = usePlan();
   const { user } = useUser();
 
   const sync = api.user.sync.useMutation();
   const getAll = api.link.getAll.useQuery();
-
-  const hasLinks = Boolean(getAll.data?.length);
-
-  const totalClicks = hasLinks
-    ? getAll.data
-        ?.map((link) => link._count.clicks)
-        .reduce((total, link) => total + link)
-    : 0;
 
   useEffect(() => {
     if (user) {
@@ -81,11 +73,8 @@ export default function Dashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
-  return (
-    <>
-      <SignedOut>
-        <RedirectToSignIn />
-      </SignedOut>
+  if (getAll.isLoading)
+    return (
       <SignedIn>
         <main>
           <SEOHead
@@ -102,22 +91,85 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="mx-auto flex w-full max-w-screen-xl flex-col justify-between px-4 sm:px-6">
-            {hasLinks && (
-              <p className="mt-8">Total clicks: {totalClicks} (last 30 days)</p>
-            )}
-            {getAll.data?.map((link) => <LinkItem link={link} key={link.id} />)}
-          </div>
-          {plan === "free" && (
-            <div className="px-4 py-16">
-              <p className="text-center text-2xl font-bold">
-                Upgrade to Pro today!
-              </p>
-              <PricingTable showFree />
+            <div className="mt-8">
+              <Loader2 className="h-8 w-8 animate-spin" />
             </div>
-          )}
+          </div>
+          <UpgradeCTA />
         </main>
       </SignedIn>
-    </>
+    );
+
+  if (!getAll.data?.length)
+    return (
+      <SignedIn>
+        <main>
+          <SEOHead
+            title="Dashboard | WasepJe.com"
+            description="Open-Source WhatsApp Link Rotator, an alternative to wasap.my"
+            path="/"
+            ogPath="/og.png"
+          />
+          <Header />
+          <div className="border-b border-zinc-200 bg-white">
+            <div className="mx-auto flex w-full max-w-screen-xl justify-between px-6 py-10">
+              <h1 className="text-2xl">My Links</h1>
+              <CreateLinkForm />
+            </div>
+          </div>
+          <div className="mx-auto flex w-full max-w-screen-xl flex-col justify-between px-4 sm:px-6">
+            <div className="mt-8">
+              <p>You have no links yet.</p>
+            </div>
+          </div>
+          <UpgradeCTA />
+        </main>
+      </SignedIn>
+    );
+
+  const totalClicks = getAll.data
+    .map((link) => link._count.clicks)
+    .reduce((total, link) => total + link);
+
+  return (
+    <SignedIn>
+      <main>
+        <SEOHead
+          title="Dashboard | WasepJe.com"
+          description="Open-Source WhatsApp Link Rotator, an alternative to wasap.my"
+          path="/"
+          ogPath="/og.png"
+        />
+        <Header />
+        <div className="border-b border-zinc-200 bg-white">
+          <div className="mx-auto flex w-full max-w-screen-xl justify-between px-6 py-10">
+            <h1 className="text-2xl">My Links</h1>
+            <CreateLinkForm />
+          </div>
+        </div>
+        <div className="mx-auto flex w-full max-w-screen-xl flex-col justify-between px-4 sm:px-6">
+          <div className="mt-8">
+            <p>Total clicks: {totalClicks} (last 30 days)</p>
+            {getAll.data.map((link) => (
+              <LinkItem link={link} key={link.id} />
+            ))}
+          </div>
+        </div>
+        <UpgradeCTA />
+      </main>
+    </SignedIn>
+  );
+}
+
+function UpgradeCTA() {
+  const plan = usePlan();
+
+  if (plan === "pro") return null;
+  return (
+    <div className="px-4 py-16">
+      <p className="text-center text-2xl font-bold">Upgrade to Pro today!</p>
+      <PricingTable showFree />
+    </div>
   );
 }
 
