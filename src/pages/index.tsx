@@ -15,6 +15,7 @@ import {
   AccordionTrigger,
 } from "~/components/ui/accordion";
 import { Button } from "~/components/ui/button";
+import PricingTable from "~/components/molecule/PricingTable";
 
 export default function Index() {
   const [openItem, setOpenItem] = useState("1");
@@ -50,6 +51,7 @@ export default function Index() {
           </Button>
         </nav>
       </header>
+
       {/* hero */}
       <div className="mx-auto max-w-screen-xl border-b py-16 lg:flex lg:flex-col lg:items-center">
         <div className="mx-auto max-w-screen-xl px-4 text-center lg:mx-0 lg:flex lg:flex-col lg:items-center lg:justify-center">
@@ -99,25 +101,26 @@ export default function Index() {
             priority
             width={1000}
             height={1000}
-            src="/diagram.png"
+            src="/diagram.svg"
             className="w-full max-w-screen-md"
             alt="wasepje redirection visualization"
           />
         </div>
       </div>
 
-      {/* how it works */}
+      {/* create links */}
       <div className="flex w-full flex-col bg-white px-8 py-10 md:py-16">
-        <h3 className="mx-auto max-w-screen-lg text-3xl font-black md:text-3xl">
-          Create links easily
-        </h3>
         <div className="mx-auto mt-8 w-full max-w-screen-lg">
           <div className="grid w-full grid-cols-1 gap-6 md:grid-cols-2 ">
             <div className="flex w-full flex-col justify-center">
+              <h3 className="text-3xl font-black">
+                Multiple numbers in one link
+              </h3>
               <Accordion
                 type="single"
                 value={openItem}
                 onValueChange={onValueChange}
+                className="mt-4"
               >
                 <AccordionItem value="1">
                   <AccordionTrigger className="font-bold hover:no-underline">
@@ -148,30 +151,80 @@ export default function Index() {
                     single click.
                   </AccordionContent>
                 </AccordionItem>
-                <AccordionItem value="4">
-                  <AccordionTrigger className="font-bold hover:no-underline">
-                    Set phone number weightage
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    Decide which number gets priority. Duplicate it as many
-                    times as you need for better visibility.
-                  </AccordionContent>
-                </AccordionItem>
               </Accordion>
               <div className="mt-8">
                 <Button asChild>
-                  <Link href="/dashboard">Get Started Now</Link>
+                  <Link href="/dashboard">Create my link now!</Link>
                 </Button>
               </div>
             </div>
-            <div className="order-first w-full md:order-last">
+            <div className="w-full">
               <BackgroundPlayer
-                src="/demo.mp4"
+                src="/videos/link-demo.mp4"
                 className="mx-auto max-w-sm overflow-hidden rounded-xl border"
               />
             </div>
           </div>
         </div>
+      </div>
+
+      {/* generate QR code */}
+      <div className="w-full border-y bg-zinc-50 px-8 py-10 md:py-16">
+        <div className="flex w-full flex-col-reverse gap-6 md:flex-row">
+          <div className="w-full">
+            <BackgroundPlayer
+              src="/videos/qr-demo.mp4"
+              className="mx-auto max-w-sm overflow-hidden rounded-xl border"
+            />
+          </div>
+          <div className="flex w-full flex-col justify-center">
+            <h3 className="max-w-lg text-3xl font-black">
+              QR Codes tailored to your brand!
+            </h3>
+            <p className="mt-4 max-w-lg">
+              Turn your custom link into a QR code with a single click. Perfect
+              for quick sharing and easy customer access!
+            </p>
+            <div className="mt-8">
+              <Button asChild>
+                <Link href="/dashboard">Generate QR Code</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* link weigtage */}
+      <div className="w-full bg-white px-8 py-10 md:py-16">
+        <div className=" mx-auto flex w-full max-w-screen-lg flex-col gap-6 md:flex-row">
+          <div className="flex w-full flex-col justify-center">
+            <h3 className="max-w-lg text-3xl font-black">
+              Set phone number weightage
+            </h3>
+            <p className="mt-4 max-w-lg">
+              Decide which number gets priority. Duplicate it as many times as
+              you need for better visibility.
+            </p>
+            <div className="mt-8">
+              <Button asChild>
+                <Link href="/dashboard">Get Started Now</Link>
+              </Button>
+            </div>
+          </div>
+          <div className="w-full">
+            <BackgroundPlayer
+              src="/videos/weightage-demo.mp4"
+              className="mx-auto max-w-sm overflow-hidden rounded-xl border"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div id="pricing" className="w-full border-t px-8 py-10 md:py-16">
+        <h2 className="text-center text-3xl font-black">
+          Start now for free or Upgrade to Pro!
+        </h2>
+        <PricingTable showFree />
       </div>
       <Footer />
     </div>
