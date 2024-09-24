@@ -1,9 +1,9 @@
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { UAParser } from "ua-parser-js";
-import { Button } from "~/components/ui/button";
+import { Button } from "@/components/ui/button";
 
-import { api } from "~/utils/api";
+import { api } from "@/utils/api";
 
 function RedirectPage() {
   const router = useRouter();

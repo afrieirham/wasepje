@@ -1,7 +1,7 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
-import { appRouter } from "~/server/api/root";
-import { db } from "~/server/db";
+import { appRouter } from "@/server/api/root";
+import { db } from "@/server/db";
 
 interface ExtendedNextApiRequest extends NextApiRequest {
   body: string;

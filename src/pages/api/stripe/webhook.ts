@@ -3,9 +3,9 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { buffer } from "micro";
 import Stripe from "stripe";
 
-import { env } from "~/env.mjs";
-import { appRouter } from "~/server/api/root";
-import { db } from "~/server/db";
+import { env } from "@/env.mjs";
+import { appRouter } from "@/server/api/root";
+import { db } from "@/server/db";
 
 const stripe = new Stripe(env.STRIPE_SECRET_KEY);
 const webhookSecret = env.STRIPE_WEBHOOK_SECRET;

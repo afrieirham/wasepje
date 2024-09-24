@@ -3,7 +3,7 @@ import React, { useState } from "react";
 
 import { useUser } from "@clerk/nextjs";
 
-import { env } from "~/env.mjs";
+import { env } from "@/env.mjs";
 import { Button } from "../ui/button";
 
 function SubscribeButton({

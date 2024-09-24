@@ -6,16 +6,16 @@ import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 import { Github, MoveRight } from "lucide-react";
 import BackgroundPlayer from "next-video/background-player";
 
-import Footer from "~/components/molecule/Footer";
-import SEOHead from "~/components/molecule/SEOHead";
+import Footer from "@/components/molecule/Footer";
+import SEOHead from "@/components/molecule/SEOHead";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "~/components/ui/accordion";
-import { Button } from "~/components/ui/button";
-import PricingTable from "~/components/molecule/PricingTable";
+} from "@/components/ui/accordion";
+import { Button } from "@/components/ui/button";
+import PricingTable from "@/components/molecule/PricingTable";
 
 export default function Index() {
   const [openItem, setOpenItem] = useState("1");

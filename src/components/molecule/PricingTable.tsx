@@ -10,8 +10,8 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "~/components/ui/card";
-import useUserCountry from "~/hooks/useUserCountry";
+} from "@/components/ui/card";
+import useUserCountry from "@/hooks/useUserCountry";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";

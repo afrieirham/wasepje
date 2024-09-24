@@ -5,8 +5,8 @@ import { useEffect } from "react";
 import { UserButton, useClerk, useUser } from "@clerk/nextjs";
 import { CreditCard } from "lucide-react";
 
-import { env } from "~/env.mjs";
-import { usePlan } from "~/hooks/usePlan";
+import { env } from "@/env.mjs";
+import { usePlan } from "@/hooks/usePlan";
 
 function Header() {
   const plan = usePlan();

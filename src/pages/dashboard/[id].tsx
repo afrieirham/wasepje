@@ -6,9 +6,9 @@ import type { Phone } from "@prisma/client";
 import { Loader2, MoveLeft, Pencil, Plus, Trash } from "lucide-react";
 import slugify from "slugify";
 
-import Header from "~/components/molecule/Header";
-import SEOHead from "~/components/molecule/SEOHead";
-import { Button } from "~/components/ui/button";
+import Header from "@/components/molecule/Header";
+import SEOHead from "@/components/molecule/SEOHead";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -17,14 +17,14 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "~/components/ui/dialog";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
-import { Textarea } from "~/components/ui/textarea";
-import { toast } from "~/components/ui/use-toast";
-import { useHostname } from "~/hooks/useHostname";
-import { usePlan } from "~/hooks/usePlan";
-import { api } from "~/utils/api";
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/components/ui/use-toast";
+import { useHostname } from "@/hooks/useHostname";
+import { usePlan } from "@/hooks/usePlan";
+import { api } from "@/utils/api";
 
 function EditLink() {
   const plan = usePlan();

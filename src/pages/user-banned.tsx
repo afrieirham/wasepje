@@ -2,7 +2,7 @@ import { useEffect } from "react";
 
 import { useAuth } from "@clerk/nextjs";
 
-import Header from "~/components/molecule/Header";
+import Header from "@/components/molecule/Header";
 
 function UserBanned() {
   const { signOut } = useAuth();

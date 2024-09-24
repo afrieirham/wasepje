@@ -3,7 +3,7 @@ import { useEffect } from "react";
 
 import { useUser } from "@clerk/nextjs";
 
-import { api } from "~/utils/api";
+import { api } from "@/utils/api";
 
 function usePlan() {
   const router = useRouter();

@@ -2,7 +2,7 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { UAParser } from "ua-parser-js";
 
-import { api } from "~/utils/api";
+import { api } from "@/utils/api";
 
 function RedirectPage() {
   const router = useRouter();

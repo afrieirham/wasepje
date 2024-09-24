@@ -3,11 +3,11 @@ import { countries } from "country-list-json";
 import { Github } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import PublicHeader from "~/components/molecule/PublicHeader";
-import SEOHead from "~/components/molecule/SEOHead";
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
+import PublicHeader from "@/components/molecule/PublicHeader";
+import SEOHead from "@/components/molecule/SEOHead";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 function Click2Chat() {
   const [countryCode, setCode] = useState("MY");

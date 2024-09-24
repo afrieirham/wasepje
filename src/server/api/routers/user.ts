@@ -6,7 +6,7 @@ import {
   createTRPCRouter,
   privateProcedure,
   publicProcedure,
-} from "~/server/api/trpc";
+} from "@/server/api/trpc";
 
 export const userRouter = createTRPCRouter({
   sync: privateProcedure

@@ -1,4 +1,4 @@
-import Header from "~/components/molecule/Header";
+import Header from "@/components/molecule/Header";
 
 function LinkBanned() {
   return (

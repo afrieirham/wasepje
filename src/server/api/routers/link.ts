@@ -2,12 +2,12 @@ import { Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import z from "zod";
 
-import { reservedSlug } from "~/constants/reserved-slug";
+import { reservedSlug } from "@/constants/reserved-slug";
 import {
   createTRPCRouter,
   privateProcedure,
   publicProcedure,
-} from "~/server/api/trpc";
+} from "@/server/api/trpc";
 
 export const checkReserved = (path: string) =>
   reservedSlug.some((p) => p === path);
