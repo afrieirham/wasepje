@@ -62,8 +62,8 @@ export default function Dashboard() {
   const { user } = useUser();
 
   const sync = api.user.sync.useMutation();
-  const { data } = api.link.getAll.useQuery();
-  const { mutate } = api.link.create.useMutation({
+  const getAll = api.link.getAll.useQuery();
+  const create = api.link.create.useMutation({
     onSuccess: () => {
       void ctx.link.getAll.invalidate();
     },
@@ -82,10 +82,10 @@ export default function Dashboard() {
   const [message, setMessage] = useState("");
   const [phones, setPhones] = useState([{ value: "" }]);
 
-  const hasLinks = Boolean(data?.length);
+  const hasLinks = Boolean(getAll.data?.length);
 
   const totalClicks = hasLinks
-    ? data
+    ? getAll.data
         ?.map((link) => link._count.clicks)
         .reduce((total, link) => total + link)
     : 0;
@@ -103,7 +103,7 @@ export default function Dashboard() {
       new FormData(e.currentTarget),
     ) as unknown as LinkInput;
 
-    mutate({ name, slug, phones, message });
+    create.mutate({ name, slug, phones, message });
     setOpen(false);
     resetFormFields();
     toast({
@@ -269,9 +269,7 @@ export default function Dashboard() {
             {hasLinks && (
               <p className="mt-8">Total clicks: {totalClicks} (last 30 days)</p>
             )}
-            {data?.map((link) => (
-              <LinkItem link={link} host={host} key={link.id} />
-            ))}
+            {getAll.data?.map((link) => <LinkItem link={link} key={link.id} />)}
           </div>
         </main>
       </SignedIn>
@@ -279,7 +277,8 @@ export default function Dashboard() {
   );
 }
 
-function LinkItem({ link, host }: { link: LinkOutput; host: string }) {
+function LinkItem({ link }: { link: LinkOutput }) {
+  const host = useHostname();
   const plan = usePlan();
   const ctx = api.useContext();
   const url = `${host}/${link.slug}`;
@@ -296,7 +295,7 @@ function LinkItem({ link, host }: { link: LinkOutput; host: string }) {
   const qrCanvasRef = useRef<HTMLDivElement>(null);
   const logoUploadRef = useRef<HTMLInputElement>(null);
 
-  const { mutate } = api.link.delete.useMutation({
+  const deleteLink = api.link.delete.useMutation({
     onSuccess: () => {
       void ctx.link.getAll.invalidate();
     },
@@ -308,7 +307,7 @@ function LinkItem({ link, host }: { link: LinkOutput; host: string }) {
   };
 
   const onDeleteLink = () => {
-    mutate({ id: link.id });
+    deleteLink.mutate({ id: link.id });
     toast({ title: "Link successfully deleted!", description: url });
   };
 

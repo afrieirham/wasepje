@@ -6,23 +6,25 @@ import { api } from "~/utils/api";
 
 function RedirectPage() {
   const router = useRouter();
-  const { data } = api.link.getLinkBySlug.useQuery({
+  const getLinkBySlug = api.link.getLinkBySlug.useQuery({
     slug: String(router.query.slug),
   });
-  const { mutate } = api.link.updateNextPhone.useMutation();
+  const updateNextPhone = api.link.updateNextPhone.useMutation();
 
   useEffect(() => {
-    if (data) {
-      if (data.banned) {
+    if (getLinkBySlug.data) {
+      if (getLinkBySlug.data.banned) {
         void router.push("/link-banned");
         return;
       }
 
-      const phoneNumber = data.phones.at(Number(data.nextPhone))?.number;
+      const phoneNumber = getLinkBySlug.data.phones.at(
+        Number(getLinkBySlug.data.nextPhone),
+      )?.number;
       let url = `https://wa.me/${phoneNumber}`;
 
-      if (data?.message) {
-        url = url + `?text=${encodeURI(String(data.message))}`;
+      if (getLinkBySlug.data?.message) {
+        url = url + `?text=${encodeURI(String(getLinkBySlug.data.message))}`;
       }
 
       const ua = UAParser(window.navigator.userAgent);
@@ -35,11 +37,11 @@ function RedirectPage() {
         referrer: document.referrer || "(direct)",
       };
 
-      mutate({ id: data.id, metadata });
+      updateNextPhone.mutate({ id: getLinkBySlug.data.id, metadata });
 
       void router.push(url);
     }
-  }, [data, mutate, router]);
+  }, [getLinkBySlug.data, router, updateNextPhone]);
 
   return null;
 }

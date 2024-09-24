@@ -1,9 +1,11 @@
-import type { Phone } from "@prisma/client";
-import { Loader2, MoveLeft, Pencil, Plus, Trash } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState, type FormEvent } from "react";
+
+import type { Phone } from "@prisma/client";
+import { Loader2, MoveLeft, Pencil, Plus, Trash } from "lucide-react";
 import slugify from "slugify";
+
 import Header from "~/components/molecule/Header";
 import SEOHead from "~/components/molecule/SEOHead";
 import { Button } from "~/components/ui/button";
@@ -29,8 +31,8 @@ function EditLink() {
 
   const router = useRouter();
 
-  const { data } = api.link.getOne.useQuery({ id: String(router.query.id) });
-  const { mutate, isLoading } = api.link.update.useMutation({
+  const getOne = api.link.getOne.useQuery({ id: String(router.query.id) });
+  const update = api.link.update.useMutation({
     onError: (error) => {
       toast({
         title: "Please use different slug.",
@@ -50,19 +52,26 @@ function EditLink() {
   const [slug, setSlug] = useState("");
   const [message, setMessage] = useState("");
 
-  useEffect(() => {
-    if (data) {
-      setName(data.name);
-      setSlug(data.slug);
-      setMessage(data.message ?? "");
-    }
-  }, [data]);
+  const link = getOne.data;
 
-  if (!data) return <p>404</p>;
+  useEffect(() => {
+    if (link) {
+      setName(link.name);
+      setSlug(link.slug);
+      setMessage(link.message ?? "");
+    }
+  }, [link]);
+
+  if (!link) return <p>404</p>;
 
   const onSubmitGeneral = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    mutate({ id: data.id, name, slug, message });
+
+    if (!getOne.data) {
+      return;
+    }
+
+    update.mutate({ id: getOne.data.id, name, slug, message });
     toast({
       title: "Link successfully updated!",
       description: `${host}/${slug}`,
@@ -71,11 +80,12 @@ function EditLink() {
 
   const onAddPhone = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     const { phone } = Object.fromEntries(new FormData(e.currentTarget)) as {
       phone: string;
     };
 
-    addOnePhone.mutate({ linkId: data.id, number: phone });
+    addOnePhone.mutate({ linkId: link.id, number: phone });
     toast({ title: "Phone successfully added!", description: phone });
     setAddPhoneDialog(false);
   };
@@ -159,7 +169,9 @@ function EditLink() {
           </div>
           <div className="border-t bg-zinc-100 p-4 sm:px-10 sm:py-6">
             <Button type="submit">
-              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {update.isLoading && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
               Save Changes
             </Button>
           </div>
@@ -171,8 +183,8 @@ function EditLink() {
             <p className="text-xs text-muted-foreground">
               Must have at least 1 active number.
             </p>
-            {data.phones?.map((phone) => (
-              <PhoneItem key={phone.id} phone={phone} phones={data.phones} />
+            {link.phones?.map((phone) => (
+              <PhoneItem key={phone.id} phone={phone} phones={link.phones} />
             ))}
 
             <div className="mt-4">
