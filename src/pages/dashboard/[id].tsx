@@ -23,9 +23,11 @@ import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
 import { toast } from "~/components/ui/use-toast";
 import { useHostname } from "~/hooks/useHostname";
+import { usePlan } from "~/hooks/usePlan";
 import { api } from "~/utils/api";
 
 function EditLink() {
+  const plan = usePlan();
   const host = useHostname();
   const ctx = api.useContext();
 
@@ -51,6 +53,7 @@ function EditLink() {
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [message, setMessage] = useState("");
+  const [postfix, setPostfix] = useState("");
 
   const link = getOne.data;
 
@@ -58,6 +61,15 @@ function EditLink() {
     if (link) {
       setName(link.name);
       setSlug(link.slug);
+      setMessage(link.message ?? "");
+    }
+  }, [link]);
+
+  useEffect(() => {
+    if (link) {
+      setName(link.name);
+      setSlug(link.slug);
+      setPostfix(link.slug.substring(link.slug.length - 5));
       setMessage(link.message ?? "");
     }
   }, [link]);
@@ -128,20 +140,36 @@ function EditLink() {
                 value={name}
                 className="mt-2 w-full max-w-md"
                 onChange={(e) => {
-                  setName(e.target.value);
-                  setSlug(
-                    slugify(e.target.value, {
-                      lower: true,
-                      strict: true,
-                    }),
-                  );
+                  const value = e.target.value;
+                  setName(value);
+
+                  if (value.length > 0) {
+                    setSlug(
+                      `${slugify(e.target.value, {
+                        lower: true,
+                        strict: true,
+                      })}${plan === "free" ? `-${postfix}` : ""}`,
+                    );
+                  } else {
+                    setSlug(plan === "free" ? postfix : "");
+                  }
                 }}
               />
             </div>
             <div className="mt-4 flex flex-col">
-              <Label htmlFor="slug" className="">
-                Slug
-              </Label>
+              <div className="flex items-center space-x-2">
+                <Label htmlFor="slug" className="">
+                  Slug
+                </Label>
+                {plan === "free" && (
+                  <Link
+                    href="/#pricing"
+                    className="rounded-sm border  bg-black px-2 py-1 text-xs font-medium text-white hover:bg-gray-800"
+                  >
+                    Unlock premium slug
+                  </Link>
+                )}
+              </div>
               <p className="mt-2 text-xs text-muted-foreground">
                 {host}/{slug}
               </p>
@@ -150,6 +178,7 @@ function EditLink() {
                 name="slug"
                 className="mt-2 w-full max-w-md"
                 value={slug}
+                disabled={plan === "free"}
                 onChange={(e) => setSlug(e.target.value.trim())}
               />
             </div>
