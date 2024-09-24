@@ -41,7 +41,8 @@ function RedirectPage() {
 
       void router.push(url);
     }
-  }, [getLinkBySlug.data, router, updateNextPhone]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getLinkBySlug.data, router]);
 
   return null;
 }
