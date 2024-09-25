@@ -18,6 +18,7 @@ import {
 
 import DashboardLayout from "@/components/layout/dashboard-layout";
 import QRCodeGenerator from "@/components/molecule/QRCodeGenerator";
+import SEOHead from "@/components/molecule/SEOHead";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -71,6 +72,12 @@ export default function Dashboard() {
 
   return (
     <DashboardLayout>
+      <SEOHead
+        title="Dashboard | WasepJe.com"
+        description="Open-Source WhatsApp Link Rotator, an alternative to wasap.my"
+        path="/"
+        ogPath="/og.png"
+      />
       {getAll.isLoading ? (
         <div className="flex flex-1 items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin" />
