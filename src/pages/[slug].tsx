@@ -13,11 +13,6 @@ function RedirectPage() {
 
   useEffect(() => {
     if (getLinkBySlug.data) {
-      if (getLinkBySlug.data.banned) {
-        void router.push("/link-banned");
-        return;
-      }
-
       const phoneNumber = getLinkBySlug.data.phones.at(
         Number(getLinkBySlug.data.nextPhone),
       )?.number;

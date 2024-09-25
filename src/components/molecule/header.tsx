@@ -1,8 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect } from "react";
 
-import { UserButton, useClerk, useUser } from "@clerk/nextjs";
+import { UserButton, useUser } from "@clerk/nextjs";
 import { CreditCard } from "lucide-react";
 
 import { env } from "@/env.mjs";
@@ -11,13 +10,6 @@ import { usePlan } from "@/hooks/use-plan";
 function Header() {
   const plan = usePlan();
   const { user } = useUser();
-  const { signOut } = useClerk();
-
-  useEffect(() => {
-    if (user?.publicMetadata.banned) {
-      void signOut();
-    }
-  }, [user, signOut]);
 
   if (plan === "free")
     return (
