@@ -23,7 +23,7 @@ function PricingTable({ showFree }: { showFree?: boolean }) {
 
   return (
     <>
-      <div className="mb-4 mt-4 flex flex-col items-center">
+      <div className="my-4 flex flex-col items-center">
         <Tabs
           value={billing}
           onValueChange={(value) => setBilling(value as "monthly" | "annually")}
@@ -101,7 +101,7 @@ function PricingTable({ showFree }: { showFree?: boolean }) {
 
               <Badge
                 variant={billing === "annually" ? "default" : "secondary"}
-                className={`mt-2 space-x-1  transition ${
+                className={`mt-2 space-x-1 transition ${
                   billing === "annually"
                     ? "animate-in"
                     : "text-zinc-300 line-through animate-out"

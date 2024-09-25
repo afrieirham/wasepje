@@ -1,26 +1,36 @@
+import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState, type FormEvent } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 
-import { SignedIn, useUser } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 import copy from "copy-to-clipboard";
 import { customAlphabet } from "nanoid";
 import slugify from "slugify";
 
 import {
+  Check,
   Copy,
   Ellipsis,
   ExternalLink,
+  Home,
   Loader2,
+  Menu,
   Pencil,
   Plus,
   Trash,
 } from "lucide-react";
 
-import Header from "@/components/molecule/Header";
-import PricingTable from "@/components/molecule/PricingTable";
+import ClerkUserButton from "@/components/molecule/ClerkUserButton";
 import QRCodeGenerator from "@/components/molecule/QRCodeGenerator";
-import SEOHead from "@/components/molecule/SEOHead";
+import SubscribeButton from "@/components/molecule/SubscribeButton";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -42,7 +52,6 @@ import { Label } from "@/components/ui/label";
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetFooter,
   SheetHeader,
   SheetTitle,
@@ -53,8 +62,7 @@ import { toast } from "@/components/ui/use-toast";
 import { useHostname } from "@/hooks/useHostname";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { usePlan } from "@/hooks/usePlan";
-import type { RouterOutputs } from "@/utils/api";
-import { api } from "@/utils/api";
+import { api, type RouterOutputs } from "@/utils/api";
 
 type LinkOutput = RouterOutputs["link"]["getAll"][number];
 
@@ -73,91 +81,119 @@ export default function Dashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
-  if (getAll.isLoading)
-    return (
-      <SignedIn>
-        <main>
-          <SEOHead
-            title="Dashboard | WasepJe.com"
-            description="Open-Source WhatsApp Link Rotator, an alternative to wasap.my"
-            path="/"
-            ogPath="/og.png"
-          />
-          <Header />
-          <div className="border-b border-zinc-200 bg-white">
-            <div className="mx-auto flex w-full max-w-screen-xl justify-between px-6 py-10">
-              <h1 className="text-2xl">My Links</h1>
-              <CreateLinkForm />
-            </div>
+  return (
+    <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
+      <div className="hidden border-r bg-muted/40 md:block">
+        <div className="flex h-full max-h-screen flex-col gap-2">
+          <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
+            <Logo />
           </div>
-          <div className="mx-auto flex w-full max-w-screen-xl flex-col justify-between px-4 sm:px-6">
-            <div className="mt-8">
+          <div className="flex-1">
+            <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
+              <Link
+                href="#"
+                className="flex items-center gap-3 rounded-lg bg-muted px-3 py-2 text-primary transition-all hover:text-primary"
+              >
+                <Home className="h-4 w-4" />
+                <span>Dashboard</span>
+              </Link>
+            </nav>
+          </div>
+          <div className="mt-auto p-4">
+            <UpgradeCTA />
+          </div>
+        </div>
+      </div>
+      <div className="flex flex-col">
+        <header className="flex h-14 items-center justify-between gap-4 border-b bg-muted/40 px-4 md:justify-end">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="shrink-0 md:hidden"
+              >
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Toggle navigation menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="flex flex-col">
+              <nav className="grid gap-2 text-lg font-medium">
+                <Logo />
+                <Link
+                  href="#"
+                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl bg-muted px-3 py-2 text-foreground hover:text-foreground"
+                >
+                  <Home className="h-5 w-5" />
+                  <span>Dashboard</span>
+                </Link>
+              </nav>
+              <div className="mt-auto">
+                <UpgradeCTA />
+              </div>
+            </SheetContent>
+          </Sheet>
+          <div className="">
+            <ClerkUserButton />
+          </div>
+        </header>
+        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
+          {getAll.isLoading ? (
+            <div className="flex flex-1 items-center justify-center">
               <Loader2 className="h-8 w-8 animate-spin" />
             </div>
-          </div>
-          <UpgradeCTA />
-        </main>
-      </SignedIn>
-    );
-
-  if (!getAll.data?.length)
-    return (
-      <SignedIn>
-        <main>
-          <SEOHead
-            title="Dashboard | WasepJe.com"
-            description="Open-Source WhatsApp Link Rotator, an alternative to wasap.my"
-            path="/"
-            ogPath="/og.png"
-          />
-          <Header />
-          <div className="border-b border-zinc-200 bg-white">
-            <div className="mx-auto flex w-full max-w-screen-xl justify-between px-6 py-10">
-              <h1 className="text-2xl">My Links</h1>
-              <CreateLinkForm />
+          ) : getAll.data && getAll.data?.length > 0 ? (
+            <>
+              <div className="flex items-center justify-between">
+                <h1 className="text-lg font-semibold md:text-2xl">Links</h1>
+                <CreateLinkForm />
+              </div>
+              <div className="mx-auto flex w-full max-w-screen-xl flex-col justify-between">
+                <p>
+                  Total clicks:{" "}
+                  {getAll.data
+                    .map((link) => link._count.clicks)
+                    .reduce((total, link) => total + link)}{" "}
+                  (last 30 days)
+                </p>
+                {getAll.data.map((link) => (
+                  <LinkItem link={link} key={link.id} />
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm">
+              <div className="flex flex-col items-center gap-1 text-center">
+                <h3 className="text-2xl font-bold tracking-tight">
+                  You have no links.
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Create your first link rotator now.
+                </p>
+                <div className="mt-4">
+                  <CreateLinkForm />
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="mx-auto flex w-full max-w-screen-xl flex-col justify-between px-4 sm:px-6">
-            <div className="mt-8">
-              <p>You have no links yet.</p>
-            </div>
-          </div>
-          <UpgradeCTA />
+          )}
         </main>
-      </SignedIn>
-    );
+      </div>
+    </div>
+  );
+}
 
-  const totalClicks = getAll.data
-    .map((link) => link._count.clicks)
-    .reduce((total, link) => total + link);
-
+function Logo() {
   return (
-    <SignedIn>
-      <main>
-        <SEOHead
-          title="Dashboard | WasepJe.com"
-          description="Open-Source WhatsApp Link Rotator, an alternative to wasap.my"
-          path="/"
-          ogPath="/og.png"
-        />
-        <Header />
-        <div className="border-b border-zinc-200 bg-white">
-          <div className="mx-auto flex w-full max-w-screen-xl justify-between px-6 py-10">
-            <h1 className="text-2xl">My Links</h1>
-            <CreateLinkForm />
-          </div>
-        </div>
-        <div className="mx-auto flex w-full max-w-screen-xl flex-col justify-between px-4 sm:px-6">
-          <div className="mt-8">
-            <p>Total clicks: {totalClicks} (last 30 days)</p>
-            {getAll.data.map((link) => (
-              <LinkItem link={link} key={link.id} />
-            ))}
-          </div>
-        </div>
-        <UpgradeCTA />
-      </main>
-    </SignedIn>
+    <Link href="/" className="flex items-center space-x-2">
+      <Image
+        width={40}
+        height={40}
+        className="h-10 w-10"
+        src="/logo.png"
+        alt="wasepje.com logo"
+      />
+      <p className="text-sm font-bold">WasepJe.com</p>
+    </Link>
   );
 }
 
@@ -165,21 +201,43 @@ function UpgradeCTA() {
   const plan = usePlan();
 
   if (plan === "pro") return null;
+
   return (
-    <div className="px-4 py-16">
-      <p className="text-center text-2xl font-bold">Upgrade to Pro today!</p>
-      <PricingTable showFree />
-    </div>
+    <Card>
+      <CardHeader className="px-4 pb-2 pt-4">
+        <CardTitle>Upgrade to Pro</CardTitle>
+        <CardDescription>Unlock more customizability with Pro</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6 px-4 pb-4 pt-2">
+        <ul className="text-sm">
+          <li className="flex items-center space-x-2">
+            <Check className="h-4 w-4" />
+            <span>Instant link redirect</span>
+          </li>
+          <li className="flex items-center space-x-2">
+            <Check className="h-4 w-4" />
+            <span>Customize QR</span>
+          </li>
+          <li className="flex items-center space-x-2">
+            <Check className="h-4 w-4" />
+            <span>Customize link slugs</span>
+          </li>
+        </ul>
+        <SubscribeButton billing="monthly" className="w-full">
+          Upgrade
+        </SubscribeButton>
+      </CardContent>
+    </Card>
   );
 }
 
 function CreateLinkForm() {
   const { smOrHigher } = useMediaQuery();
   const plan = usePlan();
+
   const alphabet =
     "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-  const nanoid = customAlphabet(alphabet, 5);
-  const random = nanoid(5);
+  const random = customAlphabet(alphabet, 5)(5);
 
   const host = useHostname();
   const ctx = api.useContext();
@@ -257,7 +315,6 @@ function CreateLinkForm() {
         <form onSubmit={onSubmit}>
           <SheetHeader>
             <SheetTitle>Create a new link</SheetTitle>
-            <SheetDescription></SheetDescription>
           </SheetHeader>
           <div className="grid gap-6 py-4">
             <div className="flex flex-col gap-2">
@@ -291,7 +348,7 @@ function CreateLinkForm() {
                 {plan === "free" && (
                   <Link
                     href="/#pricing"
-                    className="rounded-sm border  bg-black px-2 py-1 text-xs font-medium text-white hover:bg-gray-800"
+                    className="rounded-sm border bg-black px-2 py-1 text-xs font-medium text-white hover:bg-gray-800"
                   >
                     Unlock premium slug
                   </Link>
