@@ -7,7 +7,7 @@ import { ChevronLeft, Loader2, Pencil, Plus, Trash } from "lucide-react";
 import slugify from "slugify";
 
 import DashboardLayout from "@/components/layout/dashboard-layout";
-import SEOHead from "@/components/molecule/SEOHead";
+import SEOHead from "@/components/molecule/seo-head";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,

@@ -6,8 +6,9 @@ import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 import { Github, MoveRight } from "lucide-react";
 import BackgroundPlayer from "next-video/background-player";
 
-import Footer from "@/components/molecule/Footer";
-import SEOHead from "@/components/molecule/SEOHead";
+import Footer from "@/components/molecule/footer";
+import PricingTable from "@/components/molecule/pricing-table";
+import SEOHead from "@/components/molecule/seo-head";
 import {
   Accordion,
   AccordionContent,
@@ -15,7 +16,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import PricingTable from "@/components/molecule/PricingTable";
 
 export default function Index() {
   const [openItem, setOpenItem] = useState("1");
@@ -111,7 +111,7 @@ export default function Index() {
       {/* create links */}
       <div className="flex w-full flex-col bg-white px-8 py-10 md:py-16">
         <div className="mx-auto mt-8 w-full max-w-screen-lg">
-          <div className="grid w-full grid-cols-1 gap-6 md:grid-cols-2 ">
+          <div className="grid w-full grid-cols-1 gap-6 md:grid-cols-2">
             <div className="flex w-full flex-col justify-center">
               <h3 className="text-3xl font-black">
                 Multiple numbers in one link
@@ -196,7 +196,7 @@ export default function Index() {
 
       {/* link weigtage */}
       <div className="w-full bg-white px-8 py-10 md:py-16">
-        <div className=" mx-auto flex w-full max-w-screen-lg flex-col gap-6 md:flex-row">
+        <div className="mx-auto flex w-full max-w-screen-lg flex-col gap-6 md:flex-row">
           <div className="flex w-full flex-col justify-center">
             <h3 className="max-w-lg text-3xl font-black">
               Set phone number weightage

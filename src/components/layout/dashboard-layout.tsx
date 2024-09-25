@@ -6,8 +6,8 @@ import { useUser } from "@clerk/nextjs";
 
 import { Check, Home, Menu } from "lucide-react";
 
-import ClerkUserButton from "@/components/molecule/ClerkUserButton";
-import SubscribeButton from "@/components/molecule/SubscribeButton";
+import ClerkUserButton from "@/components/molecule/clerk-user-button";
+import SubscribeButton from "@/components/molecule/subscribe-button";
 import { Button } from "@/components/ui/button";
 import {
   Card,

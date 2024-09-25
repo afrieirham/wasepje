@@ -17,8 +17,8 @@ import {
 } from "lucide-react";
 
 import DashboardLayout from "@/components/layout/dashboard-layout";
-import QRCodeGenerator from "@/components/molecule/QRCodeGenerator";
-import SEOHead from "@/components/molecule/SEOHead";
+import QRCodeGenerator from "@/components/molecule/qr-code-generator";
+import SEOHead from "@/components/molecule/seo-head";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,

@@ -15,7 +15,7 @@ import useUserCountry from "@/hooks/useUserCountry";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
-import SubscribeButton from "./SubscribeButton";
+import SubscribeButton from "./subscribe-button";
 
 function PricingTable({ showFree }: { showFree?: boolean }) {
   const { country } = useUserCountry();

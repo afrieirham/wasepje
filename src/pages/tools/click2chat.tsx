@@ -1,10 +1,13 @@
-import { SignInButton } from "@clerk/nextjs";
-import { countries } from "country-list-json";
-import { Github } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import PublicHeader from "@/components/molecule/PublicHeader";
-import SEOHead from "@/components/molecule/SEOHead";
+
+import { SignInButton } from "@clerk/nextjs";
+import { countries } from "country-list-json";
+
+import { Github } from "lucide-react";
+
+import PublicHeader from "@/components/molecule/public-header";
+import SEOHead from "@/components/molecule/seo-head";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,7 +38,7 @@ function Click2Chat() {
       <PublicHeader />
       <form
         onSubmit={onSubmit}
-        className="mx-auto flex w-full max-w-sm flex-grow flex-col items-center justify-center px-2 "
+        className="mx-auto flex w-full max-w-sm flex-grow flex-col items-center justify-center px-2"
       >
         <Label>Enter that unsaved number:</Label>
         <div className="mt-4 flex w-full">
