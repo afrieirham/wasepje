@@ -48,9 +48,9 @@ import {
 } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
-import { useHostname } from "@/hooks/useHostname";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { usePlan } from "@/hooks/usePlan";
+import { useHostname } from "@/hooks/use-hostname";
+import { useMediaQuery } from "@/hooks/use-media-query";
+import { usePlan } from "@/hooks/use-plan";
 import { api, type RouterOutputs } from "@/utils/api";
 
 type LinkOutput = RouterOutputs["link"]["getAll"][number];

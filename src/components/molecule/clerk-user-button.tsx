@@ -1,8 +1,10 @@
-import { env } from "@/env.mjs";
-import { usePlan } from "@/hooks/usePlan";
+import React from "react";
+
 import { UserButton, useUser } from "@clerk/nextjs";
 import { CreditCard } from "lucide-react";
-import React from "react";
+
+import { env } from "@/env.mjs";
+import { usePlan } from "@/hooks/use-plan";
 
 function ClerkUserButton() {
   const plan = usePlan();

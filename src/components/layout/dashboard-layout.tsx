@@ -17,7 +17,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { usePlan } from "@/hooks/usePlan";
+import { usePlan } from "@/hooks/use-plan";
 import { api } from "@/utils/api";
 
 export default function DashboardLayout({

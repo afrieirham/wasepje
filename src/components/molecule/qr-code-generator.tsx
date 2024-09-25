@@ -4,8 +4,8 @@ import React, { type MutableRefObject, useRef, useState } from "react";
 import { Check, Clipboard, Download, QrCode } from "lucide-react";
 import { QRCode } from "react-qrcode-logo";
 
-import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { usePlan } from "@/hooks/usePlan";
+import { useMediaQuery } from "@/hooks/use-media-query";
+import { usePlan } from "@/hooks/use-plan";
 
 import { Button } from "../ui/button";
 import {

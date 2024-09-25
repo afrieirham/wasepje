@@ -22,8 +22,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
-import { useHostname } from "@/hooks/useHostname";
-import { usePlan } from "@/hooks/usePlan";
+import { useHostname } from "@/hooks/use-hostname";
+import { usePlan } from "@/hooks/use-plan";
 import { api } from "@/utils/api";
 
 function EditLink() {
