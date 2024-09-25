@@ -14,7 +14,7 @@ function ClerkUserButton() {
         showName
         appearance={{
           elements: {
-            userButtonTrigger: "bg-zinc-100 py-1.5 px-2 border border-zinc-300",
+            userButtonTrigger: "bg-white py-1.5 px-2 border-2 border-zinc-200",
           },
         }}
       />
@@ -26,7 +26,7 @@ function ClerkUserButton() {
       showName
       appearance={{
         elements: {
-          userButtonTrigger: "bg-gray-100 py-1.5 px-2 border border-gray-300",
+          userButtonTrigger: "bg-white py-1.5 px-2 border-2 border-gray-200",
         },
       }}
     >

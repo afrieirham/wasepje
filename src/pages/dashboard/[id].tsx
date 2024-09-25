@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useState, type FormEvent } from "react";
+import React, { type FormEvent, useEffect, useState } from "react";
 
-import type { Phone } from "@prisma/client";
-import { Loader2, MoveLeft, Pencil, Plus, Trash } from "lucide-react";
+import { type Phone } from "@prisma/client";
+import { ChevronLeft, Loader2, Pencil, Plus, Trash } from "lucide-react";
 import slugify from "slugify";
 
-import Header from "@/components/molecule/Header";
+import DashboardLayout from "@/components/layout/dashboard-layout";
 import SEOHead from "@/components/molecule/SEOHead";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,11 +27,10 @@ import { usePlan } from "@/hooks/usePlan";
 import { api } from "@/utils/api";
 
 function EditLink() {
+  const router = useRouter();
   const plan = usePlan();
   const host = useHostname();
   const ctx = api.useContext();
-
-  const router = useRouter();
 
   const getOne = api.link.getOne.useQuery({ id: String(router.query.id) });
   const update = api.link.update.useMutation({
@@ -62,17 +61,12 @@ function EditLink() {
       setName(link.name);
       setSlug(link.slug);
       setMessage(link.message ?? "");
-    }
-  }, [link]);
 
-  useEffect(() => {
-    if (link) {
-      setName(link.name);
-      setSlug(link.slug);
-      setPostfix(link.slug.substring(link.slug.length - 5));
-      setMessage(link.message ?? "");
+      if (plan === "free") {
+        setPostfix(link.slug.substring(link.slug.length - 5));
+      }
     }
-  }, [link]);
+  }, [link, plan]);
 
   if (!link) return null;
 
@@ -103,27 +97,22 @@ function EditLink() {
   };
 
   return (
-    <main>
+    <DashboardLayout>
       <SEOHead
         title="Edit Link | WasepJe.com"
         description="Open-Source WhatsApp Link Rotator, an alternative to wasap.my"
         path="/"
         ogPath="/og.png"
       />
-      <Header />
-      <div className="border-b border-zinc-200 bg-white">
-        <div className="mx-auto flex w-full max-w-screen-xl justify-between px-6 py-10">
-          <div className="flex space-x-2">
-            <Button size="sm" variant="ghost" asChild className="p-1">
-              <Link href="/dashboard">
-                <MoveLeft className="h-4 w-4" />
-              </Link>
-            </Button>
-            <h1 className="text-2xl">Edit {name}</h1>
-          </div>
-        </div>
+      <div>
+        <Button variant="link" size="sm" className="-ml-3" asChild>
+          <Link href="/dashboard">
+            <ChevronLeft className="h-4 w-4" />
+            <span>Links</span>
+          </Link>
+        </Button>
       </div>
-      <div className="mx-auto max-w-screen-xl px-6 py-10">
+      <div className="mt-4 w-full pb-8">
         <p className="text-lg font-bold">General</p>
         <form
           onSubmit={onSubmitGeneral}
@@ -145,7 +134,7 @@ function EditLink() {
 
                   if (value.length > 0) {
                     setSlug(
-                      `${slugify(e.target.value, {
+                      `${slugify(value, {
                         lower: true,
                         strict: true,
                       })}${plan === "free" ? `-${postfix}` : ""}`,
@@ -164,7 +153,7 @@ function EditLink() {
                 {plan === "free" && (
                   <Link
                     href="/#pricing"
-                    className="rounded-sm border  bg-black px-2 py-1 text-xs font-medium text-white hover:bg-gray-800"
+                    className="rounded-sm border bg-black px-2 py-1 text-xs font-medium text-white hover:bg-gray-800"
                   >
                     Unlock premium slug
                   </Link>
@@ -245,9 +234,11 @@ function EditLink() {
           </div>
         </div>
       </div>
-    </main>
+    </DashboardLayout>
   );
 }
+
+export default EditLink;
 
 function PhoneItem({ phone, phones }: { phone: Phone; phones: Phone[] }) {
   const ctx = api.useContext();
@@ -283,7 +274,7 @@ function PhoneItem({ phone, phones }: { phone: Phone; phones: Phone[] }) {
   };
 
   return (
-    <div className="mt-2 flex space-x-1 ">
+    <div className="mt-2 flex space-x-1">
       <Input
         required
         value={phone.number}
@@ -337,5 +328,3 @@ function PhoneItem({ phone, phones }: { phone: Phone; phones: Phone[] }) {
     </div>
   );
 }
-
-export default EditLink;

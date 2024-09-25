@@ -40,9 +40,9 @@ export default function DashboardLayout({
 
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
-      <div className="hidden border-r bg-muted/40 md:block">
-        <div className="flex h-full max-h-screen flex-col gap-2">
-          <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
+      <div className="hidden h-screen border-r bg-muted/40 md:block">
+        <div className="flex h-full flex-col gap-2">
+          <div className="flex h-16 items-center border-b px-4">
             <Logo />
           </div>
           <div className="flex-1">
@@ -61,8 +61,8 @@ export default function DashboardLayout({
           </div>
         </div>
       </div>
-      <div className="flex flex-col">
-        <header className="flex h-14 items-center justify-between gap-4 border-b bg-muted/40 px-4 md:justify-end">
+      <div className="flex h-screen flex-col">
+        <header className="flex h-16 items-center justify-between gap-4 border-b bg-muted/40 p-4 md:justify-end">
           <Sheet>
             <SheetTrigger asChild>
               <Button
@@ -90,11 +90,11 @@ export default function DashboardLayout({
               </div>
             </SheetContent>
           </Sheet>
-          <div className="">
+          <div>
             <ClerkUserButton />
           </div>
         </header>
-        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
+        <main className="flex flex-1 flex-col overflow-scroll p-4 sm:p-8">
           {children}
         </main>
       </div>
@@ -108,7 +108,7 @@ function Logo() {
       <Image
         width={40}
         height={40}
-        className="h-10 w-10"
+        className="h-9 w-9"
         src="/logo.png"
         alt="wasepje.com logo"
       />
