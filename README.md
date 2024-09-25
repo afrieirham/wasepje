@@ -28,15 +28,19 @@ For more information on the frameworks used for this project, checkout the follo
 
 ## Before running the project
 
-**1. You need these 3 environment variables, see `.env.example` for more information on the required format.**
+**1. You need these environment variables, see `.env.example` for more information on the required format.**
 
-   - `DATABASE_URL`
-   - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
-   - `CLERK_SECRET_KEY`
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+- `CLERK_SECRET_KEY`
+- `DATABASE_URL`
+- `NEXT_PUBLIC_PRO_MONTHLY_URL`
+- `NEXT_PUBLIC_PRO_ANNUALLY_URL`
+- `NEXT_PUBLIC_BILLING_PORTAL_URL`
+- `STRIPE_SECRET_KEY`
+- `STRIPE_WEBHOOK_SECRET`
+- `NEXT_PUBLIC_BEAM_ANALYTICS_DATA_TOKEN` (optional)
 
 **2. Create a PostgreSQL database and get the database URL (this project uses Supabase).**
-
-You can install PostgreSQL using [Supabase](https://supabase.com)
 
 Create a New Database
 
@@ -47,21 +51,31 @@ createdb <YOUR_DATABASE>
 Get the Database URL
 
 Locally, you can grab the URL like this (replace username & password with your db credentials)
+
 ```bash
 postgres://username:password@localhost:5432/<YOUR_DATABASE>
 ```
+
+You can install PostgreSQL using [Supabase](https://supabase.com)
 
 For Supabase, you can copy the connection URL from the project dashboard.
 
 This URL should be used for the `DATABASE_URL` environment variable.
 
-**3. Create a Clerk account, setup a project, and get the `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY`.**
+**3. Create a Clerk account, setup a project to get these value.**
 
-**4. Create a `.env` file and add all the required variables.**
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+- `CLERK_SECRET_KEY`
 
-   - `DATABASE_URL`
-   - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
-   - `CLERK_SECRET_KEY`
+**4. Create a Stripe account to get these value.**
+
+- `NEXT_PUBLIC_PRO_MONTHLY_URL`
+- `NEXT_PUBLIC_PRO_ANNUALLY_URL`
+- `NEXT_PUBLIC_BILLING_PORTAL_URL`
+- `STRIPE_SECRET_KEY`
+- `STRIPE_WEBHOOK_SECRET`
+
+**5. Create a `.env` file and add all the required variables.**
 
 ## Starting the app
 
@@ -90,7 +104,7 @@ Next, install the required dependencies:
 bun install
 ```
 
-**4. Run `bunx prisma db push` to setup the database.**
+**4. Run `bun db:push` to setup the database.**
 
 **5. Run `bun dev` to start the app on `localhost:3000`**
 
