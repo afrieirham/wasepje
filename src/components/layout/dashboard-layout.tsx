@@ -120,33 +120,36 @@ function Logo() {
 function UpgradeCTA() {
   const plan = usePlan();
 
-  if (plan === "pro") return null;
+  if (plan === "free")
+    return (
+      <Card>
+        <CardHeader className="px-4 pb-2 pt-4">
+          <CardTitle>Upgrade to Pro</CardTitle>
+          <CardDescription>
+            Unlock more customizability with Pro
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6 px-4 pb-4 pt-2">
+          <ul className="text-sm">
+            <li className="flex items-center space-x-2">
+              <Check className="h-4 w-4" />
+              <span>Instant link redirect</span>
+            </li>
+            <li className="flex items-center space-x-2">
+              <Check className="h-4 w-4" />
+              <span>Customize QR</span>
+            </li>
+            <li className="flex items-center space-x-2">
+              <Check className="h-4 w-4" />
+              <span>Customize link slugs</span>
+            </li>
+          </ul>
+          <SubscribeButton billing="monthly" className="w-full">
+            Upgrade
+          </SubscribeButton>
+        </CardContent>
+      </Card>
+    );
 
-  return (
-    <Card>
-      <CardHeader className="px-4 pb-2 pt-4">
-        <CardTitle>Upgrade to Pro</CardTitle>
-        <CardDescription>Unlock more customizability with Pro</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6 px-4 pb-4 pt-2">
-        <ul className="text-sm">
-          <li className="flex items-center space-x-2">
-            <Check className="h-4 w-4" />
-            <span>Instant link redirect</span>
-          </li>
-          <li className="flex items-center space-x-2">
-            <Check className="h-4 w-4" />
-            <span>Customize QR</span>
-          </li>
-          <li className="flex items-center space-x-2">
-            <Check className="h-4 w-4" />
-            <span>Customize link slugs</span>
-          </li>
-        </ul>
-        <SubscribeButton billing="monthly" className="w-full">
-          Upgrade
-        </SubscribeButton>
-      </CardContent>
-    </Card>
-  );
+  return null;
 }
