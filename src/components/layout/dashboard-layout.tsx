@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect } from "react";
 
@@ -19,6 +18,8 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { usePlan } from "@/hooks/use-plan";
 import { api } from "@/utils/api";
+
+import ClickableLogo from "../molecule/clickable-logo";
 
 export default function DashboardLayout({
   children,
@@ -43,7 +44,7 @@ export default function DashboardLayout({
       <div className="hidden h-screen border-r bg-muted/40 md:block">
         <div className="flex h-full flex-col gap-2">
           <div className="flex h-16 items-center border-b px-4">
-            <Logo />
+            <ClickableLogo />
           </div>
           <div className="flex-1">
             <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
@@ -76,7 +77,7 @@ export default function DashboardLayout({
             </SheetTrigger>
             <SheetContent side="left" className="flex flex-col">
               <nav className="grid gap-2 text-lg font-medium">
-                <Logo />
+                <ClickableLogo />
                 <Link
                   href="#"
                   className="mx-[-0.65rem] flex items-center gap-4 rounded-xl bg-muted px-3 py-2 text-foreground hover:text-foreground"
@@ -99,21 +100,6 @@ export default function DashboardLayout({
         </main>
       </div>
     </div>
-  );
-}
-
-function Logo() {
-  return (
-    <Link href="/" className="flex items-center space-x-2">
-      <Image
-        width={40}
-        height={40}
-        className="h-9 w-9"
-        src="/logo.png"
-        alt="wasepje.com logo"
-      />
-      <p className="text-sm font-bold">WasepJe.com</p>
-    </Link>
   );
 }
 
