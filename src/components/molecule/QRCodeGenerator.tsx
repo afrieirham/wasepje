@@ -135,7 +135,6 @@ function QRControl({ url }: { url: string }) {
               const displayLogo = userLogo ? userLogo : "/qr-logo.png";
               return showLogo ? displayLogo : undefined;
             })()}
-            logoWidth={50}
             qrStyle="dots"
             fgColor={fgColor}
             bgColor={bgColor}
