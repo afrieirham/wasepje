@@ -130,7 +130,7 @@ function UpgradeCTA() {
               <span>Customize link slugs</span>
             </li>
           </ul>
-          <SubscribeButton billing="monthly" className="w-full">
+          <SubscribeButton billing="annually" className="w-full">
             Upgrade
           </SubscribeButton>
         </CardContent>
