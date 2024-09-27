@@ -70,7 +70,9 @@ function PricingTable({ showFree }: { showFree?: boolean }) {
               <span className="text-4xl font-bold">
                 {country === "MY" ? "RM90" : "$90"}
               </span>
-              <span className="text-sm text-muted-foreground">per year</span>
+              <span className="text-sm text-muted-foreground">
+                per year, cancel anytime.
+              </span>
             </div>
             <ul className="space-y-2">
               <FeatureItem>Premium Links (customizable slug)</FeatureItem>
