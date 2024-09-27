@@ -6,6 +6,7 @@ import copy from "copy-to-clipboard";
 import { customAlphabet } from "nanoid";
 import slugify from "slugify";
 
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 import {
   Copy,
   Ellipsis,
@@ -119,7 +120,11 @@ export default function Dashboard() {
     </DashboardLayout>
   );
 }
+
+const initPhone = { id: 0, value: "" };
+
 function CreateLinkForm() {
+  const [parent] = useAutoAnimate();
   const { smOrHigher } = useMediaQuery();
   const plan = usePlan();
 
@@ -144,16 +149,19 @@ function CreateLinkForm() {
   });
 
   const [open, setOpen] = useState(false);
+  const [counter, setCounter] = useState(1);
+
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [message, setMessage] = useState("");
-  const [phones, setPhones] = useState([{ value: "" }]);
+  const [phones, setPhones] = useState([initPhone]);
 
   const resetFormFields = () => {
     setName("");
     setSlug("");
     setMessage("");
-    setPhones([{ value: "" }]);
+    setPhones([initPhone]);
+    setCounter(1);
   };
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -169,17 +177,18 @@ function CreateLinkForm() {
   };
 
   const onAddPhoneNumber = () => {
-    setPhones([...phones, { value: "" }]);
+    setPhones([...phones, { id: counter, value: "" }]);
+    setCounter(counter + 1);
   };
 
-  const onDeletePhone = (index: number) => {
-    const newPhones = phones.filter((_phone, i) => i !== index);
+  const onDeletePhone = (id: number) => {
+    const newPhones = phones.filter((phone) => phone.id !== id);
     setPhones(newPhones);
   };
 
-  const setPhoneValue = (value: string, index: number) => {
-    const updatedPhones = phones.map((phone, i) => {
-      if (i === index) {
+  const setPhoneValue = (value: string, id: number) => {
+    const updatedPhones = phones.map((phone) => {
+      if (phone.id === id) {
         return {
           ...phone,
           value,
@@ -271,27 +280,31 @@ function CreateLinkForm() {
               <p className="text-xs text-muted-foreground">
                 Include country code.
               </p>
-              {phones?.map((phone, i) => (
-                <div key={i} className="flex space-x-1">
-                  <Input
-                    required
-                    type="tel"
-                    name={`phone-${i}`}
-                    placeholder="60131231234"
-                    value={phone.value}
-                    onChange={(e) => setPhoneValue(e.target.value.trim(), i)}
-                  />
-                  {phones.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      onClick={() => onDeletePhone(i)}
-                    >
-                      <Trash className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              ))}
+              <div ref={parent} className="space-y-2">
+                {phones.map((phone) => (
+                  <div key={phone.id} className="flex space-x-1">
+                    <Input
+                      required
+                      type="tel"
+                      name={`phone-${phone.id}`}
+                      placeholder="60131231234"
+                      value={phone.value}
+                      onChange={(e) =>
+                        setPhoneValue(e.target.value.trim(), phone.id)
+                      }
+                    />
+                    {phones.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={() => onDeletePhone(phone.id)}
+                      >
+                        <Trash className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
 
               <Button type="button" variant="ghost" onClick={onAddPhoneNumber}>
                 <Plus className="mr-2 h-4 w-4" /> Add phone number
