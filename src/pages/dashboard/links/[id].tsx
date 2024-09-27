@@ -118,7 +118,7 @@ function EditLink() {
           onSubmit={onSubmitGeneral}
           className="mt-4 flex flex-col rounded-lg border bg-white"
         >
-          <div className="p-4 sm:p-10">
+          <div className="p-4 sm:p-6">
             <div className="flex flex-col">
               <Label htmlFor="name" className="">
                 Name
@@ -185,7 +185,7 @@ function EditLink() {
               />
             </div>
           </div>
-          <div className="border-t bg-zinc-100 p-4 sm:px-10 sm:py-6">
+          <div className="border-t bg-zinc-100 p-4 sm:p-6">
             <Button type="submit">
               {update.isLoading && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -196,7 +196,7 @@ function EditLink() {
         </form>
         <p className="mt-8 text-lg font-bold">Manage Phone Numbers</p>
         <div className="mt-4 flex flex-col rounded-lg border bg-white">
-          <div className="p-4 sm:p-10">
+          <div className="p-4 sm:p-6">
             <Label>Phone Numbers</Label>
             <p className="text-xs text-muted-foreground">
               Must have at least 1 active number.
