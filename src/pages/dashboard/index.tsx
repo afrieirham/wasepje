@@ -85,7 +85,7 @@ export default function Dashboard() {
       ) : getAll.data && getAll.data?.length > 0 ? (
         <>
           <div className="flex items-center justify-between">
-            <h1 className="text-lg font-semibold md:text-2xl">Links</h1>
+            <h1 className="text-lg font-bold">Links</h1>
             <CreateLinkForm />
           </div>
           <div className="mx-auto flex w-full max-w-screen-xl flex-col justify-between">
@@ -329,7 +329,7 @@ function LinkItem({ link }: { link: LinkOutput }) {
   };
 
   return (
-    <div className="mt-2 flex items-center justify-between rounded border bg-white p-4 hover:border-zinc-400">
+    <div className="mt-2 flex items-center justify-between rounded-lg border bg-white p-4 hover:border-zinc-400">
       <div className="flex flex-col justify-center space-y-1">
         <p className="font-semibold">{link.name}</p>
         <p className="text-xs text-zinc-500">{url}</p>
