@@ -4,7 +4,7 @@ import { useEffect } from "react";
 
 import { useUser } from "@clerk/nextjs";
 
-import { Check, Home, Menu } from "lucide-react";
+import { Check, ClipboardPenLine, Home, Menu } from "lucide-react";
 
 import ClerkUserButton from "@/components/molecule/clerk-user-button";
 import SubscribeButton from "@/components/molecule/subscribe-button";
@@ -27,6 +27,11 @@ const links = [
     title: "Links",
     href: "/dashboard/links",
     Icon: Home,
+  },
+  {
+    title: "Forms",
+    href: "/dashboard/forms",
+    Icon: ClipboardPenLine,
   },
 ];
 
