@@ -75,7 +75,7 @@ export default function Footer() {
                 <ul role="list" className="mt-6 space-y-4">
                   <li>
                     <Link
-                      href="/dashboard"
+                      href="/dashboard/links"
                       className="text-sm leading-6 text-gray-600 hover:text-gray-900"
                     >
                       Link Rotator

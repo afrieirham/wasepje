@@ -106,7 +106,7 @@ function EditLink() {
       />
       <div>
         <Button variant="link" size="sm" className="-ml-3" asChild>
-          <Link href="/dashboard">
+          <Link href="/dashboard/links">
             <ChevronLeft className="h-4 w-4" />
             <span>Links</span>
           </Link>

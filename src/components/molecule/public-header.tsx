@@ -33,15 +33,15 @@ function PublicHeader() {
             </Link>
           </Button>
           <SignedOut>
-            <SignInButton forceRedirectUrl="/dashboard">
+            <SignInButton forceRedirectUrl="/dashboard/links">
               <Button>
-                <Link href="/dashboard">Sign Up</Link>
+                <Link href="/dashboard/links">Sign Up</Link>
               </Button>
             </SignInButton>
           </SignedOut>
           <SignedIn>
             <Button asChild>
-              <Link href="/dashboard">
+              <Link href="/dashboard/links">
                 Go to Dashboard
                 <MoveRight className="ml-2 h-4 w-4" />
               </Link>

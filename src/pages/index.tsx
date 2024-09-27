@@ -47,7 +47,7 @@ export default function Index() {
             </Link>
           </div>
           <Button size="sm" variant="ghost" asChild>
-            <Link href="/dashboard">Log in</Link>
+            <Link href="/dashboard/links">Log in</Link>
           </Button>
         </nav>
       </header>
@@ -64,9 +64,9 @@ export default function Index() {
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-2 sm:flex-row">
             <SignedOut>
-              <SignInButton forceRedirectUrl="/dashboard">
+              <SignInButton forceRedirectUrl="/dashboard/links">
                 <Button asChild className="w-full space-x-1 sm:w-auto">
-                  <Link href="/dashboard">
+                  <Link href="/dashboard/links">
                     <span>Get Started</span>
                     <MoveRight className="h-4 w-4" />
                   </Link>
@@ -75,7 +75,7 @@ export default function Index() {
             </SignedOut>
             <SignedIn>
               <Button asChild className="w-full space-x-1 sm:w-auto">
-                <Link href="/dashboard">
+                <Link href="/dashboard/links">
                   <span>Go to Dashboard</span>
                   <MoveRight className="h-4 w-4" />
                 </Link>
@@ -154,7 +154,7 @@ export default function Index() {
               </Accordion>
               <div className="mt-8">
                 <Button asChild>
-                  <Link href="/dashboard">Create my link now!</Link>
+                  <Link href="/dashboard/links">Create my link now!</Link>
                 </Button>
               </div>
             </div>
@@ -187,7 +187,7 @@ export default function Index() {
             </p>
             <div className="mt-8">
               <Button asChild>
-                <Link href="/dashboard">Generate QR Code</Link>
+                <Link href="/dashboard/links">Generate QR Code</Link>
               </Button>
             </div>
           </div>
@@ -207,7 +207,7 @@ export default function Index() {
             </p>
             <div className="mt-8">
               <Button asChild>
-                <Link href="/dashboard">Get Started Now</Link>
+                <Link href="/dashboard/links">Get Started Now</Link>
               </Button>
             </div>
           </div>

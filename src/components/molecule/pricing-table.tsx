@@ -49,7 +49,7 @@ function PricingTable({ showFree }: { showFree?: boolean }) {
             </CardContent>
             <CardFooter>
               <Button variant="outline" className="w-full space-x-2" asChild>
-                <Link href="/dashboard">
+                <Link href="/dashboard/links">
                   <span>Get Started</span>
                 </Link>
               </Button>

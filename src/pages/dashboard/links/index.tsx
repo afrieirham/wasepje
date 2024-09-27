@@ -366,7 +366,7 @@ function LinkItem({ link }: { link: LinkOutput }) {
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end">
               <DropdownMenuItem asChild>
-                <Link href={`/dashboard/${link.id}`}>
+                <Link href={`/dashboard/links/${link.id}`}>
                   <Pencil className="mr-2 h-4 w-4" />
                   <span>Edit</span>
                 </Link>

@@ -24,8 +24,8 @@ import ClickableLogo from "../molecule/clickable-logo";
 
 const links = [
   {
-    title: "Dashboard",
-    href: "/dashboard",
+    title: "Links",
+    href: "/dashboard/links",
     Icon: Home,
   },
 ];

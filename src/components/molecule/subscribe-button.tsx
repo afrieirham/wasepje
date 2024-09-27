@@ -21,7 +21,7 @@ function SubscribeButton({
   if (!user) {
     return (
       <Button className={className} asChild>
-        <Link href="/dashboard">{children}</Link>
+        <Link href="/dashboard/links">{children}</Link>
       </Button>
     );
   }
