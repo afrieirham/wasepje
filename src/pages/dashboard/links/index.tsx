@@ -57,6 +57,7 @@ import { api, type RouterOutputs } from "@/utils/api";
 type LinkOutput = RouterOutputs["link"]["getAll"][number];
 
 export default function Dashboard() {
+  const [parent] = useAutoAnimate();
   const { user } = useUser();
 
   const sync = api.user.sync.useMutation();
@@ -97,9 +98,11 @@ export default function Dashboard() {
                 .reduce((total, link) => total + link)}{" "}
               (last 30 days)
             </p>
-            {getAll.data.map((link) => (
-              <LinkItem link={link} key={link.id} />
-            ))}
+            <div ref={parent}>
+              {getAll.data.map((link) => (
+                <LinkItem link={link} key={link.id} />
+              ))}
+            </div>
           </div>
         </>
       ) : (
