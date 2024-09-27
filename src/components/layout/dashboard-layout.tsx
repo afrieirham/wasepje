@@ -62,7 +62,7 @@ export default function DashboardLayout({
                 <Link
                   key={link.href}
                   href={link.href}
-                  data-active={router.pathname === link.href}
+                  data-active={router.pathname.startsWith(link.href)}
                   className="flex items-center space-x-2 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:bg-gray-200 hover:text-primary data-[active=true]:bg-gray-200 data-[active=true]:text-primary"
                 >
                   <link.Icon className="h-4 w-4" />
@@ -97,7 +97,7 @@ export default function DashboardLayout({
                     <Link
                       key={link.href}
                       href={link.href}
-                      data-active={router.pathname === link.href}
+                      data-active={router.pathname.startsWith(link.href)}
                       className="flex items-center space-x-2 rounded-lg px-3 py-2 text-muted-foreground hover:bg-muted hover:text-foreground data-[active=true]:bg-muted data-[active=true]:text-primary"
                     >
                       <link.Icon className="h-4 w-4" />
