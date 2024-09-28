@@ -1,7 +1,7 @@
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 
-import { Check, MoveRight } from "lucide-react";
+import { Check, Gift, MoveRight } from "lucide-react";
 
 import {
   Card,
@@ -13,14 +13,29 @@ import {
 } from "@/components/ui/card";
 import useUserCountry from "@/hooks/use-user-country";
 
+import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
+import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 import SubscribeButton from "./subscribe-button";
 
 function PricingTable({ showFree }: { showFree?: boolean }) {
   const { country } = useUserCountry();
+  const [billing, setBilling] = useState<"monthly" | "annually">("annually");
 
   return (
-    <div className="mt-8">
+    <>
+      <div className="my-4 flex flex-col items-center">
+        <Tabs
+          value={billing}
+          onValueChange={(value) => setBilling(value as "monthly" | "annually")}
+          className="mb-2"
+        >
+          <TabsList className="grid w-full max-w-md grid-cols-2">
+            <TabsTrigger value="monthly">Monthly</TabsTrigger>
+            <TabsTrigger value="annually">Annually</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
       <div className="mx-auto flex w-full max-w-5xl flex-col items-center justify-center gap-4 md:flex-row">
         {/* Free Tier */}
         {showFree && (
@@ -32,10 +47,14 @@ function PricingTable({ showFree }: { showFree?: boolean }) {
               </CardDescription>
             </CardHeader>
             <CardContent className="flex-grow">
-              <div className="mb-4 space-x-2">
-                <span className="text-4xl font-bold">
+              <div className="mb-4">
+                <p className="text-4xl font-bold">
                   {country === "MY" ? "RM0" : "$0"}
-                </span>
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  <span>per month, </span>
+                  <span>billed {billing}.</span>
+                </p>
               </div>
               <ul className="space-y-2">
                 <FeatureItem>Links with random alphabet attached</FeatureItem>
@@ -66,13 +85,39 @@ function PricingTable({ showFree }: { showFree?: boolean }) {
             </CardDescription>
           </CardHeader>
           <CardContent className="flex-grow">
-            <div className="mb-4 space-x-2">
-              <span className="text-4xl font-bold">
-                {country === "MY" ? "RM90" : "$90"}
-              </span>
-              <span className="text-sm text-muted-foreground">
-                per year, cancel anytime.
-              </span>
+            <div className="mb-4">
+              <p className="text-4xl font-bold">
+                {billing === "monthly"
+                  ? country === "MY"
+                    ? "RM9.00"
+                    : "$9.00"
+                  : country === "MY"
+                  ? "RM7.50"
+                  : "$7.50"}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                <span>per month, </span>
+                <span>billed {billing}. </span>
+                <span>
+                  {billing === "annually"
+                    ? country === "MY"
+                      ? "(RM90 / year)"
+                      : "($90 / year)"
+                    : ""}
+                </span>
+              </p>
+
+              <Badge
+                variant={billing === "annually" ? "default" : "secondary"}
+                className={`mt-2 space-x-1 transition ${
+                  billing === "annually"
+                    ? "animate-in"
+                    : "text-zinc-300 line-through animate-out"
+                }`}
+              >
+                <Gift className="h-4 w-4" />
+                <span className="text-xs">2 months free</span>
+              </Badge>
             </div>
             <ul className="space-y-2">
               <FeatureItem>Premium Links (customizable slug)</FeatureItem>
@@ -86,7 +131,7 @@ function PricingTable({ showFree }: { showFree?: boolean }) {
           </CardContent>
           <CardFooter>
             <SubscribeButton
-              billing="annually"
+              billing={billing}
               className="flex w-full space-x-2"
             >
               <span>Choose Pro</span>
@@ -95,7 +140,7 @@ function PricingTable({ showFree }: { showFree?: boolean }) {
           </CardFooter>
         </Card>
       </div>
-    </div>
+    </>
   );
 }
 
