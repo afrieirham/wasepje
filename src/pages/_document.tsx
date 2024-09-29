@@ -13,7 +13,7 @@ export default function Document() {
         <script
           defer
           src="https://analytics.afrieirham.com/script.js"
-          data-website-id={env.NEXT_PUBLIC_BEAM_ANALYTICS_DATA_TOKEN}
+          data-website-id={env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
         />
         <script
           async
