@@ -59,7 +59,7 @@ export const linkRouter = createTRPCRouter({
 
       try {
         const link = await ctx.db.link.update({
-          where: { id: input.id },
+          where: { id: input.id, userId: ctx.clerkId },
           data: { name: input.name, slug: input.slug, message: input.message },
         });
         return link;
@@ -142,6 +142,7 @@ export const linkRouter = createTRPCRouter({
       const link = await ctx.db.link.delete({
         where: {
           id: input.id,
+          userId: ctx.clerkId,
         },
       });
 
