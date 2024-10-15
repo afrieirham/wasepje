@@ -31,11 +31,11 @@ export const linkRouter = createTRPCRouter({
     });
   }),
 
-  getOne: publicProcedure
+  getOne: privateProcedure
     .input(z.object({ id: z.string() }))
     .query(({ ctx, input }) => {
       return ctx.db.link.findFirst({
-        where: { id: input.id },
+        where: { id: input.id, userId: ctx.clerkId },
         include: { phones: true },
       });
     }),
