@@ -30,7 +30,6 @@ export const env = createEnv({
   client: {
     // NEXT_PUBLIC_CLIENTVAR: z.string().min(1),
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string(),
-    NEXT_PUBLIC_BEAM_ANALYTICS_DATA_TOKEN: z.string(),
     NEXT_PUBLIC_UMAMI_WEBSITE_ID: z.string(),
     NEXT_PUBLIC_PRO_MONTHLY_URL: z.string().url(),
     NEXT_PUBLIC_PRO_ANNUALLY_URL: z.string().url(),
@@ -44,8 +43,6 @@ export const env = createEnv({
   runtimeEnv: {
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
       process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
-    NEXT_PUBLIC_BEAM_ANALYTICS_DATA_TOKEN:
-      process.env.NEXT_PUBLIC_BEAM_ANALYTICS_DATA_TOKEN,
     NEXT_PUBLIC_UMAMI_WEBSITE_ID: process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID,
     NEXT_PUBLIC_PRO_MONTHLY_URL: process.env.NEXT_PUBLIC_PRO_MONTHLY_URL,
     NEXT_PUBLIC_PRO_ANNUALLY_URL: process.env.NEXT_PUBLIC_PRO_ANNUALLY_URL,

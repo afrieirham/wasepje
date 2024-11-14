@@ -38,7 +38,6 @@ For more information on the frameworks used for this project, checkout the follo
 - `NEXT_PUBLIC_BILLING_PORTAL_URL`
 - `STRIPE_SECRET_KEY`
 - `STRIPE_WEBHOOK_SECRET`
-- `NEXT_PUBLIC_BEAM_ANALYTICS_DATA_TOKEN` (optional)
 
 **2. Create a PostgreSQL database and get the database URL (this project uses Supabase).**
 
