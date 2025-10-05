@@ -1,10 +1,11 @@
 import Link from "next/link";
+import { useRouter } from "next/router";
 import React, { useState } from "react";
 
 import { useUser } from "@clerk/nextjs";
 
-import { env } from "@/env.mjs";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
+import { api } from "@/utils/api";
 
 function SubscribeButton({
   children,
@@ -15,8 +16,18 @@ function SubscribeButton({
   billing: "monthly" | "annually";
   children: React.ReactNode;
 }) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const { user } = useUser();
+
+  const session = api.stripe.createCheckoutSession.useMutation({
+    onSuccess: ({ redirectUrl }) => {
+      void router.push(redirectUrl);
+    },
+    onError: (error) => {
+      alert(error.message);
+    },
+  });
 
   if (!user) {
     return (
@@ -26,21 +37,16 @@ function SubscribeButton({
     );
   }
 
-  const href =
-    billing === "annually"
-      ? env.NEXT_PUBLIC_PRO_ANNUALLY_URL
-      : env.NEXT_PUBLIC_PRO_MONTHLY_URL;
-
   return (
     <Button
       className={className}
       loading={loading}
-      onClick={() => setLoading(true)}
-      asChild
+      onClick={() => {
+        setLoading(true);
+        session.mutate({ billing });
+      }}
     >
-      <Link href={`${href}/?email=${user.primaryEmailAddress?.emailAddress}`}>
-        {children}
-      </Link>
+      {children}
     </Button>
   );
 }

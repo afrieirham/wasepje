@@ -1,8 +1,9 @@
 import { createTRPCRouter } from "@/server/api/trpc";
 
-import { linkRouter } from "./routers/link";
-import { phoneRouter } from "./routers/phone";
-import { userRouter } from "./routers/user";
+import { linkRouter } from "@/server/api/routers/link";
+import { phoneRouter } from "@/server/api/routers/phone";
+import { stripeRouter } from "@/server/api/routers/stripe";
+import { userRouter } from "@/server/api/routers/user";
 
 /**
  * This is the primary router for your server.
@@ -12,6 +13,7 @@ import { userRouter } from "./routers/user";
 export const appRouter = createTRPCRouter({
   link: linkRouter,
   phone: phoneRouter,
+  stripe: stripeRouter,
   user: userRouter,
 });
 
