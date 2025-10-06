@@ -35,7 +35,11 @@ export default async function handler(
   let event;
 
   try {
-    event = stripe.webhooks.constructEvent(buf.toString(), sig, webhookSecret);
+    event = await stripe.webhooks.constructEvent(
+      buf.toString(),
+      sig,
+      webhookSecret,
+    );
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : "Unknown error";
     // On error, log and return the error message.
