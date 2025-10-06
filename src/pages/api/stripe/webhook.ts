@@ -35,6 +35,7 @@ export default async function handler(
   let event;
 
   try {
+    // eslint-disable-next-line @typescript-eslint/await-thenable
     event = await stripe.webhooks.constructEvent(
       buf.toString(),
       sig,
