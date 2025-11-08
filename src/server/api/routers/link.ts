@@ -18,7 +18,7 @@ export const linkRouter = createTRPCRouter({
     const last30days = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
 
     return ctx.db.link.findMany({
-      take: 10,
+      // take: 10,
       where: { userId: ctx.clerkId },
       include: {
         _count: {
