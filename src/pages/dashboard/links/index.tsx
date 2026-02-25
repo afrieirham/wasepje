@@ -360,7 +360,10 @@ function CreateLinkForm({ random }: { random: string }) {
 function LinkItem({ link }: { link: LinkOutput }) {
   const host = useHostname();
   const ctx = api.useContext();
-  const url = `${host}/${link.slug}`;
+  const plan = usePlan();
+  const finalSlug =
+    plan === "pro" && link.customSlug ? link.customSlug : link.slug;
+  const url = `${host}/${finalSlug}`;
 
   const deleteLink = api.link.delete.useMutation({
     onSuccess: () => {
