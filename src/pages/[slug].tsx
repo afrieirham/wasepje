@@ -16,7 +16,12 @@ import { api } from "@/utils/api";
 export const getServerSideProps = (async (ctx) => {
   const slug = String(ctx.params?.slug);
   const link = await db.link.findFirst({
-    where: { slug },
+    where: {
+      OR: [
+        { slug: slug }, // Checks the system slug (shoes-abc12)
+        { customSlug: slug }, // Checks the premium slug (shoes)
+      ],
+    },
     include: { user: true, phones: true },
   });
 
