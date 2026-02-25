@@ -8,6 +8,7 @@ import {
   privateProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
+import { customAlphabet } from "nanoid";
 
 export const checkReserved = (path: string) =>
   reservedSlug.some((p) => p === path);
@@ -82,6 +83,7 @@ export const linkRouter = createTRPCRouter({
       z.object({
         name: z.string().trim(),
         slug: z.string().trim().toLowerCase(),
+        customSlug: z.string().trim().toLowerCase(),
         message: z.string().optional(),
         phones: z.array(
           z.object({
@@ -92,10 +94,38 @@ export const linkRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      if (checkReserved(input.slug)) {
+      const alphabet =
+        "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+      const random = customAlphabet(alphabet, 5)(5);
+
+      const systemSlug = input.slug.length === 0 ? random : input.slug;
+      const customSlug = input.plan === "pro" ? input.customSlug : null;
+
+      if (checkReserved(customSlug ?? "")) {
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "Reserved word for slug.",
+        });
+      }
+
+      // 2. Cross-Column Uniqueness Check
+      // We check if the slug is taken in either column (slug OR customSlug)
+      const conflict = await ctx.db.link.findFirst({
+        where: {
+          OR: [
+            { slug: systemSlug },
+            { customSlug: systemSlug },
+            ...(customSlug
+              ? [{ slug: customSlug }, { customSlug: customSlug }]
+              : []),
+          ],
+        },
+      });
+
+      if (conflict) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Slug already taken.",
         });
       }
 
@@ -103,7 +133,8 @@ export const linkRouter = createTRPCRouter({
         const link = await ctx.db.link.create({
           data: {
             name: input.name,
-            slug: input.slug,
+            slug: systemSlug,
+            customSlug,
             message: input.message,
             nextPhone: 0,
             userId: ctx.clerkId,

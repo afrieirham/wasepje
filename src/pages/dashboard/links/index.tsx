@@ -156,6 +156,7 @@ function CreateLinkForm({ random }: { random: string }) {
 
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
+  const [customSlug, setCustomSlug] = useState("");
   const [message, setMessage] = useState("");
   const [phones, setPhones] = useState([initPhone]);
 
@@ -170,7 +171,14 @@ function CreateLinkForm({ random }: { random: string }) {
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    create.mutate({ name, slug, phones, message, plan: plan ?? "free" });
+    create.mutate({
+      name,
+      slug,
+      customSlug,
+      phones,
+      message,
+      plan: plan ?? "free",
+    });
     setOpen(false);
     resetFormFields();
     toast({
@@ -234,10 +242,19 @@ function CreateLinkForm({ random }: { random: string }) {
                       `${slugify(value, {
                         lower: true,
                         strict: true,
-                      })}${plan === "free" ? `-${random}` : ""}`,
+                      })}${`-${random}`}`,
                     );
                   } else {
-                    setSlug(plan === "free" ? random : "");
+                    setSlug(random);
+                  }
+
+                  if (plan === "pro") {
+                    setCustomSlug(
+                      slugify(value, {
+                        lower: true,
+                        strict: true,
+                      }),
+                    );
                   }
                 }}
               />
@@ -259,12 +276,29 @@ function CreateLinkForm({ random }: { random: string }) {
                 name="slug"
                 placeholder="syarikat-saya"
                 value={slug}
-                disabled={plan === "free"}
+                disabled
                 onChange={(e) => setSlug(`${e.target.value.trim()}`)}
               />
               <p className="text-xs text-muted-foreground">
                 {host}/{slug}
               </p>
+              {plan === "pro" && (
+                <>
+                  <Label htmlFor="custom-slug" className="mt-4">
+                    Custom Slug
+                  </Label>
+                  <Input
+                    id="custom-slug"
+                    name="custom-slug"
+                    placeholder="syarikat-saya"
+                    value={customSlug}
+                    onChange={(e) => setCustomSlug(`${e.target.value.trim()}`)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {host}/{customSlug}
+                  </p>
+                </>
+              )}
             </div>
             <div className="flex flex-col gap-2">
               <Label htmlFor="message" className="">
