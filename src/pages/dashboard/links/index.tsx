@@ -63,6 +63,10 @@ export default function Dashboard() {
   const sync = api.user.sync.useMutation();
   const getAll = api.link.getAll.useQuery();
 
+  const alphabet =
+    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+  const random = customAlphabet(alphabet, 5)(5);
+
   useEffect(() => {
     if (user) {
       sync.mutate({
@@ -88,7 +92,7 @@ export default function Dashboard() {
         <>
           <div className="flex items-center justify-between">
             <h1 className="text-lg font-bold">Links</h1>
-            <CreateLinkForm />
+            <CreateLinkForm random={random} />
           </div>
           <div className="mx-auto flex w-full max-w-screen-xl flex-col justify-between">
             <p>
@@ -115,7 +119,7 @@ export default function Dashboard() {
               Create your first link rotator now.
             </p>
             <div className="mt-4">
-              <CreateLinkForm />
+              <CreateLinkForm random={random} />
             </div>
           </div>
         </div>
@@ -126,14 +130,10 @@ export default function Dashboard() {
 
 const initPhone = { id: 0, value: "" };
 
-function CreateLinkForm() {
+function CreateLinkForm({ random }: { random: string }) {
   const [parent] = useAutoAnimate();
   const { smOrHigher } = useMediaQuery();
   const plan = usePlan();
-
-  const alphabet =
-    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-  const random = customAlphabet(alphabet, 5)(5);
 
   const host = useHostname();
   const ctx = api.useContext();
@@ -170,7 +170,7 @@ function CreateLinkForm() {
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    create.mutate({ name, slug, phones, message });
+    create.mutate({ name, slug, phones, message, plan: plan ?? "free" });
     setOpen(false);
     resetFormFields();
     toast({
@@ -364,6 +364,7 @@ function LinkItem({ link }: { link: LinkOutput }) {
           <ExternalLink className="h-4 w-4" />
         </a>
         <button
+          type="button"
           onClick={onClickCopy}
           className="flex h-9 min-h-[36px] min-w-[36px] items-center justify-center whitespace-nowrap rounded-none border p-2 text-sm font-medium ring-offset-background transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-opacity-30 disabled:text-muted disabled:hover:bg-opacity-30 disabled:hover:text-muted"
         >

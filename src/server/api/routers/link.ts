@@ -88,6 +88,7 @@ export const linkRouter = createTRPCRouter({
             value: z.string().trim(),
           }),
         ),
+        plan: z.enum(["free", "pro"]),
       }),
     )
     .mutation(async ({ ctx, input }) => {
