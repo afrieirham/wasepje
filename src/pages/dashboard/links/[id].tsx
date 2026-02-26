@@ -4,7 +4,6 @@ import React, { type FormEvent, useEffect, useState } from "react";
 
 import { type Phone } from "@prisma/client";
 import { ChevronLeft, Loader2, Pencil, Plus, Trash } from "lucide-react";
-import slugify from "slugify";
 
 import DashboardLayout from "@/components/layout/dashboard-layout";
 import SEOHead from "@/components/molecule/seo-head";
@@ -51,22 +50,21 @@ function EditLink() {
   const [addPhoneDialog, setAddPhoneDialog] = useState(false);
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
+  const [customSlug, setCustomSlug] = useState("");
   const [message, setMessage] = useState("");
-  const [postfix, setPostfix] = useState("");
 
   const link = getOne.data;
+
+  const finalSlug = plan === "pro" && customSlug ? customSlug : link?.slug;
 
   useEffect(() => {
     if (link) {
       setName(link.name);
       setSlug(link.slug);
+      setCustomSlug(link.customSlug ?? "");
       setMessage(link.message ?? "");
-
-      if (plan === "free") {
-        setPostfix(link.slug.substring(link.slug.length - 5));
-      }
     }
-  }, [link, plan]);
+  }, [link]);
 
   if (!link) return null;
 
@@ -77,10 +75,16 @@ function EditLink() {
       return;
     }
 
-    update.mutate({ id: getOne.data.id, name, slug, message });
+    update.mutate({
+      id: getOne.data.id,
+      name,
+      customSlug,
+      message,
+      plan: plan ?? "free",
+    });
     toast({
       title: "Link successfully updated!",
-      description: `${host}/${slug}`,
+      description: `${host}/${finalSlug}`,
     });
   };
 
@@ -131,24 +135,30 @@ function EditLink() {
                 onChange={(e) => {
                   const value = e.target.value;
                   setName(value);
-
-                  if (value.length > 0) {
-                    setSlug(
-                      `${slugify(value, {
-                        lower: true,
-                        strict: true,
-                      })}${plan === "free" ? `-${postfix}` : ""}`,
-                    );
-                  } else {
-                    setSlug(plan === "free" ? postfix : "");
-                  }
                 }}
               />
             </div>
             <div className="mt-4 flex flex-col">
               <div className="flex items-center space-x-2">
                 <Label htmlFor="slug" className="">
-                  Slug
+                  System Slug
+                </Label>
+              </div>
+              <p className="mt-2 text-xs text-muted-foreground">
+                {host}/{slug}
+              </p>
+              <Input
+                id="slug"
+                name="slug"
+                className="mt-2 w-full max-w-md"
+                value={slug}
+                disabled
+              />
+            </div>
+            <div className="mt-4 flex flex-col">
+              <div className="flex items-center space-x-2">
+                <Label htmlFor="custom-slug" className="">
+                  Custom Slug
                 </Label>
                 {plan === "free" && (
                   <Link
@@ -160,15 +170,15 @@ function EditLink() {
                 )}
               </div>
               <p className="mt-2 text-xs text-muted-foreground">
-                {host}/{slug}
+                {host}/{customSlug}
               </p>
               <Input
-                id="slug"
-                name="slug"
+                id="custom-slug"
+                name="custom-slug"
                 className="mt-2 w-full max-w-md"
-                value={slug}
+                value={customSlug}
                 disabled={plan === "free"}
-                onChange={(e) => setSlug(e.target.value.trim())}
+                onChange={(e) => setCustomSlug(e.target.value.trim())}
               />
             </div>
             <div className="mt-4 flex flex-col">

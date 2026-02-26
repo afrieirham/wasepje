@@ -63,8 +63,7 @@ export default function Dashboard() {
   const sync = api.user.sync.useMutation();
   const getAll = api.link.getAll.useQuery();
 
-  const alphabet =
-    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+  const alphabet = "0123456789abcdefghijklmnopqrstuvwxyz";
   const random = customAlphabet(alphabet, 5)(5);
 
   useEffect(() => {

@@ -46,22 +46,50 @@ export const linkRouter = createTRPCRouter({
       z.object({
         id: z.string(),
         name: z.string().trim(),
-        slug: z.string().trim().toLowerCase(),
+        customSlug: z.string().trim().toLowerCase(),
         message: z.string().optional(),
+        plan: z.enum(["free", "pro"]),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      if (checkReserved(input.slug)) {
+      const customSlug = input.plan === "pro" ? input.customSlug : null;
+
+      if (checkReserved(customSlug ?? "")) {
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "Reserved word for slug.",
         });
       }
 
+      // 2. Cross-Column Uniqueness Check
+      // We check if the slug is taken in either column (slug OR customSlug)
+      const conflict = await ctx.db.link.findFirst({
+        where: {
+          OR: [
+            { slug: customSlug ?? "" },
+            { customSlug: customSlug },
+            ...(customSlug
+              ? [{ slug: customSlug }, { customSlug: customSlug }]
+              : []),
+          ],
+        },
+      });
+
+      if (conflict) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Slug already taken.",
+        });
+      }
+
       try {
         const link = await ctx.db.link.update({
           where: { id: input.id, userId: ctx.clerkId },
-          data: { name: input.name, slug: input.slug, message: input.message },
+          data: {
+            name: input.name,
+            customSlug: input.customSlug,
+            message: input.message,
+          },
         });
         return link;
       } catch (e) {
@@ -94,8 +122,7 @@ export const linkRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const alphabet =
-        "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+      const alphabet = "0123456789abcdefghijklmnopqrstuvwxyz";
       const random = customAlphabet(alphabet, 5)(5);
 
       const systemSlug = input.slug.length === 0 ? random : input.slug;
