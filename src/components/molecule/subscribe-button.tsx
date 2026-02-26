@@ -11,10 +11,18 @@ function SubscribeButton({
   children,
   className,
   billing,
+  variant,
 }: {
   className?: string;
   billing: "monthly" | "annually";
   children: React.ReactNode;
+  variant?:
+    | "default"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | "link";
 }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -45,6 +53,7 @@ function SubscribeButton({
         setLoading(true);
         session.mutate({ billing });
       }}
+      variant={variant}
     >
       {children}
     </Button>

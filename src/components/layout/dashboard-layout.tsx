@@ -4,7 +4,7 @@ import { useEffect } from "react";
 
 import { useUser } from "@clerk/nextjs";
 
-import { Check, Home, Menu } from "lucide-react";
+import { AlertTriangle, Check, Home, Menu } from "lucide-react";
 
 import ClerkUserButton from "@/components/molecule/clerk-user-button";
 import SubscribeButton from "@/components/molecule/subscribe-button";
@@ -37,7 +37,9 @@ export default function DashboardLayout({
 }) {
   const router = useRouter();
   const { user } = useUser();
-
+  const plan = usePlan();
+  const hasCustomSlugLinks =
+    api.link.getHasCustomSlugLinks.useQuery().data?.hasCustomSlugLinks;
   const sync = api.user.sync.useMutation();
 
   useEffect(() => {
@@ -116,8 +118,28 @@ export default function DashboardLayout({
           </div>
         </header>
         <main className="flex flex-1 flex-col overflow-scroll p-4 sm:p-8">
+          {plan === "free" && hasCustomSlugLinks && <CustomSlugWarningBanner />}
           {children}
         </main>
+      </div>
+    </div>
+  );
+}
+
+function CustomSlugWarningBanner() {
+  return (
+    <div role="alert" className="mb-4 flex gap-3 rounded-lg bg-black px-4 py-3">
+      <AlertTriangle className="h-5 w-5 shrink-0 text-white" />
+      <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="font-medium text-white">Premium slugs require PRO.</p>
+          <p className="text-sm text-gray-300">
+            {`Your link will not work soon if you don't upgrade.`}
+          </p>
+        </div>
+        <SubscribeButton billing="monthly" variant="secondary">
+          Upgrade
+        </SubscribeButton>
       </div>
     </div>
   );

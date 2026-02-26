@@ -41,6 +41,17 @@ export const linkRouter = createTRPCRouter({
       });
     }),
 
+  getHasCustomSlugLinks: privateProcedure.query(async ({ ctx }) => {
+    const link = await ctx.db.link.findFirst({
+      where: {
+        userId: ctx.clerkId,
+        customSlug: { not: null },
+      },
+      select: { id: true },
+    });
+    return { hasCustomSlugLinks: !!link };
+  }),
+
   update: privateProcedure
     .input(
       z.object({
