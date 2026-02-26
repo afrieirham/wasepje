@@ -147,7 +147,7 @@ function UpgradeCTA() {
             </li>
             <li className="flex items-center space-x-2">
               <Check className="h-4 w-4" />
-              <span>Customize link slugs</span>
+              <span>Unlock premium slugs</span>
             </li>
           </ul>
           <SubscribeButton billing="monthly" className="w-full">
