@@ -52,7 +52,7 @@ export const linkRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const customSlug = input.plan === "pro" ? input.customSlug : null;
+      const customSlug = input.plan === "pro" ? input.customSlug : undefined;
 
       if (checkReserved(customSlug ?? "")) {
         throw new TRPCError({
@@ -65,6 +65,7 @@ export const linkRouter = createTRPCRouter({
       // We check if the slug is taken in either column (slug OR customSlug)
       const conflict = await ctx.db.link.findFirst({
         where: {
+          id: { not: input.id },
           OR: [
             { slug: customSlug ?? "" },
             { customSlug: customSlug },
@@ -87,7 +88,7 @@ export const linkRouter = createTRPCRouter({
           where: { id: input.id, userId: ctx.clerkId },
           data: {
             name: input.name,
-            customSlug: input.customSlug,
+            customSlug,
             message: input.message,
           },
         });
