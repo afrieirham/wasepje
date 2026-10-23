@@ -55,6 +55,8 @@ model Click {
     linkId    String?
     Link      Link?    @relation(fields: [linkId], references: [id], onDelete: Cascade)
     createdAt DateTime @default(now())
+
+    @@index([createdAt])
 }
 
 enum Plan {
