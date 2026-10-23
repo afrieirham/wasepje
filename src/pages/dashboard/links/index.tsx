@@ -175,6 +175,7 @@ function CreateLinkForm() {
   const resetFormFields = () => {
     setName("");
     setSlug("");
+    setCustomSlug("");
     setMessage("");
     setPhones([initPhone]);
     setCounter(1);
