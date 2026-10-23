@@ -4,7 +4,6 @@ import { buffer } from "micro";
 import Stripe from "stripe";
 
 import { env } from "@/env.mjs";
-import { appRouter } from "@/server/api/root";
 import { db } from "@/server/db";
 
 const stripe = new Stripe(env.STRIPE_SECRET_KEY);
@@ -50,8 +49,6 @@ export default async function handler(
     return;
   }
 
-  const caller = appRouter.createCaller({ db, clerkId: "" });
-
   switch (event.type) {
     case "checkout.session.completed": {
       const email = event.data.object.customer_email;
@@ -67,7 +64,10 @@ export default async function handler(
       }
 
       const stripeId = typeof customer === "string" ? customer : customer.id;
-      await caller.user.upgradePlan({ email, stripeId });
+      await db.user.update({
+        where: { email },
+        data: { plan: "pro", stripeId },
+      });
       res.json({ received: true });
       break;
     }
@@ -83,7 +83,10 @@ export default async function handler(
           ? subscription.customer
           : subscription.customer.id;
 
-      await caller.user.downgradePlan({ stripeId });
+      await db.user.update({
+        where: { stripeId },
+        data: { plan: "free", stripeId: null },
+      });
       res.json({ received: true });
       break;
     }
