@@ -37,43 +37,15 @@ export const userRouter = createTRPCRouter({
     return user.plan;
   }),
 
+  // Public: only exposes the plan, never the owner's email or Stripe ID
   getAuthorBySlug: publicProcedure
     .input(z.object({ slug: z.string() }))
     .query(async ({ ctx, input }) => {
-      return await ctx.db.link.findFirst({
-        where: {
-          slug: input.slug,
-        },
-        include: {
-          user: true,
-        },
+      const link = await ctx.db.link.findFirst({
+        where: { slug: input.slug },
+        select: { user: { select: { plan: true } } },
       });
-    }),
 
-  upgradePlan: publicProcedure
-    .input(
-      z.object({
-        email: z.string().email(),
-        stripeId: z.string(),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      return ctx.db.user.update({
-        where: { email: input.email },
-        data: { plan: "pro", stripeId: input.stripeId },
-      });
-    }),
-
-  downgradePlan: publicProcedure
-    .input(
-      z.object({
-        stripeId: z.string(),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      return ctx.db.user.update({
-        where: { stripeId: input.stripeId },
-        data: { plan: "free", stripeId: null },
-      });
+      return link ? { plan: link.user.plan } : null;
     }),
 });
