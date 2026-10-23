@@ -32,6 +32,7 @@ For more information on the frameworks used for this project, checkout the follo
 
 - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
 - `CLERK_SECRET_KEY`
+- `CRON_SECRET`
 - `DATABASE_URL`
 - `NEXT_PUBLIC_PRO_MONTHLY_URL`
 - `NEXT_PUBLIC_PRO_ANNUALLY_URL`
