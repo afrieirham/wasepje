@@ -21,7 +21,8 @@ export default async function handler(
   }
 
   const ip = getClientIp(req);
-  if (!allowPlanCheck(ip ?? "unknown")) {
+  // null means the client can't be identified; don't lump everyone together
+  if (ip && !allowPlanCheck(ip)) {
     return res.status(429).json({ error: "too many requests" });
   }
 

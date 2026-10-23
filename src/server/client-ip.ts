@@ -26,7 +26,8 @@ const isTrustedProxy = (address: string) => {
   return trustedProxies.check(address, version === 4 ? "ipv4" : "ipv6");
 };
 
-let warnedFallback = false;
+const FALLBACK_LOG_INTERVAL_MS = 60_000;
+let lastFallbackLog = 0;
 
 /**
  * Railway's edge proxy sets X-Real-IP to the connecting client's address
@@ -34,6 +35,9 @@ let warnedFallback = false;
  * is trusted only from a private-network peer, and only its last value is
  * used: if a proxy ever appends rather than overwrites, the last entry is the
  * one it added, not one the client sent.
+ *
+ * Returns null when the client can't be identified. Callers skip rate limiting
+ * on null rather than putting every visitor behind the proxy in one bucket.
  */
 export const getClientIp = (req: IncomingMessage) => {
   const peer = req.socket.remoteAddress
@@ -47,13 +51,15 @@ export const getClientIp = (req: IncomingMessage) => {
 
     if (candidate && isIP(candidate)) return normalize(candidate);
 
-    // Every request would share the proxy's address as one limiter bucket
-    if (!warnedFallback) {
-      warnedFallback = true;
-      console.warn(
-        "client-ip: X-Real-IP missing or invalid from proxy; rate limits are falling back to the proxy address",
+    // Keying on the proxy's address would put every visitor in one bucket
+    const now = Date.now();
+    if (now - lastFallbackLog >= FALLBACK_LOG_INTERVAL_MS) {
+      lastFallbackLog = now;
+      console.error(
+        "client-ip: X-Real-IP missing or invalid from proxy; rate limiting is skipped for these requests",
       );
     }
+    return null;
   }
 
   return peer;

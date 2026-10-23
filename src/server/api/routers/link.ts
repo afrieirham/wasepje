@@ -252,8 +252,9 @@ export const linkRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const ip = ctx.ip ?? "unknown";
-      if (!allowIp(ip) || !allowClick(`${ip}:${input.id}`)) {
+      // null means the client can't be identified; don't lump everyone together
+      const ip = ctx.ip;
+      if (ip && (!allowIp(ip) || !allowClick(`${ip}:${input.id}`))) {
         throw new TRPCError({ code: "TOO_MANY_REQUESTS" });
       }
 
