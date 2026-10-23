@@ -12,12 +12,6 @@ import { customAlphabet } from "nanoid";
 import slugify from "slugify";
 
 import { type db } from "@/server/db";
-import { createRateLimiter } from "@/server/rate-limit";
-
-// A real visitor records one click per visit; this leaves room for shared IPs
-const allowClick = createRateLimiter({ limit: 30, windowMs: 60_000 });
-// Caps how many link keys one IP can create, since link ids are free-form input
-const allowIp = createRateLimiter({ limit: 120, windowMs: 60_000 });
 
 export const checkReserved = (path: string) =>
   reservedSlug.some((p) => p === path);
@@ -252,19 +246,6 @@ export const linkRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      // null means the proxy didn't identify the client (see getClientIp)
-      const ip = ctx.ip;
-      if (!ip) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "client address unavailable",
-        });
-      }
-
-      if (!allowIp(ip) || !allowClick(`${ip}:${input.id}`)) {
-        throw new TRPCError({ code: "TOO_MANY_REQUESTS" });
-      }
-
       const link = await ctx.db.link.findFirstOrThrow({
         where: { id: input.id },
         include: { phones: true },

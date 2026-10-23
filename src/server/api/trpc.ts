@@ -13,7 +13,6 @@ import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
-import { getClientIp } from "@/server/client-ip";
 import { db } from "@/server/db";
 
 /**
@@ -50,8 +49,7 @@ import { db } from "@/server/db";
  */
 export const createTRPCContext = (opts: CreateNextContextOptions) => {
   const session = getAuth(opts.req);
-
-  return { db, clerkId: session.userId, ip: getClientIp(opts.req) };
+  return { db, clerkId: session.userId };
 };
 
 /**
