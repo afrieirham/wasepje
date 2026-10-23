@@ -10,6 +10,7 @@
 import { getAuth } from "@clerk/nextjs/server";
 import { TRPCError, initTRPC } from "@trpc/server";
 import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
+import { isIP } from "node:net";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
@@ -47,17 +48,25 @@ import { db } from "@/server/db";
  *
  * @see https://trpc.io/docs/context
  */
+/**
+ * Railway's edge proxy sets X-Real-IP to the connecting client's address
+ * (docs.railway.com/networking/public-networking/specs-and-limits). Only the
+ * first value is used, and only if it parses as an IP; otherwise fall back to
+ * the socket address so a junk header can't become an arbitrary limiter key.
+ */
+const getClientIp = (req: CreateNextContextOptions["req"]) => {
+  const header = req.headers["x-real-ip"];
+  const raw = (Array.isArray(header) ? header[0] : header)?.split(",")[0];
+  const candidate = raw?.trim();
+
+  if (candidate && isIP(candidate)) return candidate;
+  return req.socket.remoteAddress ?? null;
+};
+
 export const createTRPCContext = (opts: CreateNextContextOptions) => {
   const session = getAuth(opts.req);
 
-  // Railway's edge sets X-Real-IP to the client address
-  const realIp = opts.req.headers["x-real-ip"];
-  const ip =
-    (Array.isArray(realIp) ? realIp[0] : realIp) ??
-    opts.req.socket.remoteAddress ??
-    null;
-
-  return { db, clerkId: session.userId, ip };
+  return { db, clerkId: session.userId, ip: getClientIp(opts.req) };
 };
 
 /**

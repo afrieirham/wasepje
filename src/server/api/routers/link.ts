@@ -16,6 +16,8 @@ import { createRateLimiter } from "@/server/rate-limit";
 
 // A real visitor records one click per visit; this leaves room for shared IPs
 const allowClick = createRateLimiter({ limit: 30, windowMs: 60_000 });
+// Caps how many link keys one IP can create, since link ids are free-form input
+const allowIp = createRateLimiter({ limit: 120, windowMs: 60_000 });
 
 export const checkReserved = (path: string) =>
   reservedSlug.some((p) => p === path);
@@ -250,7 +252,8 @@ export const linkRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      if (!allowClick(`${ctx.ip ?? "unknown"}:${input.id}`)) {
+      const ip = ctx.ip ?? "unknown";
+      if (!allowIp(ip) || !allowClick(`${ip}:${input.id}`)) {
         throw new TRPCError({ code: "TOO_MANY_REQUESTS" });
       }
 

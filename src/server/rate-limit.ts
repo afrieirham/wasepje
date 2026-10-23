@@ -19,12 +19,16 @@ export const createRateLimiter = ({
   return (key: string) => {
     const now = Date.now();
 
-    // Drop expired windows so the map can't grow without bound
+    // Keep the map bounded without ever wiping live windows wholesale:
+    // drop expired windows first, then the oldest (Map keeps insertion order)
     if (windows.size >= MAX_KEYS) {
       for (const [k, w] of windows) {
         if (w.resetAt <= now) windows.delete(k);
       }
-      if (windows.size >= MAX_KEYS) windows.clear();
+      for (const k of windows.keys()) {
+        if (windows.size < MAX_KEYS * 0.9) break;
+        windows.delete(k);
+      }
     }
 
     const current = windows.get(key);
