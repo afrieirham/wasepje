@@ -21,8 +21,12 @@ export default async function handler(
   }
 
   const ip = getClientIp(req);
-  // null means the client can't be identified; don't lump everyone together
-  if (ip && !allowPlanCheck(ip)) {
+  // null means the proxy didn't identify the client (see getClientIp)
+  if (!ip) {
+    return res.status(400).json({ error: "client address unavailable" });
+  }
+
+  if (!allowPlanCheck(ip)) {
     return res.status(429).json({ error: "too many requests" });
   }
 

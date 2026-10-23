@@ -1,18 +1,17 @@
 import type { IncomingMessage } from "node:http";
 import { BlockList, isIP } from "node:net";
 
-// Private and internal ranges. Railway's edge reaches the app over its
-// internal network, so only peers in these ranges may set X-Real-IP; a public
-// peer is a direct client and its header is ignored.
+// Private network ranges. Railway's edge reaches the app over its internal
+// network, so only peers in these ranges may set X-Real-IP; any other peer is
+// a direct client and keyed on its own address. Loopback is deliberately not
+// trusted, so local `next dev` keys on 127.0.0.1 instead of being rejected.
 const trustedProxies = new BlockList();
 trustedProxies.addSubnet("10.0.0.0", 8, "ipv4");
 trustedProxies.addSubnet("172.16.0.0", 12, "ipv4");
 trustedProxies.addSubnet("192.168.0.0", 16, "ipv4");
 trustedProxies.addSubnet("100.64.0.0", 10, "ipv4");
-trustedProxies.addSubnet("127.0.0.0", 8, "ipv4");
 trustedProxies.addSubnet("fc00::", 7, "ipv6");
 trustedProxies.addSubnet("fe80::", 10, "ipv6");
-trustedProxies.addAddress("::1", "ipv6");
 
 // Sockets report IPv4 peers as IPv4-mapped IPv6 (::ffff:10.0.0.1)
 const normalize = (address: string) =>
@@ -26,18 +25,19 @@ const isTrustedProxy = (address: string) => {
   return trustedProxies.check(address, version === 4 ? "ipv4" : "ipv6");
 };
 
-const FALLBACK_LOG_INTERVAL_MS = 60_000;
-let lastFallbackLog = 0;
+const MISSING_HEADER_LOG_INTERVAL_MS = 60_000;
+let lastMissingHeaderLog = 0;
 
 /**
- * Railway's edge proxy sets X-Real-IP to the connecting client's address
- * (docs.railway.com/networking/public-networking/specs-and-limits). The header
+ * Assumes Railway's edge always sets X-Real-IP to the connecting client's
+ * address, overwriting any client value ("for identifying client's remote IP",
+ * docs.railway.com/networking/public-networking/specs-and-limits). The header
  * is trusted only from a private-network peer, and only its last value is
- * used: if a proxy ever appends rather than overwrites, the last entry is the
- * one it added, not one the client sent.
+ * used, in case a proxy appends rather than overwrites.
  *
- * Returns null when the client can't be identified. Callers skip rate limiting
- * on null rather than putting every visitor behind the proxy in one bucket.
+ * Returns null when a proxy peer sends no usable header. That breaks the
+ * assumption above, so callers reject the request: failing loudly instead of
+ * skipping rate limits or putting every visitor in one bucket.
  */
 export const getClientIp = (req: IncomingMessage) => {
   const peer = req.socket.remoteAddress
@@ -51,12 +51,11 @@ export const getClientIp = (req: IncomingMessage) => {
 
     if (candidate && isIP(candidate)) return normalize(candidate);
 
-    // Keying on the proxy's address would put every visitor in one bucket
     const now = Date.now();
-    if (now - lastFallbackLog >= FALLBACK_LOG_INTERVAL_MS) {
-      lastFallbackLog = now;
+    if (now - lastMissingHeaderLog >= MISSING_HEADER_LOG_INTERVAL_MS) {
+      lastMissingHeaderLog = now;
       console.error(
-        "client-ip: X-Real-IP missing or invalid from proxy; rate limiting is skipped for these requests",
+        "client-ip: proxy sent no usable X-Real-IP; rejecting rate-limited requests",
       );
     }
     return null;

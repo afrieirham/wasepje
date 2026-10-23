@@ -252,9 +252,16 @@ export const linkRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      // null means the client can't be identified; don't lump everyone together
+      // null means the proxy didn't identify the client (see getClientIp)
       const ip = ctx.ip;
-      if (ip && (!allowIp(ip) || !allowClick(`${ip}:${input.id}`))) {
+      if (!ip) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "client address unavailable",
+        });
+      }
+
+      if (!allowIp(ip) || !allowClick(`${ip}:${input.id}`)) {
         throw new TRPCError({ code: "TOO_MANY_REQUESTS" });
       }
 
