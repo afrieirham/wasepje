@@ -49,7 +49,15 @@ import { db } from "@/server/db";
  */
 export const createTRPCContext = (opts: CreateNextContextOptions) => {
   const session = getAuth(opts.req);
-  return { db, clerkId: session.userId };
+
+  // Railway's edge sets X-Real-IP to the client address
+  const realIp = opts.req.headers["x-real-ip"];
+  const ip =
+    (Array.isArray(realIp) ? realIp[0] : realIp) ??
+    opts.req.socket.remoteAddress ??
+    null;
+
+  return { db, clerkId: session.userId, ip };
 };
 
 /**

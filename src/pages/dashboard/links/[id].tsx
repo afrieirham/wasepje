@@ -80,7 +80,6 @@ function EditLink() {
       name,
       customSlug,
       message,
-      plan: plan ?? "free",
     });
     toast({
       title: "Link successfully updated!",

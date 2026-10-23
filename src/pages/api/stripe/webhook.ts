@@ -20,15 +20,14 @@ export default async function handler(
   res: NextApiResponse,
 ) {
   if (req.method !== "POST") {
-    return res.status(405);
+    return res.status(405).end();
   }
 
   const buf = await buffer(req);
   const sig = req.headers["stripe-signature"];
 
   if (!sig) {
-    res.status(500);
-    return;
+    return res.status(400).send("Missing stripe-signature header");
   }
 
   let event;
@@ -64,11 +63,12 @@ export default async function handler(
       }
 
       const stripeId = typeof customer === "string" ? customer : customer.id;
-      await db.user.update({
+      // updateMany so an unknown email is acknowledged instead of retried forever
+      const { count } = await db.user.updateMany({
         where: { email },
         data: { plan: "pro", stripeId },
       });
-      res.json({ received: true });
+      if (count === 0) console.log(`no user found for email ${email}`);
       break;
     }
 
@@ -83,11 +83,11 @@ export default async function handler(
           ? subscription.customer
           : subscription.customer.id;
 
-      await db.user.update({
+      const { count } = await db.user.updateMany({
         where: { stripeId },
         data: { plan: "free", stripeId: null },
       });
-      res.json({ received: true });
+      if (count === 0) console.log(`no user found for stripeId ${stripeId}`);
       break;
     }
 
