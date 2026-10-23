@@ -150,7 +150,8 @@ function CreateLinkForm() {
       void ctx.link.getAll.invalidate();
       toast({
         title: "Link successfully created!",
-        description: `${host}/${link.slug}`,
+        // Same URL the link list shows: custom slug when the server saved one
+        description: `${host}/${link.customSlug ?? link.slug}`,
       });
     },
     onError: (error) => {
