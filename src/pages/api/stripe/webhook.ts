@@ -20,15 +20,14 @@ export default async function handler(
   res: NextApiResponse,
 ) {
   if (req.method !== "POST") {
-    return res.status(405);
+    return res.status(405).end();
   }
 
   const buf = await buffer(req);
   const sig = req.headers["stripe-signature"];
 
   if (!sig) {
-    res.status(500);
-    return;
+    return res.status(400).send("Missing stripe-signature header");
   }
 
   let event;
@@ -51,24 +50,37 @@ export default async function handler(
 
   switch (event.type) {
     case "checkout.session.completed": {
-      const email = event.data.object.customer_email;
-      if (!email) {
-        console.log("user email not found");
+      const session = event.data.object;
+
+      // Match on the user id set at checkout; email is only a fallback for
+      // sessions created before client_reference_id was added
+      const where = session.client_reference_id
+        ? { id: session.client_reference_id }
+        : session.customer_email
+        ? { email: session.customer_email }
+        : null;
+      if (!where) {
+        console.error(`checkout ${session.id}: no user reference or email`);
         break;
       }
 
-      const customer = event.data.object.customer;
+      const customer = session.customer;
       if (!customer) {
-        console.log("customer not created");
+        console.error(`checkout ${session.id}: customer not created`);
         break;
       }
 
       const stripeId = typeof customer === "string" ? customer : customer.id;
-      await db.user.update({
-        where: { email },
+      // updateMany so an unmatched user is acknowledged instead of retried forever
+      const { count } = await db.user.updateMany({
+        where,
         data: { plan: "pro", stripeId },
       });
-      res.json({ received: true });
+      if (count === 0) {
+        console.error(
+          `checkout ${session.id}: paid but no matching user (customer ${stripeId}), upgrade manually`,
+        );
+      }
       break;
     }
 
@@ -83,11 +95,11 @@ export default async function handler(
           ? subscription.customer
           : subscription.customer.id;
 
-      await db.user.update({
+      const { count } = await db.user.updateMany({
         where: { stripeId },
         data: { plan: "free", stripeId: null },
       });
-      res.json({ received: true });
+      if (count === 0) console.error(`no user found for stripeId ${stripeId}`);
       break;
     }
 

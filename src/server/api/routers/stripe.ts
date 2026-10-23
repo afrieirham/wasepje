@@ -18,6 +18,8 @@ export const stripeRouter = createTRPCRouter({
       const stripe = new Stripe(env.STRIPE_SECRET_KEY);
       const session = await stripe.checkout.sessions.create({
         mode: "subscription",
+        // The webhook matches the paying user on this, not the checkout email
+        client_reference_id: user.id,
         customer_email: user?.email,
         success_url: "https://wasepje.com/dashboard/links",
         cancel_url: "https://wasepje.com/dashboard/links",

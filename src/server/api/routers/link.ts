@@ -9,9 +9,21 @@ import {
   publicProcedure,
 } from "@/server/api/trpc";
 import { customAlphabet } from "nanoid";
+import slugify from "slugify";
+
+import { type db } from "@/server/db";
 
 export const checkReserved = (path: string) =>
   reservedSlug.some((p) => p === path);
+
+// Plan comes from the DB, never from the client
+const isProUser = async (database: typeof db, clerkId: string) => {
+  const user = await database.user.findFirst({
+    where: { id: clerkId },
+    select: { plan: true },
+  });
+  return user?.plan === "pro";
+};
 
 export const linkRouter = createTRPCRouter({
   getAll: privateProcedure.query(({ ctx }) => {
@@ -59,11 +71,12 @@ export const linkRouter = createTRPCRouter({
         name: z.string().trim(),
         customSlug: z.string().trim().toLowerCase(),
         message: z.string().optional(),
-        plan: z.enum(["free", "pro"]),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const customSlug = input.plan === "pro" ? input.customSlug : undefined;
+      const isPro = await isProUser(ctx.db, ctx.clerkId);
+      // Free users can't touch customSlug; an empty value clears it
+      const customSlug = isPro ? input.customSlug || null : undefined;
 
       if (checkReserved(customSlug ?? "")) {
         throw new TRPCError({
@@ -74,24 +87,20 @@ export const linkRouter = createTRPCRouter({
 
       // 2. Cross-Column Uniqueness Check
       // We check if the slug is taken in either column (slug OR customSlug)
-      const conflict = await ctx.db.link.findFirst({
-        where: {
-          id: { not: input.id },
-          OR: [
-            { slug: customSlug ?? "" },
-            { customSlug: customSlug },
-            ...(customSlug
-              ? [{ slug: customSlug }, { customSlug: customSlug }]
-              : []),
-          ],
-        },
-      });
-
-      if (conflict) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Slug already taken.",
+      if (customSlug) {
+        const conflict = await ctx.db.link.findFirst({
+          where: {
+            id: { not: input.id },
+            OR: [{ slug: customSlug }, { customSlug: customSlug }],
+          },
         });
+
+        if (conflict) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Slug already taken.",
+          });
+        }
       }
 
       try {
@@ -122,7 +131,6 @@ export const linkRouter = createTRPCRouter({
     .input(
       z.object({
         name: z.string().trim(),
-        slug: z.string().trim().toLowerCase(),
         customSlug: z.string().trim().toLowerCase(),
         message: z.string().optional(),
         phones: z.array(
@@ -130,15 +138,18 @@ export const linkRouter = createTRPCRouter({
             value: z.string().trim(),
           }),
         ),
-        plan: z.enum(["free", "pro"]),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       const alphabet = "0123456789abcdefghijklmnopqrstuvwxyz";
       const random = customAlphabet(alphabet, 5)(5);
 
-      const systemSlug = input.slug.length === 0 ? random : input.slug;
-      const customSlug = input.plan === "pro" ? input.customSlug : null;
+      // System slug is always generated here so free users can't pick one
+      const base = slugify(input.name, { lower: true, strict: true });
+      const systemSlug = base ? `${base}-${random}` : random;
+
+      const isPro = await isProUser(ctx.db, ctx.clerkId);
+      const customSlug = isPro ? input.customSlug || null : null;
 
       if (checkReserved(customSlug ?? "")) {
         throw new TRPCError({
@@ -223,14 +234,14 @@ export const linkRouter = createTRPCRouter({
   updateNextPhone: publicProcedure
     .input(
       z.object({
-        id: z.string(),
+        id: z.string().max(64),
         metadata: z.object({
-          browser: z.string(),
-          country: z.string(),
-          continent: z.string(),
-          device: z.string(),
-          os: z.string(),
-          referrer: z.string(),
+          browser: z.string().max(100),
+          country: z.string().max(100),
+          continent: z.string().max(100),
+          device: z.string().max(100),
+          os: z.string().max(100),
+          referrer: z.string().max(2048),
         }),
       }),
     )

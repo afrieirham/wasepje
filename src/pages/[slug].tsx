@@ -159,7 +159,7 @@ function RedirectPage({
       continent: "(unknown)",
       device: ua?.device.type ?? "Desktop",
       os: ua?.os.name ?? "(unknown)",
-      referrer: document.referrer || "(direct)",
+      referrer: document.referrer.slice(0, 2048) || "(direct)",
     };
 
     updateNextPhone.mutate({ id: link.id, metadata });

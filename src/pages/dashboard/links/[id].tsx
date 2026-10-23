@@ -33,6 +33,12 @@ function EditLink() {
 
   const getOne = api.link.getOne.useQuery({ id: String(router.query.id) });
   const update = api.link.update.useMutation({
+    onSuccess: (updated) => {
+      toast({
+        title: "Link successfully updated!",
+        description: `${host}/${updated.customSlug ?? updated.slug}`,
+      });
+    },
     onError: (error) => {
       toast({
         title: "Please use different slug.",
@@ -54,8 +60,6 @@ function EditLink() {
   const [message, setMessage] = useState("");
 
   const link = getOne.data;
-
-  const finalSlug = plan === "pro" && customSlug ? customSlug : link?.slug;
 
   useEffect(() => {
     if (link) {
@@ -80,11 +84,6 @@ function EditLink() {
       name,
       customSlug,
       message,
-      plan: plan ?? "free",
-    });
-    toast({
-      title: "Link successfully updated!",
-      description: `${host}/${finalSlug}`,
     });
   };
 
