@@ -2,6 +2,9 @@
   "name": "wasepje",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20.9.0"
+  },
   "scripts": {
     "build": "next build",
     "db:push": "prisma db push",
