@@ -32,4 +32,5 @@ Clerk deletes the account before it sends the event, so a deleted user cannot lo
 - Subscriptions are not charged after the current period ends for a deleted account.
 - Out-of-order `user.updated` events no longer change a deleted row, which narrows the gap accepted in ADR 0003.
 - Changing a `User` primary key is done in the restore path. The foreign keys on `Link` must follow the change. The schema generates `ON UPDATE CASCADE` on `Link.userId`, which `prisma migrate diff` shows for the current schema.
+- An email held by a deleted row can collide with a `user.updated` for another account only when that account can change its primary email to the held address. Clerk allows one email address per user in this setup, so this path is closed. Revisit before enabling multiple email addresses or email sign-up.
 - The Stripe customer record is not deleted, by the purge or by anything else in this ADR. It keeps the user's email and any name Stripe stored, so personal data outside this database remains after the purge. Removing that record is a separate decision.
