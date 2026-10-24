@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
+import { Prisma } from "@prisma/client";
 import { buffer } from "micro";
 import { Webhook } from "svix";
 import { z } from "zod";
@@ -28,11 +29,24 @@ const userSchema = z.object({
   id: z.string(),
   primary_email_address_id: z.string().nullable(),
   email_addresses: z.array(
-    z.object({ id: z.string(), email_address: z.string() }),
+    z.object({
+      id: z.string(),
+      email_address: z.string(),
+      verification: z.object({ status: z.string() }).nullish(),
+    }),
   ),
 });
 
 const deletedUserSchema = z.object({ id: z.string() });
+
+// Prisma reports a unique violation as P2002; the target names the column
+function isEmailConflict(err: unknown) {
+  return (
+    err instanceof Prisma.PrismaClientKnownRequestError &&
+    err.code === "P2002" &&
+    String(err.meta?.target).includes("email")
+  );
+}
 
 // A sign-up with the email of an existing account takes over that row. Clerk allows
 // one account per email, so a live row here belongs to an account already deleted
@@ -141,20 +155,32 @@ export default async function handler(
           break;
         }
 
+        // Only a verified address may move an existing row to a new Clerk id
+        const verified = primaryEmail.verification?.status === "verified";
         if (
           event.type === "user.created" &&
           !existing &&
+          verified &&
           (await restoreByEmail(user.id, primaryEmail.email_address))
         ) {
           break;
         }
 
-        // Upsert keyed on the Clerk id, so a replayed event updates the same row
-        await db.user.upsert({
-          where: { id: user.id },
-          create: { id: user.id, email: primaryEmail.email_address },
-          update: { email: primaryEmail.email_address },
-        });
+        try {
+          // Upsert keyed on the Clerk id, so a replayed event updates the same row
+          await db.user.upsert({
+            where: { id: user.id },
+            create: { id: user.id, email: primaryEmail.email_address },
+            update: { email: primaryEmail.email_address },
+          });
+        } catch (err) {
+          // Another row holds this email and nothing here may move it. Acknowledge
+          // so Svix does not retry forever; the row is left unchanged.
+          if (!isEmailConflict(err)) throw err;
+          console.error(
+            `clerk user ${user.id}: email held by another row, ${event.type} skipped`,
+          );
+        }
         break;
       }
 

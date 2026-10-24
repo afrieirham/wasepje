@@ -1,5 +1,6 @@
 import { Readable } from "node:stream";
 
+import { Prisma } from "@prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
 import Stripe from "stripe";
 import { Webhook } from "svix";
@@ -37,6 +38,23 @@ const { SECRET, users, links, fakeDb, stripeSubscriptions } = vi.hoisted(() => {
           create: { id: string; email: string };
           update: { email?: string };
         }) => {
+          // Mirrors the unique index on User.email
+          const email = update.email ?? create.email;
+          const holder = [...users.values()].find(
+            (user) => user.email === email && user.id !== where.id,
+          );
+          if (holder) {
+            return Promise.reject(
+              new Prisma.PrismaClientKnownRequestError(
+                "Unique constraint failed on the fields: (`email`)",
+                {
+                  code: "P2002",
+                  clientVersion: "5.4.1",
+                  meta: { target: ["email"] },
+                },
+              ),
+            );
+          }
           const existing = users.get(where.id);
           if (existing) {
             Object.assign(existing, update);
@@ -195,14 +213,25 @@ async function deliver(req: NextApiRequest) {
   return res;
 }
 
-function userEvent(type: string, id: string, email: string) {
+function userEvent(
+  type: string,
+  id: string,
+  email: string,
+  status = "verified",
+) {
   return {
     object: "event",
     type,
     data: {
       id,
       primary_email_address_id: "idn_primary",
-      email_addresses: [{ id: "idn_primary", email_address: email }],
+      email_addresses: [
+        {
+          id: "idn_primary",
+          email_address: email,
+          verification: { status },
+        },
+      ],
     },
   };
 }
@@ -522,6 +551,61 @@ describe("Clerk user webhook", () => {
         deletedAt,
       });
       expect(fakeDb.user.upsert).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("email already held by another row", () => {
+    it("does not take over a live row for an unverified sign-up and leaves it unchanged", async () => {
+      users.set("user_old", {
+        id: "user_old",
+        email: "ada@example.com",
+        plan: "pro",
+        stripeId: "cus_123",
+        deletedAt: null,
+      });
+      links.push({ slug: "ada", userId: "user_old" });
+
+      const res = await deliver(
+        signedRequest(
+          userEvent("user.created", "user_new", "ada@example.com", "unverified"),
+        ),
+      );
+
+      expect(res.statusCode).toBe(200);
+      expect(stripeSubscriptions.list).not.toHaveBeenCalled();
+      expect(users.has("user_new")).toBe(false);
+      expect(users.get("user_old")).toEqual({
+        id: "user_old",
+        email: "ada@example.com",
+        plan: "pro",
+        stripeId: "cus_123",
+        deletedAt: null,
+      });
+      expect(links).toEqual([{ slug: "ada", userId: "user_old" }]);
+    });
+
+    it("acknowledges a stale user.updated for a Clerk id that was restored away, and changes nothing", async () => {
+      users.set("user_new", {
+        id: "user_new",
+        email: "ada@example.com",
+        plan: "pro",
+        stripeId: null,
+        deletedAt: null,
+      });
+
+      const res = await deliver(
+        signedRequest(userEvent("user.updated", "user_old", "ada@example.com")),
+      );
+
+      expect(res.statusCode).toBe(200);
+      expect(users.size).toBe(1);
+      expect(users.get("user_new")).toEqual({
+        id: "user_new",
+        email: "ada@example.com",
+        plan: "pro",
+        stripeId: null,
+        deletedAt: null,
+      });
     });
   });
 
