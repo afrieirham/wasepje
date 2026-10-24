@@ -52,6 +52,7 @@ export default async function handler(
     case "checkout.session.completed": {
       const session = event.data.object;
 
+      // Delayed payment methods are not supported; see docs/adr/0001
       if (session.payment_status !== "paid") {
         console.log(`checkout ${session.id}: not paid, plan unchanged`);
         break;
