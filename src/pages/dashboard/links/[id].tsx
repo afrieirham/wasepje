@@ -61,6 +61,7 @@ function EditLink() {
 
   const [addPhoneDialog, setAddPhoneDialog] = useState(false);
   const [name, setName] = useState("");
+  const [nameRejected, setNameRejected] = useState(false);
   const [slug, setSlug] = useState("");
   const [customSlug, setCustomSlug] = useState("");
   const [message, setMessage] = useState("");
@@ -146,13 +147,22 @@ function EditLink() {
                 className="mt-2 w-full max-w-md"
                 onChange={(e) => {
                   const value = e.target.value;
-                  if (!canEditLinkName(name, value)) return;
+                  if (!canEditLinkName(name, value)) {
+                    setNameRejected(true);
+                    return;
+                  }
+                  setNameRejected(false);
                   setName(value);
                 }}
               />
               <p className="mt-2 text-xs text-muted-foreground">
                 {name.trim().length}/{LINK_NAME_MAX_LENGTH}
               </p>
+              {nameRejected && (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Names can be up to {LINK_NAME_MAX_LENGTH} characters.
+                </p>
+              )}
             </div>
             <div className="mt-4 flex flex-col">
               <div className="flex items-center space-x-2">

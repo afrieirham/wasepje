@@ -226,7 +226,13 @@ function CreateLinkForm() {
   };
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <Sheet
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        setNameRejected(false);
+      }}
+    >
       <SheetTrigger asChild>
         <Button>Create Link</Button>
       </SheetTrigger>
