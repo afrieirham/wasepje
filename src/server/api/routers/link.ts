@@ -16,6 +16,10 @@ import { type db } from "@/server/db";
 export const checkReserved = (path: string) =>
   reservedSlug.some((p) => p === path);
 
+export const LINK_NAME_MAX_LENGTH = 100;
+
+const linkName = z.string().trim().max(LINK_NAME_MAX_LENGTH);
+
 // Plan comes from the DB, never from the client
 const isProUser = async (database: typeof db, clerkId: string) => {
   const user = await database.user.findFirst({
@@ -68,7 +72,7 @@ export const linkRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.string(),
-        name: z.string().trim(),
+        name: linkName,
         customSlug: z.string().trim().toLowerCase(),
         message: z.string().optional(),
       }),
@@ -130,7 +134,7 @@ export const linkRouter = createTRPCRouter({
   create: privateProcedure
     .input(
       z.object({
-        name: z.string().trim(),
+        name: linkName,
         customSlug: z.string().trim().toLowerCase(),
         message: z.string().optional(),
         phones: z.array(
