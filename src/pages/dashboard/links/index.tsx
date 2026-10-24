@@ -172,6 +172,7 @@ function CreateLinkForm() {
   const [counter, setCounter] = useState(1);
 
   const [name, setName] = useState("");
+  const [nameRejected, setNameRejected] = useState(false);
   const [slug, setSlug] = useState("");
   const [customSlug, setCustomSlug] = useState("");
   const [message, setMessage] = useState("");
@@ -179,6 +180,7 @@ function CreateLinkForm() {
 
   const resetFormFields = () => {
     setName("");
+    setNameRejected(false);
     setSlug("");
     setCustomSlug("");
     setMessage("");
@@ -248,7 +250,11 @@ function CreateLinkForm() {
                 value={name}
                 onChange={(e) => {
                   const value = e.target.value;
-                  if (!canEditLinkName(name, value)) return;
+                  if (!canEditLinkName(name, value)) {
+                    setNameRejected(true);
+                    return;
+                  }
+                  setNameRejected(false);
                   setName(value);
                   if (value.length > 0) {
                     setSlug(
@@ -274,6 +280,11 @@ function CreateLinkForm() {
               <p className="text-xs text-muted-foreground">
                 {name.trim().length}/{LINK_NAME_MAX_LENGTH}
               </p>
+              {nameRejected && (
+                <p className="text-xs text-muted-foreground">
+                  Names can be up to {LINK_NAME_MAX_LENGTH} characters.
+                </p>
+              )}
             </div>
             <div className="flex flex-col gap-2">
               <div className="flex items-center space-x-2">
