@@ -17,6 +17,7 @@ export const env = createEnv({
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
+    APP_URL: z.string().url(),
     CLERK_SECRET_KEY: z.string(),
     CRON_SECRET: z.string().min(1),
     STRIPE_SECRET_KEY: z.string(),
@@ -48,6 +49,7 @@ export const env = createEnv({
     NEXT_PUBLIC_BILLING_PORTAL_URL: process.env.NEXT_PUBLIC_BILLING_PORTAL_URL,
 
     DATABASE_URL: process.env.DATABASE_URL,
+    APP_URL: process.env.APP_URL,
     CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
     CRON_SECRET: process.env.CRON_SECRET,
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
