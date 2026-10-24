@@ -35,6 +35,7 @@ For more information on the frameworks used for this project, checkout the follo
 - `NEXT_PUBLIC_UMAMI_WEBSITE_ID`
 - `NEXT_PUBLIC_BILLING_PORTAL_URL`
 - `CLERK_SECRET_KEY`
+- `CLERK_WEBHOOK_SECRET`
 - `CRON_SECRET`
 - `DATABASE_URL`
 - `STRIPE_SECRET_KEY`
@@ -68,6 +69,7 @@ This URL should be used for the `DATABASE_URL` environment variable.
 
 - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
 - `CLERK_SECRET_KEY`
+- `CLERK_WEBHOOK_SECRET` (signing secret of the Clerk webhook endpoint pointing at `/api/clerk/webhook`)
 
 **4. Create a Stripe account to get these value.**
 
