@@ -52,6 +52,11 @@ export default async function handler(
     case "checkout.session.completed": {
       const session = event.data.object;
 
+      if (session.payment_status !== "paid") {
+        console.log(`checkout ${session.id}: not paid, plan unchanged`);
+        break;
+      }
+
       // Match on the user id set at checkout; email is only a fallback for
       // sessions created before client_reference_id was added
       const where = session.client_reference_id
