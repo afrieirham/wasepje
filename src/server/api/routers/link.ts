@@ -72,7 +72,7 @@ export const linkRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.string(),
-        name: linkName,
+        name: z.string().trim(),
         customSlug: z.string().trim().toLowerCase(),
         message: z.string().optional(),
       }),
@@ -86,6 +86,21 @@ export const linkRouter = createTRPCRouter({
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "Reserved word for slug.",
+        });
+      }
+
+      // Existing links may already be over the limit; only a changed name is capped
+      const current = await ctx.db.link.findFirst({
+        where: { id: input.id, userId: ctx.clerkId },
+        select: { name: true },
+      });
+      if (
+        input.name !== current?.name &&
+        input.name.length > LINK_NAME_MAX_LENGTH
+      ) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Link name is too long.",
         });
       }
 
