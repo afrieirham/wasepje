@@ -29,5 +29,5 @@ The recurring payment that keeps a User on Pro. It is held with Stripe.
 _Avoid_: Plan, billing
 
 **Deleted user**:
-A User removed because Clerk reported the account deleted. Its Links, Phones, and Clicks are removed with it.
-_Avoid_: Deactivated user, soft-deleted user
+A User whose Clerk account was deleted. Its data is kept for 14 days. A sign-up with the same email within that time restores it. After 14 days, a purge removes it with its Links, Phones, and Clicks.
+_Avoid_: Deactivated user, removed user

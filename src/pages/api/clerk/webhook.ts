@@ -50,12 +50,19 @@ async function restoreByEmail(clerkId: string, email: string) {
   }
 
   // Stripe first: if it fails, the row is unchanged and the retry runs again
-  if (deleted.stripeId) await resumeRenewal(deleted.stripeId);
+  const subscribed = deleted.stripeId
+    ? await resumeRenewal(deleted.stripeId)
+    : false;
 
   // Clerk id changes on restore; Link rows follow through the foreign key
   await db.user.update({
     where: { id: deleted.id },
-    data: { id: clerkId, deletedAt: null },
+    data: {
+      id: clerkId,
+      deletedAt: null,
+      // A subscription that ended in the window leaves the user on free
+      ...(subscribed ? {} : { plan: "free" as const, stripeId: null }),
+    },
   });
   return true;
 }

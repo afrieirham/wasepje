@@ -54,17 +54,21 @@ export async function stopRenewal(customerId: string) {
   }
 }
 
-// Undoes stopRenewal when a deleted account is restored in time
+// Undoes stopRenewal when a deleted account is restored in time. Returns false when
+// no subscription is still live, so the caller can drop the user to free.
 export async function resumeRenewal(customerId: string) {
   const stripe = new Stripe(env.STRIPE_SECRET_KEY);
+  const live = await liveSubscriptions(stripe, customerId);
 
-  for (const subscription of await liveSubscriptions(stripe, customerId)) {
+  for (const subscription of live) {
     if (subscription.cancel_at_period_end) {
       await stripe.subscriptions.update(subscription.id, {
         cancel_at_period_end: false,
       });
     }
   }
+
+  return live.length > 0;
 }
 
 // Ends billing now, then removes the row. Cascade removes its links and clicks.

@@ -551,6 +551,33 @@ describe("Clerk user webhook", () => {
       expect(fakeDb.user.upsert).not.toHaveBeenCalled();
     });
 
+    it("restores to free when the subscription ended during the window", async () => {
+      users.set("user_old", {
+        id: "user_old",
+        email: "ada@example.com",
+        plan: "pro",
+        stripeId: "cus_123",
+        deletedAt: daysAgo(3),
+      });
+      stripeSubscriptions.list.mockImplementation(() =>
+        listed([{ id: "sub_done", status: "canceled" }]),
+      );
+
+      const res = await deliver(
+        signedRequest(userEvent("user.created", "user_new", "ada@example.com")),
+      );
+
+      expect(res.statusCode).toBe(200);
+      expect(stripeSubscriptions.update).not.toHaveBeenCalled();
+      expect(users.get("user_new")).toEqual({
+        id: "user_new",
+        email: "ada@example.com",
+        plan: "free",
+        stripeId: null,
+        deletedAt: null,
+      });
+    });
+
     it("purges an account past 14 days before the email is reused", async () => {
       users.set("user_old", {
         id: "user_old",
