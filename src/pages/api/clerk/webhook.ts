@@ -1,11 +1,16 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
 import { buffer } from "micro";
-import Stripe from "stripe";
 import { Webhook } from "svix";
 import { z } from "zod";
 
 import { env } from "@/env.mjs";
+import {
+  purge,
+  resumeRenewal,
+  retentionCutoff,
+  stopRenewal,
+} from "@/server/deleted-users";
 import { db } from "@/server/db";
 
 export const config = {
@@ -29,32 +34,30 @@ const userSchema = z.object({
 
 const deletedUserSchema = z.object({ id: z.string() });
 
-// Ends billing now. Subscriptions already cancelled are skipped, and a customer
-// Stripe no longer knows has nothing left to cancel.
-async function cancelSubscriptions(customerId: string) {
-  const stripe = new Stripe(env.STRIPE_SECRET_KEY);
+// A sign-up with the email of a deleted account brings that account back. Returns
+// false when there is nothing to restore, so the caller creates a new user.
+async function restoreByEmail(clerkId: string, email: string) {
+  const deleted = await db.user.findUnique({
+    where: { email },
+    select: { id: true, stripeId: true, deletedAt: true },
+  });
+  if (!deleted?.deletedAt) return false;
 
-  try {
-    for await (const subscription of stripe.subscriptions.list({
-      customer: customerId,
-    })) {
-      if (
-        subscription.status === "canceled" ||
-        subscription.status === "incomplete_expired"
-      ) {
-        continue;
-      }
-      await stripe.subscriptions.cancel(subscription.id);
-    }
-  } catch (err) {
-    if (
-      err instanceof Stripe.errors.StripeInvalidRequestError &&
-      err.code === "resource_missing"
-    ) {
-      return;
-    }
-    throw err;
+  if (deleted.deletedAt.getTime() < retentionCutoff().getTime()) {
+    // Past the window but not purged yet: purge now so the email is free
+    await purge(deleted);
+    return false;
   }
+
+  // Stripe first: if it fails, the row is unchanged and the retry runs again
+  if (deleted.stripeId) await resumeRenewal(deleted.stripeId);
+
+  // Clerk id changes on restore; Link rows follow through the foreign key
+  await db.user.update({
+    where: { id: deleted.id },
+    data: { id: clerkId, deletedAt: null },
+  });
+  return true;
 }
 
 export default async function handler(
@@ -110,6 +113,24 @@ export default async function handler(
           break;
         }
 
+        const existing = await db.user.findUnique({
+          where: { id: user.id },
+          select: { deletedAt: true },
+        });
+        // A deleted account is left alone until it is restored or purged
+        if (existing?.deletedAt) {
+          console.log(`clerk user ${user.id}: deleted, ${event.type} ignored`);
+          break;
+        }
+
+        if (
+          event.type === "user.created" &&
+          !existing &&
+          (await restoreByEmail(user.id, primaryEmail.email_address))
+        ) {
+          break;
+        }
+
         // Upsert keyed on the Clerk id, so a replayed event updates the same row
         await db.user.upsert({
           where: { id: user.id },
@@ -126,14 +147,18 @@ export default async function handler(
           where: { id },
           select: { stripeId: true },
         });
-        // Cancel before the delete: the row holds the stripeId the cancel needs,
-        // so a failed cancel leaves the row in place for the retry
+        // Stripe first: the row is marked only after renewal is stopped, so a
+        // failed call leaves the row unchanged for the retry
         if (user?.stripeId) {
-          await cancelSubscriptions(user.stripeId);
+          await stopRenewal(user.stripeId);
         }
 
-        // deleteMany so a replay or an unknown user is acknowledged instead of retried
-        await db.user.deleteMany({ where: { id } });
+        // Only unmarked rows: a replay keeps the original deletion time, and an
+        // unknown user is acknowledged instead of retried
+        await db.user.updateMany({
+          where: { id, deletedAt: null },
+          data: { deletedAt: new Date() },
+        });
         break;
       }
 

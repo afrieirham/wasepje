@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted (2026-10-24). Resolves #35. Replaces point 4 of [0002](./0002-clerk-webhooks-own-user-records.md).
+Superseded by [0004](./0004-retain-deleted-users-for-14-days.md). Resolved #35. Replaced point 4 of [0002](./0002-clerk-webhooks-own-user-records.md).
 
 ## Context
 

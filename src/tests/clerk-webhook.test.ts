@@ -12,10 +12,16 @@ const { SECRET, users, fakeDb, stripeSubscriptions } = vi.hoisted(() => {
 
   const users = new Map<
     string,
-    { id: string; email: string; plan: string; stripeId?: string | null }
+    {
+      id: string;
+      email: string;
+      plan: string;
+      stripeId?: string | null;
+      deletedAt?: Date | null;
+    }
   >();
 
-  // In-memory stand-in for Prisma's user.upsert, keyed by Clerk user id
+  // In-memory stand-in for Prisma's user queries, keyed by Clerk user id
   const fakeDb = {
     user: {
       upsert: vi.fn(
@@ -38,8 +44,45 @@ const { SECRET, users, fakeDb, stripeSubscriptions } = vi.hoisted(() => {
           return Promise.resolve(user);
         },
       ),
-      findUnique: vi.fn(({ where }: { where: { id: string } }) =>
-        Promise.resolve(users.get(where.id) ?? null),
+      findUnique: vi.fn(
+        ({ where }: { where: { id?: string; email?: string } }) => {
+          const match = [...users.values()].find((user) =>
+            where.id ? user.id === where.id : user.email === where.email,
+          );
+          return Promise.resolve(match ?? null);
+        },
+      ),
+      updateMany: vi.fn(
+        ({
+          where,
+          data,
+        }: {
+          where: { id: string; deletedAt: null };
+          data: { deletedAt: Date };
+        }) => {
+          const user = users.get(where.id);
+          if (!user || user.deletedAt) {
+            return Promise.resolve({ count: 0 });
+          }
+          Object.assign(user, data);
+          return Promise.resolve({ count: 1 });
+        },
+      ),
+      update: vi.fn(
+        ({
+          where,
+          data,
+        }: {
+          where: { id: string };
+          data: { id: string; deletedAt: null };
+        }) => {
+          const user = users.get(where.id);
+          if (!user) return Promise.reject(new Error("record not found"));
+          users.delete(where.id);
+          Object.assign(user, data);
+          users.set(user.id, user);
+          return Promise.resolve(user);
+        },
       ),
       deleteMany: vi.fn(({ where }: { where: { id: string } }) => {
         const existed = users.delete(where.id);
@@ -49,7 +92,11 @@ const { SECRET, users, fakeDb, stripeSubscriptions } = vi.hoisted(() => {
   };
 
   // In-memory stand-in for the Stripe subscriptions API
-  const stripeSubscriptions = { list: vi.fn(), cancel: vi.fn() };
+  const stripeSubscriptions = {
+    list: vi.fn(),
+    cancel: vi.fn(),
+    update: vi.fn(),
+  };
 
   return { SECRET, users, fakeDb, stripeSubscriptions };
 });
@@ -73,10 +120,13 @@ vi.mock("stripe", async (importOriginal) => {
   return { default: Object.assign(FakeStripe, { errors: Actual.errors }) };
 });
 
-// Async iterable that yields the given subscriptions, like Stripe's list
+// Iterable that yields the given subscriptions, like Stripe's list
 function* listed(items: unknown[]) {
   yield* items;
 }
+
+const DAY_IN_MS = 24 * 60 * 60 * 1000;
+const daysAgo = (days: number) => new Date(Date.now() - days * DAY_IN_MS);
 
 type FakeResponse = {
   statusCode: number;
@@ -154,11 +204,15 @@ describe("Clerk user webhook", () => {
   beforeEach(() => {
     users.clear();
     fakeDb.user.upsert.mockClear();
+    fakeDb.user.updateMany.mockClear();
+    fakeDb.user.update.mockClear();
     fakeDb.user.deleteMany.mockClear();
     stripeSubscriptions.list.mockReset();
     stripeSubscriptions.list.mockImplementation(() => listed([]));
     stripeSubscriptions.cancel.mockReset();
     stripeSubscriptions.cancel.mockResolvedValue({});
+    stripeSubscriptions.update.mockReset();
+    stripeSubscriptions.update.mockResolvedValue({});
   });
 
   it("creates a user for a signed user.created event", async () => {
@@ -299,17 +353,18 @@ describe("Clerk user webhook", () => {
       data: { id: "user_123", deleted: true, object: "user" },
     };
 
-    it("cancels the Pro subscription and deletes the user", async () => {
+    it("marks the user deleted and stops renewal, keeping the row", async () => {
       users.set("user_123", {
         id: "user_123",
         email: "ada@example.com",
         plan: "pro",
         stripeId: "cus_123",
+        deletedAt: null,
       });
       stripeSubscriptions.list.mockImplementation(() =>
         listed([
-          { id: "sub_active", status: "active" },
-          { id: "sub_done", status: "canceled" },
+          { id: "sub_active", status: "active", cancel_at_period_end: false },
+          { id: "sub_done", status: "canceled", cancel_at_period_end: false },
         ]),
       );
 
@@ -319,38 +374,63 @@ describe("Clerk user webhook", () => {
       expect(stripeSubscriptions.list).toHaveBeenCalledWith({
         customer: "cus_123",
       });
-      expect(stripeSubscriptions.cancel).toHaveBeenCalledTimes(1);
-      expect(stripeSubscriptions.cancel).toHaveBeenCalledWith("sub_active");
-      expect(users.has("user_123")).toBe(false);
+      expect(stripeSubscriptions.update).toHaveBeenCalledTimes(1);
+      expect(stripeSubscriptions.update).toHaveBeenCalledWith("sub_active", {
+        cancel_at_period_end: true,
+      });
+      expect(stripeSubscriptions.cancel).not.toHaveBeenCalled();
+      expect(users.get("user_123")?.deletedAt).toBeInstanceOf(Date);
+      expect(fakeDb.user.deleteMany).not.toHaveBeenCalled();
     });
 
-    it("keeps the user and returns 500 when the Stripe cancel fails, so Svix retries", async () => {
+    it("leaves the row unchanged and returns 500 when the Stripe update fails", async () => {
       users.set("user_123", {
         id: "user_123",
         email: "ada@example.com",
         plan: "pro",
         stripeId: "cus_123",
+        deletedAt: null,
       });
       stripeSubscriptions.list.mockImplementation(() =>
         listed([{ id: "sub_active", status: "active" }]),
       );
-      stripeSubscriptions.cancel.mockRejectedValueOnce(
+      stripeSubscriptions.update.mockRejectedValueOnce(
         new Error("Stripe unavailable"),
       );
 
       const res = await deliver(signedRequest(deletedEvent));
 
       expect(res.statusCode).toBe(500);
-      expect(users.has("user_123")).toBe(true);
-      expect(fakeDb.user.deleteMany).not.toHaveBeenCalled();
+      expect(users.get("user_123")?.deletedAt).toBeNull();
     });
 
-    it("deletes the user when Stripe no longer knows the customer", async () => {
+    it("skips a subscription that already stops at period end", async () => {
+      users.set("user_123", {
+        id: "user_123",
+        email: "ada@example.com",
+        plan: "pro",
+        stripeId: "cus_123",
+        deletedAt: null,
+      });
+      stripeSubscriptions.list.mockImplementation(() =>
+        listed([
+          { id: "sub_active", status: "active", cancel_at_period_end: true },
+        ]),
+      );
+
+      const res = await deliver(signedRequest(deletedEvent));
+
+      expect(res.statusCode).toBe(200);
+      expect(stripeSubscriptions.update).not.toHaveBeenCalled();
+    });
+
+    it("marks the user deleted when Stripe no longer knows the customer", async () => {
       users.set("user_123", {
         id: "user_123",
         email: "ada@example.com",
         plan: "pro",
         stripeId: "cus_gone",
+        deletedAt: null,
       });
       stripeSubscriptions.list.mockImplementation(() => {
         throw new Stripe.errors.StripeInvalidRequestError({
@@ -363,22 +443,40 @@ describe("Clerk user webhook", () => {
       const res = await deliver(signedRequest(deletedEvent));
 
       expect(res.statusCode).toBe(200);
-      expect(users.has("user_123")).toBe(false);
+      expect(users.get("user_123")?.deletedAt).toBeInstanceOf(Date);
     });
 
-    it("deletes a free user without calling Stripe", async () => {
+    it("marks a free user deleted without calling Stripe", async () => {
       users.set("user_123", {
         id: "user_123",
         email: "ada@example.com",
         plan: "free",
         stripeId: null,
+        deletedAt: null,
       });
 
       const res = await deliver(signedRequest(deletedEvent));
 
       expect(res.statusCode).toBe(200);
       expect(stripeSubscriptions.list).not.toHaveBeenCalled();
-      expect(users.has("user_123")).toBe(false);
+      expect(users.get("user_123")?.deletedAt).toBeInstanceOf(Date);
+    });
+
+    it("keeps the original deletion time when the event is replayed", async () => {
+      users.set("user_123", {
+        id: "user_123",
+        email: "ada@example.com",
+        plan: "free",
+        stripeId: null,
+        deletedAt: null,
+      });
+
+      await deliver(signedRequest(deletedEvent));
+      const firstDeletedAt = users.get("user_123")?.deletedAt;
+      const replay = await deliver(signedRequest(deletedEvent));
+
+      expect(replay.statusCode).toBe(200);
+      expect(users.get("user_123")?.deletedAt).toBe(firstDeletedAt);
     });
 
     it("acknowledges a user that does not exist, including on replay", async () => {
@@ -389,6 +487,108 @@ describe("Clerk user webhook", () => {
       expect(replay.statusCode).toBe(200);
       expect(stripeSubscriptions.list).not.toHaveBeenCalled();
       expect(users.size).toBe(0);
+    });
+  });
+
+  describe("user.updated for a deleted account", () => {
+    it("ignores the update and leaves the deleted row unchanged", async () => {
+      const deletedAt = daysAgo(1);
+      users.set("user_123", {
+        id: "user_123",
+        email: "ada@example.com",
+        plan: "pro",
+        stripeId: "cus_123",
+        deletedAt,
+      });
+
+      const res = await deliver(
+        signedRequest(userEvent("user.updated", "user_123", "ada@new.example")),
+      );
+
+      expect(res.statusCode).toBe(200);
+      expect(users.get("user_123")).toEqual({
+        id: "user_123",
+        email: "ada@example.com",
+        plan: "pro",
+        stripeId: "cus_123",
+        deletedAt,
+      });
+      expect(fakeDb.user.upsert).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("user.created with the email of a deleted account", () => {
+    it("restores the account to the new Clerk id within 14 days and resumes renewal", async () => {
+      users.set("user_old", {
+        id: "user_old",
+        email: "ada@example.com",
+        plan: "pro",
+        stripeId: "cus_123",
+        deletedAt: daysAgo(1),
+      });
+      stripeSubscriptions.list.mockImplementation(() =>
+        listed([
+          { id: "sub_active", status: "active", cancel_at_period_end: true },
+        ]),
+      );
+
+      const res = await deliver(
+        signedRequest(userEvent("user.created", "user_new", "ada@example.com")),
+      );
+
+      expect(res.statusCode).toBe(200);
+      expect(stripeSubscriptions.update).toHaveBeenCalledWith("sub_active", {
+        cancel_at_period_end: false,
+      });
+      expect(users.has("user_old")).toBe(false);
+      expect(users.get("user_new")).toEqual({
+        id: "user_new",
+        email: "ada@example.com",
+        plan: "pro",
+        stripeId: "cus_123",
+        deletedAt: null,
+      });
+      expect(fakeDb.user.upsert).not.toHaveBeenCalled();
+    });
+
+    it("purges an account past 14 days before the email is reused", async () => {
+      users.set("user_old", {
+        id: "user_old",
+        email: "ada@example.com",
+        plan: "pro",
+        stripeId: "cus_123",
+        deletedAt: daysAgo(15),
+      });
+      stripeSubscriptions.list.mockImplementation(() =>
+        listed([{ id: "sub_active", status: "active" }]),
+      );
+
+      const res = await deliver(
+        signedRequest(userEvent("user.created", "user_new", "ada@example.com")),
+      );
+
+      expect(res.statusCode).toBe(200);
+      expect(stripeSubscriptions.cancel).toHaveBeenCalledWith("sub_active");
+      expect(users.has("user_old")).toBe(false);
+      expect(users.get("user_new")).toEqual({
+        id: "user_new",
+        email: "ada@example.com",
+        plan: "free",
+      });
+    });
+
+    it("creates a new user when no deleted account has the email", async () => {
+      const res = await deliver(
+        signedRequest(userEvent("user.created", "user_new", "ada@example.com")),
+      );
+
+      expect(res.statusCode).toBe(200);
+      expect(stripeSubscriptions.list).not.toHaveBeenCalled();
+      expect(users.get("user_new")).toEqual({
+        id: "user_new",
+        email: "ada@example.com",
+        plan: "free",
+      });
     });
   });
 });
