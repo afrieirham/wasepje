@@ -20,6 +20,7 @@ export const getServerSideProps = (async (ctx) => {
   if (now < GATEKEEPER_ACTIVATION_DATE) {
     const link = await db.link.findFirst({
       where: {
+        user: { deletedAt: null },
         OR: [
           { slug: slug }, // Checks the system slug (shoes-abc12)
           { customSlug: slug }, // Checks the premium slug (shoes)
@@ -44,6 +45,8 @@ export const getServerSideProps = (async (ctx) => {
   // On/after activation date: apply gatekeeper logic
   const link = await db.link.findFirst({
     where: {
+      // A deleted user's links behave like unknown slugs
+      user: { deletedAt: null },
       OR: [
         { slug: slug }, // Checks the system slug (shoes-abc12)
         { customSlug: slug }, // Checks the premium slug (shoes)
