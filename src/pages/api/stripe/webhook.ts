@@ -54,7 +54,10 @@ export default async function handler(
 
       // Delayed payment methods are not supported; see docs/adr/0001
       if (session.payment_status !== "paid") {
-        console.log(`checkout ${session.id}: not paid, plan unchanged`);
+        // Error level so a completed checkout that did not upgrade is visible
+        console.error(
+          `checkout ${session.id}: payment_status ${session.payment_status}, plan unchanged`,
+        );
         break;
       }
 

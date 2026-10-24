@@ -20,4 +20,5 @@ We do not support delayed payment methods. The webhook does not handle `checkout
 
 - Enabling a delayed payment method without further work leaves paying users on the free plan. The webhook would skip their completed session and ignore the later success event.
 - Before enabling a delayed method, the webhook must handle `checkout.session.async_payment_succeeded` with the same upgrade logic, handle `checkout.session.async_payment_failed` if we want to act on failures, and the Stripe webhook endpoint must be subscribed to those events. Stripe only delivers events that are subscribed.
-- Zero-amount or fully discounted checkouts report `payment_status: "no_payment_required"`. Under this decision they do not upgrade. Those checkouts are not used today.
+- Zero-amount, fully discounted, or trial-period subscriptions report `payment_status: "no_payment_required"`. Under this decision they do not upgrade. The checkout code (`src/server/api/routers/stripe.ts`) sets no trial and no discount, so these are not created today. Trials configured on the Stripe price would still hit this path.
+- A skipped upgrade is logged at error level, so it appears in error monitoring instead of passing silently.

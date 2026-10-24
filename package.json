@@ -13,8 +13,8 @@
     "lint": "eslint src",
     "start": "next start",
     "studio": "prisma studio",
-    "test": "vitest run",
-    "tunnel": "lt --port 3000 --subdomain wasepje"
+    "tunnel": "lt --port 3000 --subdomain wasepje",
+    "test": "vitest run"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.20",
@@ -58,8 +58,7 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@types/eslint": "^8.44.2",
-    "@types/node": "^18.16.0",
+    "@types/node": "^20.19.0",
     "@types/react": "^18.2.20",
     "@types/react-dom": "^18.2.7",
     "@types/ua-parser-js": "^0.7.39",

@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import z from "zod";
 
+import { LINK_NAME_MAX_LENGTH } from "@/constants/link-name";
 import { reservedSlug } from "@/constants/reserved-slug";
 import {
   createTRPCRouter,
@@ -15,6 +16,8 @@ import { type db } from "@/server/db";
 
 export const checkReserved = (path: string) =>
   reservedSlug.some((p) => p === path);
+
+const linkName = z.string().trim().max(LINK_NAME_MAX_LENGTH);
 
 // Plan comes from the DB, never from the client
 const isProUser = async (database: typeof db, clerkId: string) => {
@@ -85,6 +88,21 @@ export const linkRouter = createTRPCRouter({
         });
       }
 
+      // Existing links may already be over the limit; only a changed name is capped
+      const current = await ctx.db.link.findFirst({
+        where: { id: input.id, userId: ctx.clerkId },
+        select: { name: true },
+      });
+      if (
+        input.name !== current?.name &&
+        !linkName.safeParse(input.name).success
+      ) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Link name is too long.",
+        });
+      }
+
       // 2. Cross-Column Uniqueness Check
       // We check if the slug is taken in either column (slug OR customSlug)
       if (customSlug) {
@@ -130,7 +148,7 @@ export const linkRouter = createTRPCRouter({
   create: privateProcedure
     .input(
       z.object({
-        name: z.string().trim(),
+        name: linkName,
         customSlug: z.string().trim().toLowerCase(),
         message: z.string().optional(),
         phones: z.array(
