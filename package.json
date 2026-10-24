@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": ">=20.9.0"
+    "node": ">=20.19.0"
   },
   "scripts": {
     "build": "next build",
@@ -13,7 +13,8 @@
     "lint": "eslint src",
     "start": "next start",
     "studio": "prisma studio",
-    "tunnel": "lt --port 3000 --subdomain wasepje"
+    "tunnel": "lt --port 3000 --subdomain wasepje",
+    "test": "vitest run"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.20",
@@ -72,7 +73,8 @@
     "prisma": "^5.1.1",
     "tailwindcss": "^3.4.19",
     "typescript": "^5.1.6",
-    "typescript-eslint": "^8.72.0"
+    "typescript-eslint": "^8.72.0",
+    "vitest": "^3.2.7"
   },
   "ct3aMetadata": {
     "initVersion": "7.20.2"

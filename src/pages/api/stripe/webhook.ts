@@ -52,6 +52,15 @@ export default async function handler(
     case "checkout.session.completed": {
       const session = event.data.object;
 
+      // Delayed payment methods are not supported; see docs/adr/0001
+      if (session.payment_status !== "paid") {
+        // Error level so a completed checkout that did not upgrade is visible
+        console.error(
+          `checkout ${session.id}: payment_status ${session.payment_status}, plan unchanged`,
+        );
+        break;
+      }
+
       // Match on the user id set at checkout; email is only a fallback for
       // sessions created before client_reference_id was added
       const where = session.client_reference_id
