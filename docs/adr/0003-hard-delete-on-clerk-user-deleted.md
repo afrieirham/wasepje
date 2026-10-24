@@ -19,7 +19,8 @@ ADR 0002 left `user.deleted` unhandled because deleting a `User` cascades to its
 
 ## Consequences
 
-- Click history is lost. The product accepts this so that no personal data is kept after the account is gone.
+- Click history is lost. The product accepts this so that the database keeps no user rows, links, or clicks after the account is gone.
+- The Stripe customer record is not deleted. It still holds the user's email and any name Stripe stored. Removing it is a separate decision and is not part of this ADR.
 - The email is freed. The same address can register again with a new Clerk id.
 - A `user.updated` that arrives after `user.deleted` recreates the user. Clerk does not guarantee delivery order, and keeping a tombstone of deleted ids would keep the data this decision removes. This is a known gap, alongside the out-of-order email gap in #32.
 - A deleted user's slug URLs behave like unknown slugs. Nothing shows that the account existed.
