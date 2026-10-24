@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
-import { canEditLinkName } from "@/constants/link-name";
+import { isLinkNameWithinLimit } from "@/constants/link-name";
 import { useHostname } from "@/hooks/use-hostname";
 import { usePlan } from "@/hooks/use-plan";
 import { api } from "@/utils/api";
@@ -136,7 +136,7 @@ function EditLink() {
                 className="mt-2 w-full max-w-md"
                 onChange={(e) => {
                   const value = e.target.value;
-                  if (!canEditLinkName(name, value)) return;
+                  if (!isLinkNameWithinLimit(value)) return;
                   setName(value);
                 }}
               />
