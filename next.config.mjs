@@ -17,6 +17,7 @@ const config = {
     locales: ["en"],
     defaultLocale: "en",
   },
+  allowedDevOrigins: ['dev.boar-roach.ts.net', 'wasepje.loca.lt'],
 };
 
 export default config;
