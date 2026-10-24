@@ -7,7 +7,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import handler from "@/pages/api/clerk/webhook";
 
-const { SECRET, users, fakeDb, stripeSubscriptions } = vi.hoisted(() => {
+const { SECRET, users, links, fakeDb, stripeSubscriptions } = vi.hoisted(() => {
   const SECRET = `whsec_${Buffer.from("test-secret").toString("base64")}`;
 
   const users = new Map<
@@ -20,6 +20,9 @@ const { SECRET, users, fakeDb, stripeSubscriptions } = vi.hoisted(() => {
       deletedAt?: Date | null;
     }
   >();
+
+  // In-memory stand-in for the Link table, keyed by its owner's User id
+  const links: { slug: string; userId: string }[] = [];
 
   // In-memory stand-in for Prisma's user queries, keyed by Clerk user id
   const fakeDb = {
@@ -81,6 +84,10 @@ const { SECRET, users, fakeDb, stripeSubscriptions } = vi.hoisted(() => {
           users.delete(where.id);
           Object.assign(user, data);
           users.set(user.id, user);
+          // Mirrors ON UPDATE CASCADE on Link.userId
+          for (const link of links) {
+            if (link.userId === where.id) link.userId = data.id;
+          }
           return Promise.resolve(user);
         },
       ),
@@ -98,7 +105,7 @@ const { SECRET, users, fakeDb, stripeSubscriptions } = vi.hoisted(() => {
     update: vi.fn(),
   };
 
-  return { SECRET, users, fakeDb, stripeSubscriptions };
+  return { SECRET, users, links, fakeDb, stripeSubscriptions };
 });
 
 vi.mock("@/env.mjs", () => ({
@@ -203,6 +210,7 @@ function userEvent(type: string, id: string, email: string) {
 describe("Clerk user webhook", () => {
   beforeEach(() => {
     users.clear();
+    links.length = 0;
     fakeDb.user.upsert.mockClear();
     fakeDb.user.updateMany.mockClear();
     fakeDb.user.update.mockClear();
@@ -602,6 +610,53 @@ describe("Clerk user webhook", () => {
         email: "ada@example.com",
         plan: "free",
       });
+    });
+
+    it("keeps the Links of a restored account under the new Clerk id", async () => {
+      users.set("user_old", {
+        id: "user_old",
+        email: "ada@example.com",
+        plan: "free",
+        stripeId: null,
+        deletedAt: daysAgo(1),
+      });
+      links.push({ slug: "ada", userId: "user_old" });
+
+      const res = await deliver(
+        signedRequest(userEvent("user.created", "user_new", "ada@example.com")),
+      );
+
+      expect(res.statusCode).toBe(200);
+      expect(links).toEqual([{ slug: "ada", userId: "user_new" }]);
+    });
+
+    it("moves a live account with the email to the new Clerk id when its deletion event was missed", async () => {
+      users.set("user_old", {
+        id: "user_old",
+        email: "ada@example.com",
+        plan: "pro",
+        stripeId: "cus_123",
+        deletedAt: null,
+      });
+      links.push({ slug: "ada", userId: "user_old" });
+
+      const res = await deliver(
+        signedRequest(userEvent("user.created", "user_new", "ada@example.com")),
+      );
+
+      expect(res.statusCode).toBe(200);
+      expect(stripeSubscriptions.list).not.toHaveBeenCalled();
+      expect(stripeSubscriptions.update).not.toHaveBeenCalled();
+      expect(users.has("user_old")).toBe(false);
+      expect(users.get("user_new")).toEqual({
+        id: "user_new",
+        email: "ada@example.com",
+        plan: "pro",
+        stripeId: "cus_123",
+        deletedAt: null,
+      });
+      expect(links).toEqual([{ slug: "ada", userId: "user_new" }]);
+      expect(fakeDb.user.upsert).not.toHaveBeenCalled();
     });
 
     it("creates a new user when no deleted account has the email", async () => {

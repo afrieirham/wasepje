@@ -34,29 +34,40 @@ const userSchema = z.object({
 
 const deletedUserSchema = z.object({ id: z.string() });
 
-// A sign-up with the email of a deleted account brings that account back. Returns
-// false when there is nothing to restore, so the caller creates a new user.
+// A sign-up with the email of an existing account takes over that row. Clerk allows
+// one account per email, so a live row here belongs to an account already deleted
+// whose user.deleted event never arrived. Returns false when there is no row for the
+// email, so the caller creates a new user.
 async function restoreByEmail(clerkId: string, email: string) {
-  const deleted = await db.user.findUnique({
+  const existing = await db.user.findUnique({
     where: { email },
     select: { id: true, stripeId: true, deletedAt: true },
   });
-  if (!deleted?.deletedAt) return false;
+  if (!existing) return false;
 
-  if (deleted.deletedAt.getTime() < retentionCutoff().getTime()) {
+  if (!existing.deletedAt) {
+    // Subscription and data carry over unchanged, as in a restore
+    await db.user.update({
+      where: { id: existing.id },
+      data: { id: clerkId },
+    });
+    return true;
+  }
+
+  if (existing.deletedAt.getTime() < retentionCutoff().getTime()) {
     // Past the window but not purged yet: purge now so the email is free
-    await purge(deleted);
+    await purge(existing);
     return false;
   }
 
   // Stripe first: if it fails, the row is unchanged and the retry runs again
-  const subscribed = deleted.stripeId
-    ? await resumeRenewal(deleted.stripeId)
+  const subscribed = existing.stripeId
+    ? await resumeRenewal(existing.stripeId)
     : false;
 
   // Clerk id changes on restore; Link rows follow through the foreign key
   await db.user.update({
-    where: { id: deleted.id },
+    where: { id: existing.id },
     data: {
       id: clerkId,
       deletedAt: null,

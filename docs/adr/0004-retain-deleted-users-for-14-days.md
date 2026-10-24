@@ -20,6 +20,7 @@ Clerk deletes the account before it sends the event, so a deleted user cannot lo
 4. A signed `user.created` whose primary email matches a deleted row, within 14 days of `deletedAt`, restores the account. The row moves to the new Clerk id, and `deletedAt` is cleared.
    - If the subscription is still active, the user stays on Pro. If `cancel_at_period_end` is set, it is cleared.
    - If the subscription has already ended, the plan is `free` and the user subscribes again.
+4a. A signed `user.created` whose primary email matches a row that is not deleted moves that row to the new Clerk id. Clerk allows one account per email, so the old account is already gone, but its `user.deleted` event never arrived. The row keeps its data and subscription, and no Stripe call is made. This replaces the 500 retry loop for that case.
 5. A daily cron job purges rows whose `deletedAt` is more than 14 days old. For each one, it cancels any live subscription immediately and deletes the row. Cascade removes the rows it owns. A repeated run finds nothing new to do.
 6. The email stays reserved on the deleted row for the whole 14 days.
 
