@@ -171,7 +171,7 @@ function RedirectPage({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [link, plan]);
 
-  if (!link && !nextPhone) {
+  if (!link) {
     return (
       <main className="flex h-screen w-full flex-col items-center justify-center space-y-2">
         <h1 className="text-2xl">404</h1>
