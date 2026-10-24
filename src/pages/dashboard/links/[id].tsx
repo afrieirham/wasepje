@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
-import { isLinkNameWithinLimit } from "@/constants/link-name";
+import { canEditLinkName, isLinkNameWithinLimit } from "@/constants/link-name";
 import { useHostname } from "@/hooks/use-hostname";
 import { usePlan } from "@/hooks/use-plan";
 import { api } from "@/utils/api";
@@ -136,7 +136,7 @@ function EditLink() {
                 className="mt-2 w-full max-w-md"
                 onChange={(e) => {
                   const value = e.target.value;
-                  if (!isLinkNameWithinLimit(value)) return;
+                  if (!canEditLinkName(name, value)) return;
                   setName(value);
                 }}
               />
@@ -199,7 +199,10 @@ function EditLink() {
             </div>
           </div>
           <div className="border-t bg-zinc-100 p-4 sm:p-6">
-            <Button type="submit">
+            <Button
+              type="submit"
+              disabled={name !== link.name && !isLinkNameWithinLimit(name)}
+            >
               {update.isLoading && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
