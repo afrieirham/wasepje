@@ -28,7 +28,7 @@
     "@radix-ui/react-switch": "^1.1.0",
     "@radix-ui/react-tabs": "^1.1.0",
     "@radix-ui/react-toast": "^1.1.5",
-    "@t3-oss/env-nextjs": "^0.6.0",
+    "@t3-oss/env-nextjs": "^0.13.11",
     "@tanstack/react-query": "^4.32.6",
     "@trpc/client": "^10.45.4",
     "@trpc/next": "^10.45.4",
@@ -43,7 +43,7 @@
     "micro": "^10.0.1",
     "nanoid": "^5.0.7",
     "next": "^16.4.3",
-    "next-video": "^1.1.4",
+    "next-video": "^2.8.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-qrcode-logo": "^3.0.0",
@@ -54,7 +54,7 @@
     "tailwind-merge": "^1.14.0",
     "tailwindcss-animate": "^1.0.7",
     "ua-parser-js": "^1.0.38",
-    "zod": "^3.21.4"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@types/eslint": "^8.44.2",

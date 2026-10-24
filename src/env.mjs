@@ -8,7 +8,6 @@ export const env = createEnv({
    */
   server: {
     DATABASE_URL: z
-      .string()
       .url()
       .refine(
         (str) => !str.includes("YOUR_MYSQL_URL_HERE"),
@@ -17,7 +16,7 @@ export const env = createEnv({
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
-    APP_URL: z.string().url(),
+    APP_URL: z.url(),
     CLERK_SECRET_KEY: z.string(),
     CRON_SECRET: z.string().min(1),
     STRIPE_SECRET_KEY: z.string(),
@@ -35,7 +34,7 @@ export const env = createEnv({
     // NEXT_PUBLIC_CLIENTVAR: z.string().min(1),
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string(),
     NEXT_PUBLIC_UMAMI_WEBSITE_ID: z.string(),
-    NEXT_PUBLIC_BILLING_PORTAL_URL: z.string().url(),
+    NEXT_PUBLIC_BILLING_PORTAL_URL: z.url(),
   },
 
   /**
