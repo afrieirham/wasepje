@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import z from "zod";
 
+import { LINK_NAME_MAX_LENGTH } from "@/constants/link-name";
 import { reservedSlug } from "@/constants/reserved-slug";
 import {
   createTRPCRouter,
@@ -15,8 +16,6 @@ import { type db } from "@/server/db";
 
 export const checkReserved = (path: string) =>
   reservedSlug.some((p) => p === path);
-
-export const LINK_NAME_MAX_LENGTH = 100;
 
 const linkName = z.string().trim().max(LINK_NAME_MAX_LENGTH);
 
@@ -96,7 +95,7 @@ export const linkRouter = createTRPCRouter({
       });
       if (
         input.name !== current?.name &&
-        input.name.length > LINK_NAME_MAX_LENGTH
+        !linkName.safeParse(input.name).success
       ) {
         throw new TRPCError({
           code: "BAD_REQUEST",
