@@ -48,6 +48,11 @@ import {
 } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
+import {
+  canEditLinkName,
+  isLinkNameFilled,
+  LINK_NAME_MAX_LENGTH,
+} from "@/constants/link-name";
 import { useHostname } from "@/hooks/use-hostname";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { usePlan } from "@/hooks/use-plan";
@@ -167,6 +172,7 @@ function CreateLinkForm() {
   const [counter, setCounter] = useState(1);
 
   const [name, setName] = useState("");
+  const [nameRejected, setNameRejected] = useState(false);
   const [slug, setSlug] = useState("");
   const [customSlug, setCustomSlug] = useState("");
   const [message, setMessage] = useState("");
@@ -174,6 +180,7 @@ function CreateLinkForm() {
 
   const resetFormFields = () => {
     setName("");
+    setNameRejected(false);
     setSlug("");
     setCustomSlug("");
     setMessage("");
@@ -219,7 +226,13 @@ function CreateLinkForm() {
   };
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <Sheet
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        setNameRejected(false);
+      }}
+    >
       <SheetTrigger asChild>
         <Button>Create Link</Button>
       </SheetTrigger>
@@ -243,6 +256,11 @@ function CreateLinkForm() {
                 value={name}
                 onChange={(e) => {
                   const value = e.target.value;
+                  if (!canEditLinkName(name, value)) {
+                    setNameRejected(true);
+                    return;
+                  }
+                  setNameRejected(false);
                   setName(value);
                   if (value.length > 0) {
                     setSlug(
@@ -265,6 +283,14 @@ function CreateLinkForm() {
                   }
                 }}
               />
+              <p className="text-xs text-muted-foreground">
+                {name.trim().length}/{LINK_NAME_MAX_LENGTH}
+              </p>
+              {nameRejected && (
+                <p className="text-xs text-muted-foreground">
+                  Names can be up to {LINK_NAME_MAX_LENGTH} characters.
+                </p>
+              )}
             </div>
             <div className="flex flex-col gap-2">
               <div className="flex items-center space-x-2">
@@ -356,7 +382,9 @@ function CreateLinkForm() {
             </div>
           </div>
           <SheetFooter>
-            <Button type="submit">Create Link</Button>
+            <Button type="submit" disabled={!isLinkNameFilled(name)}>
+              Create Link
+            </Button>
           </SheetFooter>
         </form>
       </SheetContent>
