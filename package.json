@@ -7,13 +7,13 @@
     "db:push": "prisma db push",
     "dev": "next dev",
     "postinstall": "prisma generate",
-    "lint": "next lint",
+    "lint": "eslint src",
     "start": "next start",
     "studio": "prisma studio",
     "tunnel": "lt --port 3000 --subdomain wasepje"
   },
   "dependencies": {
-    "@clerk/nextjs": "^5.5.2",
+    "@clerk/nextjs": "^7.9.20",
     "@formkit/auto-animate": "^0.8.2",
     "@prisma/client": "^5.1.1",
     "@radix-ui/react-accordion": "^1.2.0",
@@ -39,7 +39,7 @@
     "lucide-react": "^0.441.0",
     "micro": "^10.0.1",
     "nanoid": "^5.0.7",
-    "next": "^13.5.11",
+    "next": "^16.4.3",
     "next-video": "^1.1.4",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -59,11 +59,9 @@
     "@types/react": "^18.2.20",
     "@types/react-dom": "^18.2.7",
     "@types/ua-parser-js": "^0.7.39",
-    "@typescript-eslint/eslint-plugin": "^6.3.0",
-    "@typescript-eslint/parser": "^6.3.0",
     "autoprefixer": "^10.4.14",
-    "eslint": "^8.47.0",
-    "eslint-config-next": "^13.4.19",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.4.3",
     "localtunnel": "^2.0.2",
     "postcss": "^8.5.31",
     "prettier": "^3.0.0",
@@ -71,7 +69,8 @@
     "prettier-plugin-tailwindcss": "^0.6.6",
     "prisma": "^5.1.1",
     "tailwindcss": "^3.4.19",
-    "typescript": "^5.1.6"
+    "typescript": "^5.1.6",
+    "typescript-eslint": "^8.72.0"
   },
   "ct3aMetadata": {
     "initVersion": "7.20.2"

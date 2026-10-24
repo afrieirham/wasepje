@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
-import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
+import { Show, SignInButton } from "@clerk/nextjs";
 import { ExternalLink, Github, MoveRight } from "lucide-react";
 import BackgroundPlayer from "next-video/background-player";
 
@@ -64,7 +64,7 @@ export default function Index() {
             alternative.
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-2 sm:flex-row">
-            <SignedOut>
+            <Show when="signed-out">
               <SignInButton forceRedirectUrl="/dashboard/links">
                 <Button asChild className="w-full space-x-1 sm:w-auto">
                   <Link href="/dashboard/links">
@@ -73,15 +73,15 @@ export default function Index() {
                   </Link>
                 </Button>
               </SignInButton>
-            </SignedOut>
-            <SignedIn>
+            </Show>
+            <Show when="signed-in">
               <Button asChild className="w-full space-x-1 sm:w-auto">
                 <Link href="/dashboard/links">
                   <span>Go to Dashboard</span>
                   <MoveRight className="h-4 w-4" />
                 </Link>
               </Button>
-            </SignedIn>
+            </Show>
             <Button
               asChild
               className="w-full space-x-1 sm:w-auto"

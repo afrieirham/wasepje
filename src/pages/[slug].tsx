@@ -130,15 +130,6 @@ function RedirectPage({
     };
   }, [countdown]);
 
-  // pro redirect
-  useEffect(() => {
-    if (link && plan === "pro") {
-      redirect({ link, plan: "pro" });
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [link, plan]);
-
   const redirect = ({
     plan,
     link,
@@ -170,6 +161,15 @@ function RedirectPage({
       if (popUnder) window.focus();
     }
   };
+
+  // pro redirect
+  useEffect(() => {
+    if (link && plan === "pro") {
+      redirect({ link, plan: "pro" });
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [link, plan]);
 
   if (!link && !nextPhone) {
     return (

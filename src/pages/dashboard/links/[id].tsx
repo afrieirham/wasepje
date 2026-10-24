@@ -63,6 +63,8 @@ function EditLink() {
 
   useEffect(() => {
     if (link) {
+      // Seeding the form from fetched data; the form is the local copy of it
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setName(link.name);
       setSlug(link.slug);
       setCustomSlug(link.customSlug ?? "");

@@ -22,6 +22,8 @@ function useUserCountry() {
         )
         .catch((error) => console.log(error));
     } else {
+      // Syncing React state from localStorage, which is an external store
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCountry(userCountry);
     }
   }, []);
