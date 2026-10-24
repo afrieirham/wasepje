@@ -43,8 +43,9 @@ export const userRouter = createTRPCRouter({
   getAuthorBySlug: publicProcedure
     .input(z.object({ slug: z.string() }))
     .query(async ({ ctx, input }) => {
+      // A deleted user's links behave like unknown slugs
       const link = await ctx.db.link.findFirst({
-        where: { slug: input.slug },
+        where: { slug: input.slug, user: { deletedAt: null } },
         select: { user: { select: { plan: true } } },
       });
 

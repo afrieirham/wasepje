@@ -111,3 +111,14 @@ bun install
 **4. Run `bun db:push` to setup the database.**
 
 **5. Run `bun dev` to start the app on `localhost:3000`**
+
+## Scheduled jobs
+
+**Purge deleted users** runs daily. It removes users whose Clerk account was deleted more than 14 days ago. Schedule it as a `POST` with the `CRON_SECRET` bearer token:
+
+```bash
+curl -X POST https://<APP_URL>/api/purge-deleted-users \
+  -H "Authorization: Bearer <CRON_SECRET>"
+```
+
+The response is `{"purged": <count>}`. A `401` means the secret does not match.
