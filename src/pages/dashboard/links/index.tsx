@@ -48,6 +48,7 @@ import {
 } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
+import { canEditLinkName } from "@/constants/link-name";
 import { useHostname } from "@/hooks/use-hostname";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { usePlan } from "@/hooks/use-plan";
@@ -243,6 +244,7 @@ function CreateLinkForm() {
                 value={name}
                 onChange={(e) => {
                   const value = e.target.value;
+                  if (!canEditLinkName(name, value)) return;
                   setName(value);
                   if (value.length > 0) {
                     setSlug(
