@@ -20,7 +20,9 @@ export const userRouter = createTRPCRouter({
       });
 
       // add internal userId to clerk user
-      await clerkClient().users.updateUserMetadata(ctx.clerkId, {
+      // clerkClient() is async in Clerk v7
+      const clerk = await clerkClient();
+      await clerk.users.updateUserMetadata(ctx.clerkId, {
         publicMetadata: { plan: user.plan },
       });
 

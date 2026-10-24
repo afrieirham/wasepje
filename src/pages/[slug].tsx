@@ -130,15 +130,6 @@ function RedirectPage({
     };
   }, [countdown]);
 
-  // pro redirect
-  useEffect(() => {
-    if (link && plan === "pro") {
-      redirect({ link, plan: "pro" });
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [link, plan]);
-
   const redirect = ({
     plan,
     link,
@@ -171,7 +162,16 @@ function RedirectPage({
     }
   };
 
-  if (!link && !nextPhone) {
+  // pro redirect
+  useEffect(() => {
+    if (link && plan === "pro") {
+      redirect({ link, plan: "pro" });
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [link, plan]);
+
+  if (!link) {
     return (
       <main className="flex h-screen w-full flex-col items-center justify-center space-y-2">
         <h1 className="text-2xl">404</h1>

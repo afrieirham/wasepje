@@ -1,5 +1,5 @@
 import Link from "next/link";
-import React, { type MutableRefObject, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 
 import { Check, Clipboard, Download, QrCode } from "lucide-react";
 import { QRCode } from "react-qrcode-logo";
@@ -116,7 +116,7 @@ function QRControl({ url }: { url: string }) {
       const item = new ClipboardItem({ "image/png": blob });
       await navigator.clipboard.write([item]);
       return;
-    } catch (error) {
+    } catch {
       toast({
         title: "Error copying image to clipboard: ",
         variant: "destructive",
@@ -129,7 +129,7 @@ function QRControl({ url }: { url: string }) {
       <div className="flex items-center justify-center p-4">
         <div className="overflow-hidden rounded-lg border" ref={qrCanvasRef}>
           <QRCode
-            ref={qrRef as MutableRefObject<QRCode>}
+            ref={qrRef}
             value={url}
             logoImage={(() => {
               const displayLogo = userLogo ? userLogo : "/qr-logo.png";

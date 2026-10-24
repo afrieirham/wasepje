@@ -3,7 +3,7 @@ import Link from "next/link";
 import React from "react";
 import { Button } from "../ui/button";
 import { Github, MoveRight } from "lucide-react";
-import { SignInButton, SignedIn, SignedOut } from "@clerk/nextjs";
+import { Show, SignInButton } from "@clerk/nextjs";
 
 function PublicHeader() {
   return (
@@ -32,21 +32,21 @@ function PublicHeader() {
               Star us on GitHub
             </Link>
           </Button>
-          <SignedOut>
+          <Show when="signed-out">
             <SignInButton forceRedirectUrl="/dashboard/links">
               <Button>
                 <Link href="/dashboard/links">Sign Up</Link>
               </Button>
             </SignInButton>
-          </SignedOut>
-          <SignedIn>
+          </Show>
+          <Show when="signed-in">
             <Button asChild>
               <Link href="/dashboard/links">
                 Go to Dashboard
                 <MoveRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
-          </SignedIn>
+          </Show>
         </div>
       </nav>
     </header>

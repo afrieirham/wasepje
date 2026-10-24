@@ -21,8 +21,8 @@ export const stripeRouter = createTRPCRouter({
         // The webhook matches the paying user on this, not the checkout email
         client_reference_id: user.id,
         customer_email: user?.email,
-        success_url: "https://wasepje.com/dashboard/links",
-        cancel_url: "https://wasepje.com/dashboard/links",
+        success_url: `${env.APP_URL}/dashboard/links`,
+        cancel_url: `${env.APP_URL}/dashboard/links`,
         line_items: [
           {
             price:
