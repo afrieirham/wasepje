@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
 import { buffer } from "micro";
+import Stripe from "stripe";
 import { Webhook } from "svix";
 import { z } from "zod";
 
@@ -25,6 +26,36 @@ const userSchema = z.object({
     z.object({ id: z.string(), email_address: z.string() }),
   ),
 });
+
+const deletedUserSchema = z.object({ id: z.string() });
+
+// Ends billing now. Subscriptions already cancelled are skipped, and a customer
+// Stripe no longer knows has nothing left to cancel.
+async function cancelSubscriptions(customerId: string) {
+  const stripe = new Stripe(env.STRIPE_SECRET_KEY);
+
+  try {
+    for await (const subscription of stripe.subscriptions.list({
+      customer: customerId,
+    })) {
+      if (
+        subscription.status === "canceled" ||
+        subscription.status === "incomplete_expired"
+      ) {
+        continue;
+      }
+      await stripe.subscriptions.cancel(subscription.id);
+    }
+  } catch (err) {
+    if (
+      err instanceof Stripe.errors.StripeInvalidRequestError &&
+      err.code === "resource_missing"
+    ) {
+      return;
+    }
+    throw err;
+  }
+}
 
 export default async function handler(
   req: NextApiRequest,
@@ -85,6 +116,24 @@ export default async function handler(
           create: { id: user.id, email: primaryEmail.email_address },
           update: { email: primaryEmail.email_address },
         });
+        break;
+      }
+
+      case "user.deleted": {
+        const { id } = deletedUserSchema.parse(event.data);
+
+        const user = await db.user.findUnique({
+          where: { id },
+          select: { stripeId: true },
+        });
+        // Cancel before the delete: the row holds the stripeId the cancel needs,
+        // so a failed cancel leaves the row in place for the retry
+        if (user?.stripeId) {
+          await cancelSubscriptions(user.stripeId);
+        }
+
+        // deleteMany so a replay or an unknown user is acknowledged instead of retried
+        await db.user.deleteMany({ where: { id } });
         break;
       }
 

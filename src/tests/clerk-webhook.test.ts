@@ -1,15 +1,19 @@
 import { Readable } from "node:stream";
 
 import type { NextApiRequest, NextApiResponse } from "next";
+import Stripe from "stripe";
 import { Webhook } from "svix";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import handler from "@/pages/api/clerk/webhook";
 
-const { SECRET, users, fakeDb } = vi.hoisted(() => {
+const { SECRET, users, fakeDb, stripeSubscriptions } = vi.hoisted(() => {
   const SECRET = `whsec_${Buffer.from("test-secret").toString("base64")}`;
 
-  const users = new Map<string, { id: string; email: string; plan: string }>();
+  const users = new Map<
+    string,
+    { id: string; email: string; plan: string; stripeId?: string | null }
+  >();
 
   // In-memory stand-in for Prisma's user.upsert, keyed by Clerk user id
   const fakeDb = {
@@ -34,14 +38,45 @@ const { SECRET, users, fakeDb } = vi.hoisted(() => {
           return Promise.resolve(user);
         },
       ),
+      findUnique: vi.fn(({ where }: { where: { id: string } }) =>
+        Promise.resolve(users.get(where.id) ?? null),
+      ),
+      deleteMany: vi.fn(({ where }: { where: { id: string } }) => {
+        const existed = users.delete(where.id);
+        return Promise.resolve({ count: existed ? 1 : 0 });
+      }),
     },
   };
 
-  return { SECRET, users, fakeDb };
+  // In-memory stand-in for the Stripe subscriptions API
+  const stripeSubscriptions = { list: vi.fn(), cancel: vi.fn() };
+
+  return { SECRET, users, fakeDb, stripeSubscriptions };
 });
 
-vi.mock("@/env.mjs", () => ({ env: { CLERK_WEBHOOK_SECRET: SECRET } }));
+vi.mock("@/env.mjs", () => ({
+  env: {
+    CLERK_WEBHOOK_SECRET: SECRET,
+    STRIPE_SECRET_KEY: "sk_test_placeholder",
+  },
+}));
 vi.mock("@/server/db", () => ({ db: fakeDb }));
+vi.mock("stripe", async (importOriginal) => {
+  const { default: Actual } = await importOriginal<{
+    default: { errors: unknown };
+  }>();
+
+  // Keeps the real error classes so instanceof checks in the handler still hold
+  class FakeStripe {
+    subscriptions = stripeSubscriptions;
+  }
+  return { default: Object.assign(FakeStripe, { errors: Actual.errors }) };
+});
+
+// Async iterable that yields the given subscriptions, like Stripe's list
+function* listed(items: unknown[]) {
+  yield* items;
+}
 
 type FakeResponse = {
   statusCode: number;
@@ -119,6 +154,11 @@ describe("Clerk user webhook", () => {
   beforeEach(() => {
     users.clear();
     fakeDb.user.upsert.mockClear();
+    fakeDb.user.deleteMany.mockClear();
+    stripeSubscriptions.list.mockReset();
+    stripeSubscriptions.list.mockImplementation(() => listed([]));
+    stripeSubscriptions.cancel.mockReset();
+    stripeSubscriptions.cancel.mockResolvedValue({});
   });
 
   it("creates a user for a signed user.created event", async () => {
@@ -250,5 +290,105 @@ describe("Clerk user webhook", () => {
 
     expect(res.statusCode).toBe(400);
     expect(users.size).toBe(0);
+  });
+
+  describe("user.deleted", () => {
+    const deletedEvent = {
+      object: "event",
+      type: "user.deleted",
+      data: { id: "user_123", deleted: true, object: "user" },
+    };
+
+    it("cancels the Pro subscription and deletes the user", async () => {
+      users.set("user_123", {
+        id: "user_123",
+        email: "ada@example.com",
+        plan: "pro",
+        stripeId: "cus_123",
+      });
+      stripeSubscriptions.list.mockImplementation(() =>
+        listed([
+          { id: "sub_active", status: "active" },
+          { id: "sub_done", status: "canceled" },
+        ]),
+      );
+
+      const res = await deliver(signedRequest(deletedEvent));
+
+      expect(res.statusCode).toBe(200);
+      expect(stripeSubscriptions.list).toHaveBeenCalledWith({
+        customer: "cus_123",
+      });
+      expect(stripeSubscriptions.cancel).toHaveBeenCalledTimes(1);
+      expect(stripeSubscriptions.cancel).toHaveBeenCalledWith("sub_active");
+      expect(users.has("user_123")).toBe(false);
+    });
+
+    it("keeps the user and returns 500 when the Stripe cancel fails, so Svix retries", async () => {
+      users.set("user_123", {
+        id: "user_123",
+        email: "ada@example.com",
+        plan: "pro",
+        stripeId: "cus_123",
+      });
+      stripeSubscriptions.list.mockImplementation(() =>
+        listed([{ id: "sub_active", status: "active" }]),
+      );
+      stripeSubscriptions.cancel.mockRejectedValueOnce(
+        new Error("Stripe unavailable"),
+      );
+
+      const res = await deliver(signedRequest(deletedEvent));
+
+      expect(res.statusCode).toBe(500);
+      expect(users.has("user_123")).toBe(true);
+      expect(fakeDb.user.deleteMany).not.toHaveBeenCalled();
+    });
+
+    it("deletes the user when Stripe no longer knows the customer", async () => {
+      users.set("user_123", {
+        id: "user_123",
+        email: "ada@example.com",
+        plan: "pro",
+        stripeId: "cus_gone",
+      });
+      stripeSubscriptions.list.mockImplementation(() => {
+        throw new Stripe.errors.StripeInvalidRequestError({
+          type: "invalid_request_error",
+          code: "resource_missing",
+          message: "No such customer: 'cus_gone'",
+        });
+      });
+
+      const res = await deliver(signedRequest(deletedEvent));
+
+      expect(res.statusCode).toBe(200);
+      expect(users.has("user_123")).toBe(false);
+    });
+
+    it("deletes a free user without calling Stripe", async () => {
+      users.set("user_123", {
+        id: "user_123",
+        email: "ada@example.com",
+        plan: "free",
+        stripeId: null,
+      });
+
+      const res = await deliver(signedRequest(deletedEvent));
+
+      expect(res.statusCode).toBe(200);
+      expect(stripeSubscriptions.list).not.toHaveBeenCalled();
+      expect(users.has("user_123")).toBe(false);
+    });
+
+    it("acknowledges a user that does not exist, including on replay", async () => {
+      const first = await deliver(signedRequest(deletedEvent));
+      const replay = await deliver(signedRequest(deletedEvent));
+
+      expect(first.statusCode).toBe(200);
+      expect(replay.statusCode).toBe(200);
+      expect(stripeSubscriptions.list).not.toHaveBeenCalled();
+      expect(users.size).toBe(0);
+    });
   });
 });
