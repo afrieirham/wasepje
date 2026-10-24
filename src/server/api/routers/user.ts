@@ -10,7 +10,7 @@ import {
 
 export const userRouter = createTRPCRouter({
   sync: privateProcedure
-    .input(z.object({ email: z.string().email() }))
+    .input(z.object({ email: z.email() }))
     .mutation(async ({ ctx, input }) => {
       // find or create user
       const user = await ctx.db.user.upsert({
