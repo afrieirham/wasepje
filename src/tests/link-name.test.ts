@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   canEditLinkName,
+  isLinkNameFilled,
   isLinkNameWithinLimit,
   LINK_NAME_MAX_LENGTH,
 } from "@/constants/link-name";
@@ -38,5 +39,19 @@ describe("canEditLinkName", () => {
 
   it("rejects growing a stored name that is already over the limit", () => {
     expect(canEditLinkName(name(150), name(151))).toBe(false);
+  });
+});
+
+describe("isLinkNameFilled", () => {
+  it("rejects an empty name", () => {
+    expect(isLinkNameFilled("")).toBe(false);
+  });
+
+  it("rejects a whitespace-only name", () => {
+    expect(isLinkNameFilled("   ")).toBe(false);
+  });
+
+  it("accepts a name with visible characters", () => {
+    expect(isLinkNameFilled("  Syarikat Saya  ")).toBe(true);
   });
 });

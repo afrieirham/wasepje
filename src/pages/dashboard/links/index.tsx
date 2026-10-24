@@ -48,7 +48,11 @@ import {
 } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
-import { canEditLinkName } from "@/constants/link-name";
+import {
+  canEditLinkName,
+  isLinkNameFilled,
+  LINK_NAME_MAX_LENGTH,
+} from "@/constants/link-name";
 import { useHostname } from "@/hooks/use-hostname";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { usePlan } from "@/hooks/use-plan";
@@ -267,6 +271,9 @@ function CreateLinkForm() {
                   }
                 }}
               />
+              <p className="text-xs text-muted-foreground">
+                {name.trim().length}/{LINK_NAME_MAX_LENGTH}
+              </p>
             </div>
             <div className="flex flex-col gap-2">
               <div className="flex items-center space-x-2">
@@ -358,7 +365,9 @@ function CreateLinkForm() {
             </div>
           </div>
           <SheetFooter>
-            <Button type="submit">Create Link</Button>
+            <Button type="submit" disabled={!isLinkNameFilled(name)}>
+              Create Link
+            </Button>
           </SheetFooter>
         </form>
       </SheetContent>

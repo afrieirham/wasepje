@@ -17,7 +17,7 @@ import { type db } from "@/server/db";
 export const checkReserved = (path: string) =>
   reservedSlug.some((p) => p === path);
 
-const linkName = z.string().trim().max(LINK_NAME_MAX_LENGTH);
+const linkName = z.string().trim().min(1).max(LINK_NAME_MAX_LENGTH);
 
 // Plan comes from the DB, never from the client
 const isProUser = async (database: typeof db, clerkId: string) => {
@@ -71,7 +71,7 @@ export const linkRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.string(),
-        name: z.string().trim(),
+        name: z.string().trim().min(1),
         customSlug: z.string().trim().toLowerCase(),
         message: z.string().optional(),
       }),

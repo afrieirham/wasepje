@@ -21,7 +21,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
-import { canEditLinkName, isLinkNameWithinLimit } from "@/constants/link-name";
+import {
+  canEditLinkName,
+  isLinkNameFilled,
+  isLinkNameWithinLimit,
+  LINK_NAME_MAX_LENGTH,
+} from "@/constants/link-name";
 import { useHostname } from "@/hooks/use-hostname";
 import { usePlan } from "@/hooks/use-plan";
 import { api } from "@/utils/api";
@@ -74,6 +79,11 @@ function EditLink() {
   }, [link]);
 
   if (!link) return null;
+
+  // An unchanged over-limit name is allowed: the server only caps names being changed
+  const canSaveName =
+    isLinkNameFilled(name) &&
+    (name === link.name || isLinkNameWithinLimit(name));
 
   const onSubmitGeneral = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -140,6 +150,9 @@ function EditLink() {
                   setName(value);
                 }}
               />
+              <p className="mt-2 text-xs text-muted-foreground">
+                {name.trim().length}/{LINK_NAME_MAX_LENGTH}
+              </p>
             </div>
             <div className="mt-4 flex flex-col">
               <div className="flex items-center space-x-2">
@@ -199,15 +212,19 @@ function EditLink() {
             </div>
           </div>
           <div className="border-t bg-zinc-100 p-4 sm:p-6">
-            <Button
-              type="submit"
-              disabled={name !== link.name && !isLinkNameWithinLimit(name)}
-            >
+            <Button type="submit" disabled={!canSaveName}>
               {update.isLoading && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
               Save Changes
             </Button>
+            {!canSaveName && (
+              <p className="mt-2 text-xs text-muted-foreground">
+                {isLinkNameFilled(name)
+                  ? `Shorten the name to ${LINK_NAME_MAX_LENGTH} characters or fewer to save.`
+                  : "Enter a name to save."}
+              </p>
+            )}
           </div>
         </form>
         <p className="mt-8 text-lg font-bold">Manage Phone Numbers</p>
