@@ -112,6 +112,14 @@ pnpm install
 
 **5. Run `pnpm dev` to start the app on `localhost:3000`**
 
+**6. (Optional) Forward Stripe webhooks to the local app.**
+
+Install the [Stripe CLI](https://docs.stripe.com/stripe-cli) globally, since `pnpm stripe:webhook` calls the `stripe` binary and it is not a project dependency. Then run the following in a second terminal while `pnpm dev` is running:
+
+```bash
+pnpm stripe:webhook
+```
+
 ## Scheduled jobs
 
 **Purge deleted users** runs daily. It removes users whose Clerk account was deleted more than 14 days ago. Schedule it as a `POST` with the `CRON_SECRET` bearer token:
