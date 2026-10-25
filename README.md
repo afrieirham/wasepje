@@ -99,7 +99,7 @@ cd wasepje
 If you haven't installed pnpm yet, run the following command:
 
 ```bash
-npm install -g pnpm
+npm install -g pnpm@12.15.0
 ```
 
 Next, install the required dependencies:
