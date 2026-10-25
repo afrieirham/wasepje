@@ -10,39 +10,9 @@ import { Button } from "@/components/ui/button";
 import { db } from "@/server/db";
 import { api } from "@/utils/api";
 
-const GATEKEEPER_ACTIVATION_DATE = new Date("2026-03-26T00:00:00.000Z");
-
 export const getServerSideProps = (async (ctx) => {
   const slug = String(ctx.params?.slug);
-  const now = new Date();
 
-  // Before activation date: preserve existing behavior
-  if (now < GATEKEEPER_ACTIVATION_DATE) {
-    const link = await db.link.findFirst({
-      where: {
-        user: { deletedAt: null },
-        OR: [
-          { slug: slug }, // Checks the system slug (shoes-abc12)
-          { customSlug: slug }, // Checks the premium slug (shoes)
-        ],
-      },
-      include: { user: true, phones: true },
-    });
-
-    if (!link) {
-      return { props: { plan: "free" } };
-    }
-
-    return {
-      props: {
-        plan: link.user.plan,
-        link: { id: link.id, message: link.message },
-        nextPhone: link.phones.at(link.nextPhone)?.number,
-      },
-    };
-  }
-
-  // On/after activation date: apply gatekeeper logic
   const link = await db.link.findFirst({
     where: {
       // A deleted user's links behave like unknown slugs
