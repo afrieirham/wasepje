@@ -37,7 +37,7 @@ function QRCodeGenerator({ url }: { url: string }) {
       <Dialog open={open} onOpenChange={(open) => setOpen(open)}>
         <DialogTrigger asChild>
           <button
-            className="flex h-9 items-center justify-center whitespace-nowrap rounded-s border border-e-0 p-2 text-sm font-medium ring-offset-background transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-opacity-30 disabled:text-muted disabled:hover:bg-opacity-30 disabled:hover:text-muted"
+            className="flex h-9 items-center justify-center whitespace-nowrap rounded-s border border-e-0 p-2 text-sm font-medium ring-offset-background transition-colors hover:bg-muted focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:text-muted disabled:hover:text-muted"
             type="button"
           >
             <QrCode className="h-4 w-4" />
@@ -57,7 +57,7 @@ function QRCodeGenerator({ url }: { url: string }) {
     <Sheet open={open} onOpenChange={(open) => setOpen(open)}>
       <SheetTrigger asChild>
         <button
-          className="flex h-9 items-center justify-center whitespace-nowrap rounded-s border border-e-0 p-2 text-sm font-medium ring-offset-background transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-opacity-30 disabled:text-muted disabled:hover:bg-opacity-30 disabled:hover:text-muted"
+          className="flex h-9 items-center justify-center whitespace-nowrap rounded-s border border-e-0 p-2 text-sm font-medium ring-offset-background transition-colors hover:bg-muted focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:text-muted disabled:hover:text-muted"
           type="button"
         >
           <QrCode className="h-4 w-4" />
