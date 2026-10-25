@@ -94,23 +94,23 @@ cd wasepje
 
 **2. Make sure all the required environment variables are added in `.env` file.**
 
-**3. Install dependencies with [bun](https://bun.sh).**
+**3. Install dependencies with [pnpm](https://pnpm.io).**
 
-If you haven't installed Bun yet, run the following command:
+If you haven't installed pnpm yet, run the following command:
 
 ```bash
-curl -fsSL https://bun.sh/install | bash
+npm install -g pnpm
 ```
 
 Next, install the required dependencies:
 
 ```bash
-bun install
+pnpm install
 ```
 
-**4. Run `bun db:push` to setup the database.**
+**4. Run `pnpm db:push` to setup the database.**
 
-**5. Run `bun dev` to start the app on `localhost:3000`**
+**5. Run `pnpm dev` to start the app on `localhost:3000`**
 
 ## Scheduled jobs
 
