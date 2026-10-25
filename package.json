@@ -15,7 +15,6 @@
     "start": "next start",
     "studio": "prisma studio",
     "tunnel": "lt --port 3000 --subdomain wasepje",
-    "stripe:webhook": "stripe listen --all-snapshot --forward-to localhost:3000/api/stripe/webhook",
     "test": "vitest run"
   },
   "dependencies": {
@@ -61,8 +60,8 @@
   },
   "devDependencies": {
     "@types/node": "^20.19.0",
-    "@types/react": "^19.3.0",
-    "@types/react-dom": "^19.3.0",
+    "@types/react": "~19.2.18",
+    "@types/react-dom": "~19.2.7",
     "@types/ua-parser-js": "^0.7.39",
     "autoprefixer": "^10.4.14",
     "eslint": "^9.39.5",
