@@ -46,7 +46,7 @@ function PricingTable({ showFree }: { showFree?: boolean }) {
                 For individuals and small business.
               </CardDescription>
             </CardHeader>
-            <CardContent className="flex-grow">
+            <CardContent className="grow">
               <div className="mb-4">
                 <p className="text-4xl font-bold">
                   {country === "MY" ? "RM0" : "$0"}
@@ -98,7 +98,7 @@ function PricingTable({ showFree }: { showFree?: boolean }) {
               For business with more advance requirement.
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex-grow">
+          <CardContent className="grow">
             <div className="mb-4">
               <p className="text-4xl font-bold">
                 {billing === "monthly"
