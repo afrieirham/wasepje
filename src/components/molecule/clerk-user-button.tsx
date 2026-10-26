@@ -1,14 +1,14 @@
 import React from "react";
 
-import { UserButton, useUser } from "@clerk/nextjs";
+import { UserButton } from "@clerk/nextjs";
 import { CreditCard } from "lucide-react";
 
-import { env } from "@/env.mjs";
 import { usePlan } from "@/hooks/use-plan";
+import { useManageBilling } from "@/hooks/use-manage-billing";
 
 function ClerkUserButton() {
   const plan = usePlan();
-  const { user } = useUser();
+  const manageBilling = useManageBilling();
 
   if (plan === "free") {
     return (
@@ -33,10 +33,10 @@ function ClerkUserButton() {
       }}
     >
       <UserButton.MenuItems>
-        <UserButton.Link
+        <UserButton.Action
           label="Manage Billing"
           labelIcon={<CreditCard className="h-4 w-4" />}
-          href={`${env.NEXT_PUBLIC_BILLING_PORTAL_URL}?prefilled_email=${user?.primaryEmailAddress?.emailAddress}`}
+          onClick={manageBilling}
         />
       </UserButton.MenuItems>
     </UserButton>

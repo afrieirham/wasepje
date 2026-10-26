@@ -35,7 +35,6 @@ export const env = createEnv({
     // NEXT_PUBLIC_CLIENTVAR: z.string().min(1),
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string(),
     NEXT_PUBLIC_UMAMI_WEBSITE_ID: z.string(),
-    NEXT_PUBLIC_BILLING_PORTAL_URL: z.url(),
   },
 
   /**
@@ -46,7 +45,6 @@ export const env = createEnv({
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
       process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
     NEXT_PUBLIC_UMAMI_WEBSITE_ID: process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID,
-    NEXT_PUBLIC_BILLING_PORTAL_URL: process.env.NEXT_PUBLIC_BILLING_PORTAL_URL,
 
     DATABASE_URL: process.env.DATABASE_URL,
     APP_URL: process.env.APP_URL,

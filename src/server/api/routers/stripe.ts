@@ -43,4 +43,28 @@ export const stripeRouter = createTRPCRouter({
 
       return { redirectUrl: session.url };
     }),
+  createBillingPortalSession: privateProcedure.mutation(async ({ ctx }) => {
+    const user = await ctx.db.user.findFirst({ where: { id: ctx.clerkId } });
+
+    if (!user) {
+      throw new TRPCError({ code: "FORBIDDEN", message: "user not found" });
+    }
+
+    // Only a user with a Stripe customer has anything to manage
+    if (!user.stripeId) {
+      throw new TRPCError({
+        code: "PRECONDITION_FAILED",
+        message: "no billing account",
+      });
+    }
+
+    const stripe = new Stripe(env.STRIPE_SECRET_KEY);
+    // The session is created for the signed-in user's customer, so Stripe does not ask to log in again
+    const session = await stripe.billingPortal.sessions.create({
+      customer: user.stripeId,
+      return_url: `${env.APP_URL}/dashboard/links`,
+    });
+
+    return { redirectUrl: session.url };
+  }),
 });
