@@ -33,7 +33,6 @@ For more information on the frameworks used for this project, checkout the follo
 - `APP_URL`
 - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
 - `NEXT_PUBLIC_UMAMI_WEBSITE_ID`
-- `NEXT_PUBLIC_BILLING_PORTAL_URL`
 - `CLERK_SECRET_KEY`
 - `CLERK_WEBHOOK_SECRET`
 - `CRON_SECRET`
@@ -73,7 +72,6 @@ This URL should be used for the `DATABASE_URL` environment variable.
 
 **4. Create a Stripe account to get these value.**
 
-- `NEXT_PUBLIC_BILLING_PORTAL_URL`
 - `STRIPE_SECRET_KEY`
 - `STRIPE_WEBHOOK_SECRET`
 - `STRIPE_PRO_MONTHLY_PRICE_ID`
